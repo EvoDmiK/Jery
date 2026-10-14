@@ -1,0 +1,7 @@
+# Local generated knowledge graph; rebuild separately in each worktree.
+graphify-out/
+
+# Python runtime artifacts.
+__pycache__/
+*.py[cod]
+.venv/

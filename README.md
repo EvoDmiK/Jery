@@ -105,6 +105,32 @@ Jery/
     └── validate_dataset.py
 ```
 
+## 에이전트 개발 도구
+
+Codex, Claude Code, Antigravity에서 사용할 프로젝트별 Graphify 스킬과 설정을 포함한다. 역할과 수정 범위는 [AGENTS.md](AGENTS.md)를 따른다.
+
+- **Graphify**: 코드 구조와 관계를 `graphify-out/`에 저장하고 `query`, `path`, `explain`으로 탐색한다. 현재 그래프는 로컬 구조 추출로 생성했으며, 문서 의미 추출은 수행하지 않았다.
+- **Ponytail**: 기존 코드·표준 라이브러리·플랫폼 기능을 먼저 활용하고 필요한 부분만 구현하는 개발 규칙이다. 공통 규칙은 `AGENTS.md`, 상세 규칙은 `.agents/rules/ponytail.md`와 `.claude/rules/ponytail.md`에 있다.
+
+Graphify CLI가 설치된 환경에서는 다음 명령으로 프로젝트 설정을 적용할 수 있다.
+
+```sh
+graphify install --project --platform codex
+graphify install --project --platform claude
+graphify install --project --platform antigravity
+```
+
+로컬 구조 그래프 생성과 조회:
+
+```sh
+graphify update . --no-cluster
+graphify cluster-only . --no-label --no-viz
+graphify export wiki
+graphify query "build_seed_dataset validate_dataset"
+```
+
+생성물은 `.gitignore`에서 제외한다. 각 워크트리에서 다시 생성하고, `graphify-out/wiki/index.md`로 탐색할 수 있다.
+
 ## 실제 사용 로그로 확장하기
 
 실제 로그를 이용한 수집기는 아직 구현되지 않았다. 후속 데이터셋은 다음 기준으로 구성할 예정이다.

@@ -1,0 +1,7 @@
+# Agent instructions and vendored skills are tooling, not Jery product source.
+.agents/
+.claude/
+.codex/
+graphify-out/
+.venv/
+__pycache__/

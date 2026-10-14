@@ -1,0 +1,237 @@
+{
+  "name": "Jery - Hermes Logs to Review Queue (Draft)",
+  "nodes": [
+    {
+      "id": "manual-trigger",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "schedule-trigger",
+      "name": "Every 5 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        180
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "configuration",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        240,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json: {collector_url: 'http://jery-collector:8080', consumer: 'jery-dataset-v1', limit: 100}}];"
+      }
+    },
+    {
+      "id": "fetch",
+      "name": "Fetch Sanitized Log Batch",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "url": "={{ $('Configuration').first().json.collector_url + '/v1/routing-candidates' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "consumer",
+              "value": "={{ $('Configuration').first().json.consumer }}"
+            },
+            {
+              "name": "limit",
+              "value": "={{ $('Configuration').first().json.limit }}"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "validate",
+      "name": "Validate Review Candidates",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const batch = $input.first().json;\nconst config = $('Configuration').first().json;\nconst fail = (message) => { throw new Error(message); };\nconst isString = (v) => typeof v === 'string' && v.trim().length > 0;\nif (batch.schema_version !== 'jery-log-candidates-v1') fail('Unsupported batch schema');\nif (batch.consumer !== config.consumer) fail('Consumer mismatch');\nif (!isString(batch.batch_id) || !isString(batch.next_cursor)) fail('Missing batch identity/cursor');\nif (batch.sanitized !== true) fail('Collector must sanitize data before returning it');\nif (!Array.isArray(batch.examples) || batch.examples.length > config.limit) fail('Invalid batch size');\nconst ids = new Set();\nconst examples = batch.examples.map((r) => {\n  if (!isString(r.id) || ids.has(r.id)) fail('Missing or duplicate example ID');\n  ids.add(r.id);\n  if (!isString(r.session_group) || !isString(r.request) || !isString(r.tool_catalog_version)) fail('Missing example metadata');\n  if (r.source !== 'hermes_log') fail('Expected real log source');\n  if (!Array.isArray(r.context) || r.context.some(m => !['user', 'assistant', 'tool'].includes(m.role) || typeof m.content !== 'string')) fail('Invalid prior context');\n  if (!Array.isArray(r.candidate_tools) || r.candidate_tools.some(t => !isString(t)) || new Set(r.candidate_tools).size !== r.candidate_tools.length) fail('Invalid candidates');\n  if (typeof r.candidate_tools_reconstructed !== 'boolean') fail('Missing candidate provenance');\n  if (!Array.isArray(r.observed_choices)) fail('Missing observed choices');\n  const observed = r.observed_choices.map(c => {\n    if (!isString(c.tool) || !r.candidate_tools.includes(c.tool)) fail('Observed tool missing from candidate catalog');\n    if (c.action !== undefined && !isString(c.action)) fail('Invalid observed action');\n    return {tool: c.tool, ...(c.action !== undefined ? {action: c.action} : {})};\n  });\n  if (!['unknown', 'ok', 'error', 'mixed'].includes(r.outcome)) fail('Invalid execution outcome');\n  return {\n    id: r.id, session_group: r.session_group, request: r.request,\n    context: r.context.map(m => ({role: m.role, content: m.content})),\n    candidate_tools: r.candidate_tools, tool_catalog_version: r.tool_catalog_version,\n    candidate_tools_reconstructed: r.candidate_tools_reconstructed,\n    observed_choices: observed, outcome: r.outcome, source: 'hermes_log',\n    decision: null, acceptable_choices: [], review_status: 'needs_human_review'\n  };\n});\n// Empty batches are also acknowledged, allowing filtered records to advance the cursor.\nreturn [{json: {\n  schema_version: batch.schema_version, consumer: batch.consumer,\n  batch_id: batch.batch_id, next_cursor: batch.next_cursor, examples\n}}];"
+      }
+    },
+    {
+      "id": "persist",
+      "name": "Persist Review Batch and Checkpoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $('Configuration').first().json.collector_url + '/v1/review-batches' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "receipt",
+      "name": "Check Commit Receipt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const receipt = $input.first().json;\nconst submitted = $('Validate Review Candidates').first().json;\nif (receipt.batch_id !== submitted.batch_id || receipt.next_cursor !== submitted.next_cursor || receipt.committed !== true) {\n  throw new Error('Review batch persistence/checkpoint was not confirmed');\n}\nreturn [{json: {batch_id: receipt.batch_id, committed: true, candidate_count: submitted.examples.length}}];"
+      }
+    },
+    {
+      "id": "notes",
+      "name": "Setup Required",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        200,
+        -310
+      ],
+      "parameters": {
+        "height": 260,
+        "width": 1000,
+        "content": "## Jery: real log candidates → review queue (draft)\nCollector API is NOT implemented yet. Set collector_url and select the same Header Auth credential in both HTTP nodes.\nThe collector must read Hermes in read-only mode, sanitize data, persist pending batches, and atomically upsert review candidates + advance the cursor. Repeated/concurrent requests must be idempotent.\nCalls are observations, never verified labels. Human review and final JSONL export are separate steps.\nImport inactive; test with Manual Trigger before enabling the schedule."
+      }
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Fetch Sanitized Log Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Sanitized Log Batch": {
+      "main": [
+        [
+          {
+            "node": "Validate Review Candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Review Candidates": {
+      "main": [
+        [
+          {
+            "node": "Persist Review Batch and Checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist Review Batch and Checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Check Commit Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Seoul"
+  },
+  "pinData": {},
+  "tags": []
+}
