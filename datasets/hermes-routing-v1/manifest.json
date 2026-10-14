@@ -1,0 +1,27 @@
+{
+  "dataset_version": "hermes-routing-v1",
+  "catalog_version": "hermes-subset-10c30cef05cc",
+  "task": "next_step_tool_routing",
+  "language": "ko",
+  "synthetic": true,
+  "human_reviewed": false,
+  "tools": 10,
+  "examples": 130,
+  "split_counts": {
+    "train": 78,
+    "validation": 26,
+    "test": 26
+  },
+  "decision_counts": {
+    "select_tools": 100,
+    "no_tool": 10,
+    "clarify": 10,
+    "unsupported": 10
+  },
+  "sha256": {
+    "tools.json": "9ce2a1178774d9e989cd45c42c9e65cca4afc207947b7195c79d1d2524c500b2",
+    "train.jsonl": "99b93c5c223a69f2ee0ab32e2ab35db99721a36d41b4800cc21921ab1df36019",
+    "validation.jsonl": "fb0e25670450c28e7ac177b64bac8be038d8b00135d1caeadab03d927c6b7f38",
+    "test.jsonl": "a8ac5f27cbd29a676e8d576d285da9d5cdd4ac1d180ab38a922a70df2328781a"
+  }
+}
