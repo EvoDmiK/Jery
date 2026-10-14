@@ -1,7 +1,86 @@
+# Secrets and local machine configuration. Keep shareable examples.
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.template
+!.env.*.template
+.claude/settings.local.json
+.codex/auth.json
+/workflows/n8n/credentials*.json
+
 # Local generated knowledge graph; rebuild separately in each worktree.
 graphify-out/
 
-# Python runtime artifacts.
+# Python environments, caches, tests and package builds.
 __pycache__/
 *.py[cod]
 .venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+/build/
+/dist/
+
+# Review UI dependencies and generated output.
+node_modules/
+.next/
+.vite/
+coverage/
+
+# Raw/private logs and local dataset exports. Versioned seed JSONL stays tracked.
+/data/raw/
+/data/local/
+/data/private/
+/datasets/raw/
+/datasets/local/
+/datasets/private/
+/datasets/review-exports/
+/logs/
+*.log
+*.log.*
+*.db
+*.db-*
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+
+# Local model weights, checkpoints and experiment artifacts.
+/models/
+/checkpoints/
+/outputs/
+/artifacts/
+/mlruns/
+/mlartifacts/
+/wandb/
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.joblib
+*.pkl
+
+# Local scratch, editor and operating-system files.
+/tmp/
+/temp/
+.cache/
+.ipynb_checkpoints/
+.idea/
+.DS_Store
+._*
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
