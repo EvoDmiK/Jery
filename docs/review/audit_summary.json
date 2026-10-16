@@ -1,0 +1,575 @@
+{
+  "status": "AUDIT_COMPLETE",
+  "dataset_version": "mcp-routing-v2",
+  "catalog_version": "hermes-mcp-57e701d87790",
+  "verification_flags": {
+    "manifest_synthetic": true,
+    "manifest_human_reviewed": false,
+    "all_synthetic": true,
+    "all_needs_human_review": true,
+    "all_execution_unverified": true,
+    "source_distribution": {
+      "synthetic": 1162
+    },
+    "review_status_distribution": {
+      "needs_human_review": 1162
+    },
+    "execution_verified_distribution": {
+      "false": 1162
+    }
+  },
+  "decisions_and_imbalance": {
+    "by_split": {
+      "train": {
+        "total": 668,
+        "counts": {
+          "select_tools": 600,
+          "clarify": 12,
+          "unsupported": 44,
+          "no_tool": 12
+        },
+        "percentages": {
+          "select_tools": 89.82,
+          "clarify": 1.8,
+          "unsupported": 6.59,
+          "no_tool": 1.8
+        },
+        "majority_class": "select_tools",
+        "majority_baseline_accuracy": 89.82
+      },
+      "validation": {
+        "total": 248,
+        "counts": {
+          "select_tools": 232,
+          "unsupported": 8,
+          "clarify": 4,
+          "no_tool": 4
+        },
+        "percentages": {
+          "select_tools": 93.55,
+          "unsupported": 3.23,
+          "clarify": 1.61,
+          "no_tool": 1.61
+        },
+        "majority_class": "select_tools",
+        "majority_baseline_accuracy": 93.55
+      },
+      "test": {
+        "total": 246,
+        "counts": {
+          "select_tools": 230,
+          "clarify": 4,
+          "unsupported": 8,
+          "no_tool": 4
+        },
+        "percentages": {
+          "select_tools": 93.5,
+          "clarify": 1.63,
+          "unsupported": 3.25,
+          "no_tool": 1.63
+        },
+        "majority_class": "select_tools",
+        "majority_baseline_accuracy": 93.5
+      }
+    },
+    "overall": {
+      "total": 1162,
+      "counts": {
+        "select_tools": 1062,
+        "clarify": 20,
+        "unsupported": 60,
+        "no_tool": 20
+      },
+      "percentages": {
+        "select_tools": 91.39,
+        "clarify": 1.72,
+        "unsupported": 5.16,
+        "no_tool": 1.72
+      },
+      "majority_class": "select_tools",
+      "majority_baseline_accuracy": 91.39
+    }
+  },
+  "server_distribution": {
+    "counts": {
+      "train": {
+        "obsidian_vault": 140,
+        "swallow_trader": 186,
+        "korean_law": 120,
+        "grafana": 154,
+        "kestrel": 12
+      },
+      "validation": {
+        "swallow_trader": 48,
+        "obsidian_vault": 34,
+        "grafana": 110,
+        "korean_law": 40,
+        "kestrel": 4
+      },
+      "test": {
+        "korean_law": 40,
+        "kestrel": 4,
+        "grafana": 108,
+        "obsidian_vault": 32,
+        "swallow_trader": 50
+      }
+    },
+    "percentages": {
+      "train": {
+        "obsidian_vault": 22.88,
+        "swallow_trader": 30.39,
+        "korean_law": 19.61,
+        "grafana": 25.16,
+        "kestrel": 1.96
+      },
+      "validation": {
+        "swallow_trader": 20.34,
+        "obsidian_vault": 14.41,
+        "grafana": 46.61,
+        "korean_law": 16.95,
+        "kestrel": 1.69
+      },
+      "test": {
+        "korean_law": 17.09,
+        "kestrel": 1.71,
+        "grafana": 46.15,
+        "obsidian_vault": 13.68,
+        "swallow_trader": 21.37
+      }
+    },
+    "grafana_shift": {
+      "train_pct": 25.16,
+      "validation_pct": 46.61,
+      "test_pct": 46.15,
+      "val_train_ratio": 1.85
+    }
+  },
+  "tool_coverage": {
+    "total_registered_tools": 96,
+    "train_covered": 96,
+    "validation_covered": 85,
+    "test_covered": 84,
+    "missing_in_validation": [
+      "mcp__grafana__get_alert_group",
+      "mcp__grafana__get_current_oncall_users",
+      "mcp__grafana__get_dashboard_summary",
+      "mcp__grafana__get_oncall_shift",
+      "mcp__grafana__get_snapshot",
+      "mcp__grafana__list_incident_custom_fields",
+      "mcp__grafana__list_provisioning_repositories",
+      "mcp__obsidian_vault__list_resources",
+      "mcp__obsidian_vault__workflow",
+      "mcp__swallow_trader__swallow_reset_portfolio",
+      "mcp__swallow_trader__swallow_trigger_pipeline"
+    ],
+    "missing_in_validation_count": 11,
+    "missing_in_test": [
+      "mcp__grafana__get_alert_group",
+      "mcp__grafana__get_current_oncall_users",
+      "mcp__grafana__get_dashboard_by_uid",
+      "mcp__grafana__get_dashboard_summary",
+      "mcp__grafana__get_oncall_shift",
+      "mcp__grafana__get_snapshot",
+      "mcp__grafana__list_oncall_teams",
+      "mcp__grafana__list_provisioning_repositories",
+      "mcp__obsidian_vault__list_resources",
+      "mcp__obsidian_vault__workflow",
+      "mcp__swallow_trader__swallow_reset_portfolio",
+      "mcp__swallow_trader__swallow_trigger_pipeline"
+    ],
+    "missing_in_test_count": 12,
+    "missing_in_both_eval_splits": [
+      "mcp__grafana__get_alert_group",
+      "mcp__grafana__get_current_oncall_users",
+      "mcp__grafana__get_dashboard_summary",
+      "mcp__grafana__get_oncall_shift",
+      "mcp__grafana__get_snapshot",
+      "mcp__grafana__list_provisioning_repositories",
+      "mcp__obsidian_vault__list_resources",
+      "mcp__obsidian_vault__workflow",
+      "mcp__swallow_trader__swallow_reset_portfolio",
+      "mcp__swallow_trader__swallow_trigger_pipeline"
+    ],
+    "missing_in_both_eval_splits_count": 10,
+    "train_frequency_histogram": {
+      "12": 27,
+      "20": 4,
+      "2": 53,
+      "14": 2,
+      "4": 3,
+      "26": 1,
+      "6": 6
+    },
+    "train_low_frequency_count": 53
+  },
+  "action_coverage": {
+    "tools_with_action_enum_count": 9,
+    "total_defined_actions": 51,
+    "total_used_actions": 33,
+    "total_unused_actions": 18,
+    "unused_actions_by_tool": {
+      "mcp__obsidian_vault__bases": [
+        "create"
+      ],
+      "mcp__obsidian_vault__edit": [
+        "from_buffer"
+      ],
+      "mcp__obsidian_vault__graph": [
+        "advanced-traverse",
+        "neighbors",
+        "search-traverse",
+        "shared-tags",
+        "tag-analysis",
+        "tag-traverse"
+      ],
+      "mcp__obsidian_vault__vault": [
+        "combine",
+        "concatenate",
+        "copy",
+        "delete",
+        "fragments",
+        "move",
+        "read",
+        "split",
+        "update"
+      ],
+      "mcp__obsidian_vault__view": [
+        "file"
+      ]
+    },
+    "validation_unseen_actions": {
+      "mcp__obsidian_vault__graph": [
+        "traverse"
+      ],
+      "mcp__obsidian_vault__dataview": [
+        "status"
+      ],
+      "mcp__obsidian_vault__edit": [
+        "patch"
+      ],
+      "mcp__obsidian_vault__bases": [
+        "view"
+      ]
+    },
+    "test_unseen_actions": {
+      "mcp__obsidian_vault__dataview": [
+        "list"
+      ],
+      "mcp__obsidian_vault__bases": [
+        "export"
+      ],
+      "mcp__obsidian_vault__graph": [
+        "statistics"
+      ],
+      "mcp__obsidian_vault__edit": [
+        "patch"
+      ]
+    }
+  },
+  "candidate_heuristics": {
+    "candidate_length_by_decision": {
+      "select_tools": {
+        "5": 10,
+        "6": 4,
+        "7": 91,
+        "8": 418,
+        "9": 8,
+        "96": 531
+      },
+      "clarify": {
+        "4": 10,
+        "96": 10
+      },
+      "unsupported": {
+        "4": 10,
+        "6": 22,
+        "7": 18,
+        "96": 10
+      },
+      "no_tool": {
+        "4": 10,
+        "96": 10
+      }
+    },
+    "length_4_is_always_non_select": true,
+    "missing_target_scenarios_count": 20,
+    "missing_target_servers": {
+      "swallow_trader": 20
+    },
+    "missing_target_only_in_swallow": true
+  },
+  "context_and_clarify": {
+    "total_scenarios_with_context": 10,
+    "context_scenario_ids": [
+      "clarify.1",
+      "clarify.2",
+      "clarify.3",
+      "clarify.4",
+      "clarify.5",
+      "korean_law.execute_tool.1",
+      "korean_law.execute_tool.2",
+      "korean_law.execute_tool.3",
+      "korean_law.execute_tool.4",
+      "korean_law.execute_tool.5"
+    ],
+    "total_clarify_scenarios": 5,
+    "clarify_split_distribution": {
+      "train": 3,
+      "validation": 1,
+      "test": 1
+    },
+    "validation_clarify_count": 1,
+    "test_clarify_count": 1,
+    "clarify_scenarios": [
+      {
+        "scenario_id": "clarify.1",
+        "split": "train",
+        "requests": [
+          "그 종목 현재가 조회해줘.",
+          "아까 그 주식 지금 가격 알려줘."
+        ]
+      },
+      {
+        "scenario_id": "clarify.2",
+        "split": "train",
+        "requests": [
+          "그 노트의 이름을 바꿔줘.",
+          "그 문서를 다른 이름으로 변경해줘."
+        ]
+      },
+      {
+        "scenario_id": "clarify.3",
+        "split": "train",
+        "requests": [
+          "그 파일에서 문구를 바꿔줘.",
+          "그 노트 내용을 수정해줘."
+        ]
+      },
+      {
+        "scenario_id": "clarify.4",
+        "split": "validation",
+        "requests": [
+          "두 노트 사이의 링크 경로를 찾아줘.",
+          "그 문서 둘이 링크로 어떻게 연결되는지 확인해줘."
+        ]
+      },
+      {
+        "scenario_id": "clarify.5",
+        "split": "test",
+        "requests": [
+          "그 주식의 가격 이력을 가져와줘.",
+          "그 종목 과거 종가를 조회해줘."
+        ]
+      }
+    ]
+  },
+  "multi_choice_ambiguity": {
+    "multi_choice_scenario_count": 5,
+    "multi_choice_scenarios": [
+      {
+        "scenario_id": "swallow_trader.swallow_check_stock.1",
+        "split": "train",
+        "tools": [
+          "mcp__swallow_trader__swallow_check_stock",
+          "mcp__swallow_trader__swallow_get_stock_price"
+        ]
+      },
+      {
+        "scenario_id": "swallow_trader.swallow_check_stock.2",
+        "split": "train",
+        "tools": [
+          "mcp__swallow_trader__swallow_check_stock",
+          "mcp__swallow_trader__swallow_get_stock_price"
+        ]
+      },
+      {
+        "scenario_id": "swallow_trader.swallow_check_stock.3",
+        "split": "train",
+        "tools": [
+          "mcp__swallow_trader__swallow_check_stock",
+          "mcp__swallow_trader__swallow_get_stock_price"
+        ]
+      },
+      {
+        "scenario_id": "swallow_trader.swallow_check_stock.4",
+        "split": "validation",
+        "tools": [
+          "mcp__swallow_trader__swallow_check_stock",
+          "mcp__swallow_trader__swallow_get_stock_price"
+        ]
+      },
+      {
+        "scenario_id": "swallow_trader.swallow_check_stock.5",
+        "split": "test",
+        "tools": [
+          "mcp__swallow_trader__swallow_check_stock",
+          "mcp__swallow_trader__swallow_get_stock_price"
+        ]
+      }
+    ]
+  },
+  "leakage_and_similarity": {
+    "exact_val_train_overlap": 0,
+    "exact_test_train_overlap": 0,
+    "high_jaccard_pairs_count": 16,
+    "sample_high_jaccard_pairs": [
+      {
+        "eval_split": "test",
+        "eval_sid": "grafana.list_pyroscope_label_names.3",
+        "eval_req": "Pyroscope profiles-test에서 service_name=api-test인 프로파일들의 라벨 키를 조회해줘.",
+        "train_sid": "grafana.list_pyroscope_label_values.1",
+        "train_req": "Pyroscope profiles-test에서 service_name 라벨 값들을 조회해줘.",
+        "jaccard": 0.583
+      },
+      {
+        "eval_split": "test",
+        "eval_sid": "grafana.get_doc.3",
+        "eval_req": "Grafana 문서 https://grafana.com/docs/grafana/latest/에서 Dashboards 섹션을 읽어줘.",
+        "train_sid": "grafana.get_doc.1",
+        "train_req": "Grafana 문서 https://grafana.com/docs/grafana/latest/의 목차만 읽어줘.",
+        "jaccard": 0.583
+      },
+      {
+        "eval_split": "test",
+        "eval_sid": "grafana.query_pyroscope.3",
+        "eval_req": "Pyroscope profiles-test에서 process_cpu:cpu:nanoseconds:cpu:nanoseconds 프로파일의 최근 30분 타임시리즈를 조회해줘.",
+        "train_sid": "grafana.query_pyroscope.1",
+        "train_req": "Pyroscope profiles-test에서 process_cpu:cpu:nanoseconds:cpu:nanoseconds 프로파일을 최근 한 시간 조회해줘.",
+        "jaccard": 0.571
+      },
+      {
+        "eval_split": "validation",
+        "eval_sid": "grafana.alerting_silences_read.2",
+        "eval_req": "Grafana silence ID silence-test의 상세 내용을 읽어줘.",
+        "train_sid": "grafana.get_alert_group.1",
+        "train_req": "Grafana OnCall 알림 그룹 ID group-test의 상세 내용을 읽어줘.",
+        "jaccard": 0.545
+      },
+      {
+        "eval_split": "validation",
+        "eval_sid": "grafana.get_dashboard_by_uid.2",
+        "eval_req": "Grafana 대시보드 board-test의 저장 버전 2 내용을 읽어줘.",
+        "train_sid": "grafana.list_dashboard_versions.1",
+        "train_req": "Grafana 대시보드 board-test의 저장된 버전 목록을 읽어줘.",
+        "jaccard": 0.545
+      },
+      {
+        "eval_split": "validation",
+        "eval_sid": "obsidian_vault.read_resource.4",
+        "eval_req": "Obsidian 서버의 리소스 URI obsidian://test/resource-delta 본문을 조회해줘.",
+        "train_sid": "obsidian_vault.read_resource.1",
+        "train_req": "Obsidian 서버의 obsidian://test/resource-alpha 리소스 본문을 가져와줘.",
+        "jaccard": 0.545
+      },
+      {
+        "eval_split": "test",
+        "eval_sid": "obsidian_vault.read_resource.5",
+        "eval_req": "Obsidian MCP 리소스 URI obsidian://test/resource-epsilon의 내용을 가져와줘.",
+        "train_sid": "obsidian_vault.read_resource.1",
+        "train_req": "Obsidian MCP 리소스 URI obsidian://test/resource-alpha를 읽어줘.",
+        "jaccard": 0.545
+      },
+      {
+        "eval_split": "test",
+        "eval_sid": "obsidian_vault.read_resource.5",
+        "eval_req": "Obsidian MCP 리소스 URI obsidian://test/resource-epsilon의 내용을 가져와줘.",
+        "train_sid": "obsidian_vault.read_resource.3",
+        "train_req": "Obsidian MCP 리소스 obsidian://test/resource-gamma 내용을 확인해줘.",
+        "jaccard": 0.545
+      },
+      {
+        "eval_split": "validation",
+        "eval_sid": "grafana.alerting_silences_read.2",
+        "eval_req": "Grafana silence ID silence-test의 상세 내용을 읽어줘.",
+        "train_sid": "grafana.get_incident.1",
+        "train_req": "Grafana incident ID incident-test의 전체 상세 정보를 읽어줘.",
+        "jaccard": 0.5
+      },
+      {
+        "eval_split": "validation",
+        "eval_sid": "grafana.get_doc.2",
+        "eval_req": "https://grafana.com/docs/grafana/latest/dashboards/ 문서 본문을 가져와줘.",
+        "train_sid": "grafana.get_doc.1",
+        "train_req": "Grafana 문서 https://grafana.com/docs/grafana/latest/의 목차만 읽어줘.",
+        "jaccard": 0.5
+      }
+    ]
+  },
+  "blockers": [
+    {
+      "code": "ZERO_SHOT_ACTION_EVAL",
+      "severity": "CRITICAL",
+      "message": "Action prediction evaluation will suffer from zero-shot failure: actions tested in val/test never appear in train.",
+      "validation_unseen": {
+        "mcp__obsidian_vault__graph": [
+          "traverse"
+        ],
+        "mcp__obsidian_vault__dataview": [
+          "status"
+        ],
+        "mcp__obsidian_vault__edit": [
+          "patch"
+        ],
+        "mcp__obsidian_vault__bases": [
+          "view"
+        ]
+      },
+      "test_unseen": {
+        "mcp__obsidian_vault__dataview": [
+          "list"
+        ],
+        "mcp__obsidian_vault__bases": [
+          "export"
+        ],
+        "mcp__obsidian_vault__graph": [
+          "statistics"
+        ],
+        "mcp__obsidian_vault__edit": [
+          "patch"
+        ]
+      }
+    }
+  ],
+  "warnings": [
+    {
+      "code": "UNSEEN_EVAL_TOOLS",
+      "severity": "HIGH",
+      "message": "10 tools appear ONLY in train and cannot be evaluated on val/test.",
+      "tools": [
+        "mcp__grafana__get_alert_group",
+        "mcp__grafana__get_current_oncall_users",
+        "mcp__grafana__get_dashboard_summary",
+        "mcp__grafana__get_oncall_shift",
+        "mcp__grafana__get_snapshot",
+        "mcp__grafana__list_provisioning_repositories",
+        "mcp__obsidian_vault__list_resources",
+        "mcp__obsidian_vault__workflow",
+        "mcp__swallow_trader__swallow_reset_portfolio",
+        "mcp__swallow_trader__swallow_trigger_pipeline"
+      ]
+    },
+    {
+      "code": "UNSUPPORTED_CANDIDATE_BIAS",
+      "severity": "HIGH",
+      "message": "Candidate omission (missing_target_case) turning into 'unsupported' is only synthesized for Swallow Trader. Other servers never train this.",
+      "servers": {
+        "swallow_trader": 20
+      }
+    },
+    {
+      "code": "CANDIDATE_LENGTH_SHORTCUT",
+      "severity": "MEDIUM",
+      "message": "Candidate length == 4 is 100% predictive of non-select decisions (no_tool, clarify, unsupported). Model could exploit this artifact."
+    },
+    {
+      "code": "SERVER_DISTRIBUTION_SHIFT",
+      "severity": "HIGH",
+      "message": "Grafana represents 25.16% of train select_tools but jumps to 46.61% in validation."
+    },
+    {
+      "code": "DECISION_CLASS_IMBALANCE",
+      "severity": "HIGH",
+      "message": "select_tools constitutes 91.39% of dataset. Naive majority classifier achieves >91% accuracy."
+    }
+  ]
+}
