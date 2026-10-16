@@ -2,6 +2,10 @@
   "status": "AUDIT_COMPLETE",
   "dataset_version": "mcp-routing-v2",
   "catalog_version": "hermes-mcp-57e701d87790",
+  "summary": {
+    "blocker_count": 1,
+    "warning_count": 5
+  },
   "verification_flags": {
     "manifest_synthetic": true,
     "manifest_human_reviewed": false,
@@ -91,16 +95,21 @@
     }
   },
   "server_distribution": {
+    "denominator_select_tools_count": {
+      "train": 600,
+      "validation": 232,
+      "test": 230
+    },
     "counts": {
       "train": {
         "obsidian_vault": 140,
-        "swallow_trader": 186,
+        "swallow_trader": 174,
         "korean_law": 120,
         "grafana": 154,
         "kestrel": 12
       },
       "validation": {
-        "swallow_trader": 48,
+        "swallow_trader": 44,
         "obsidian_vault": 34,
         "grafana": 110,
         "korean_law": 40,
@@ -111,36 +120,36 @@
         "kestrel": 4,
         "grafana": 108,
         "obsidian_vault": 32,
-        "swallow_trader": 50
+        "swallow_trader": 46
       }
     },
     "percentages": {
       "train": {
-        "obsidian_vault": 22.88,
-        "swallow_trader": 30.39,
-        "korean_law": 19.61,
-        "grafana": 25.16,
-        "kestrel": 1.96
+        "obsidian_vault": 23.33,
+        "swallow_trader": 29.0,
+        "korean_law": 20.0,
+        "grafana": 25.67,
+        "kestrel": 2.0
       },
       "validation": {
-        "swallow_trader": 20.34,
-        "obsidian_vault": 14.41,
-        "grafana": 46.61,
-        "korean_law": 16.95,
-        "kestrel": 1.69
+        "swallow_trader": 18.97,
+        "obsidian_vault": 14.66,
+        "grafana": 47.41,
+        "korean_law": 17.24,
+        "kestrel": 1.72
       },
       "test": {
-        "korean_law": 17.09,
-        "kestrel": 1.71,
-        "grafana": 46.15,
-        "obsidian_vault": 13.68,
-        "swallow_trader": 21.37
+        "korean_law": 17.39,
+        "kestrel": 1.74,
+        "grafana": 46.96,
+        "obsidian_vault": 13.91,
+        "swallow_trader": 20.0
       }
     },
     "grafana_shift": {
-      "train_pct": 25.16,
-      "validation_pct": 46.61,
-      "test_pct": 46.15,
+      "train_pct": 25.67,
+      "validation_pct": 47.41,
+      "test_pct": 46.96,
       "val_train_ratio": 1.85
     }
   },
@@ -299,6 +308,7 @@
     "missing_target_only_in_swallow": true
   },
   "context_and_clarify": {
+    "total_scenario_items": 376,
     "total_scenarios_with_context": 10,
     "context_scenario_ids": [
       "clarify.1",
@@ -499,7 +509,7 @@
     {
       "code": "ZERO_SHOT_ACTION_EVAL",
       "severity": "CRITICAL",
-      "message": "Action prediction evaluation will suffer from zero-shot failure: actions tested in val/test never appear in train.",
+      "message": "Closed-set action classification heads will fail on unseen actions (0% recall on val/test action classes absent from train). Recommend reporting overall action metrics alongside separate seen/unseen action breakdowns.",
       "validation_unseen": {
         "mcp__obsidian_vault__graph": [
           "traverse"
@@ -564,7 +574,7 @@
     {
       "code": "SERVER_DISTRIBUTION_SHIFT",
       "severity": "HIGH",
-      "message": "Grafana represents 25.16% of train select_tools but jumps to 46.61% in validation."
+      "message": "Grafana represents 25.67% of train select_tools but jumps to 47.41% in validation."
     },
     {
       "code": "DECISION_CLASS_IMBALANCE",

@@ -1,4 +1,4 @@
 # dev-agy: Data Review & Audit Tools
-# Python 3.10+ Standard Library only.
-# Dependencies used: argparse, json, pathlib, collections, re, difflib, unittest
+# Python 3.9+ Standard Library only (tested and verified on Python 3.9.6).
+# Dependencies used: argparse, hashlib, json, os, pathlib, collections, re, difflib, unittest, sys
 # No external third-party dependencies required.

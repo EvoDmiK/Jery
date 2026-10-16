@@ -1,6 +1,6 @@
 """Independent training readiness audit and coverage summary tool for Jery MCP datasets.
 
-Stdlib only. Audits datasets/mcp-routing-v2 for label semantics, split isolation,
+Python 3.9+ stdlib only (verified on Python 3.9.6). Audits datasets/mcp-routing-v2 for label semantics, split isolation,
 unseen classes, server distribution shifts, action coverage, candidate shortcuts,
 and verification flags without modifying raw data.
 """
@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import sys
 from collections import Counter, defaultdict
@@ -113,26 +114,46 @@ def audit_decisions_and_imbalance(rows_by_split: Dict[str, List[Dict[str, Any]]]
 
 
 def audit_server_distribution(rows_by_split: Dict[str, List[Dict[str, Any]]], tools: Dict[str, Any]) -> Dict[str, Any]:
-    """Detect server distribution shift between train and validation/test."""
+    """Detect server distribution shift between train and validation/test.
+
+    Server coverage is evaluated per select_tools example (not per choice alternative):
+    - For each select_tools row, acceptable servers are extracted as a unique set
+      (ensuring that multiple choices within the same server, e.g. Swallow multi-choice,
+      are counted exactly once for that example).
+    - The denominator for each split is the exact number of select_tools examples in that split.
+    - If a scenario contains alternative choices spanning multiple servers (cross-server alternatives),
+      each represented server counts once for that example, and server percentages represent the
+      proportion of select_tools examples where that server provides an acceptable tool.
+    """
     server_counts: Dict[str, Counter[str]] = {}
     server_pcts: Dict[str, Dict[str, float]] = {}
+    select_totals: Dict[str, int] = {}
 
     for split, rows in rows_by_split.items():
+        select_rows = [r for r in rows if r.get('decision') == 'select_tools']
+        total_select = len(select_rows)
+        select_totals[split] = total_select
+
         counts: Counter[str] = Counter()
-        for r in rows:
-            if r['decision'] == 'select_tools':
-                for c in r['acceptable_choices']:
-                    server = tools[c['tool']]['server']
-                    counts[server] += 1
-        total = sum(counts.values())
+        for r in select_rows:
+            servers_in_row = {
+                tools[c['tool']]['server']
+                for c in r.get('acceptable_choices', [])
+                if c.get('tool') in tools
+            }
+            for server in servers_in_row:
+                counts[server] += 1
         server_counts[split] = counts
-        server_pcts[split] = {k: round(v / total * 100, 2) for k, v in counts.items()} if total else {}
+        server_pcts[split] = {
+            k: round(v / total_select * 100, 2) for k, v in counts.items()
+        } if total_select else {}
 
     grafana_train_pct = server_pcts.get('train', {}).get('grafana', 0.0)
     grafana_val_pct = server_pcts.get('validation', {}).get('grafana', 0.0)
     grafana_test_pct = server_pcts.get('test', {}).get('grafana', 0.0)
 
     return {
+        'denominator_select_tools_count': select_totals,
         'counts': {s: dict(c) for s, c in server_counts.items()},
         'percentages': server_pcts,
         'grafana_shift': {
@@ -306,6 +327,7 @@ def audit_context_and_clarify(
         clarify_domains[prefix] += 1
 
     return {
+        'total_scenario_items': len(scenarios),
         'total_scenarios_with_context': len(scenarios_with_context),
         'context_scenario_ids': sorted(set(context_scenario_ids)),
         'total_clarify_scenarios': len(clarify_scenarios),
@@ -417,7 +439,11 @@ def run_full_audit(directory: Path = DEFAULT_DATASET) -> Dict[str, Any]:
         blockers.append({
             'code': 'ZERO_SHOT_ACTION_EVAL',
             'severity': 'CRITICAL',
-            'message': "Action prediction evaluation will suffer from zero-shot failure: actions tested in val/test never appear in train.",
+            'message': (
+                "Closed-set action classification heads will fail on unseen actions "
+                "(0% recall on val/test action classes absent from train). "
+                "Recommend reporting overall action metrics alongside separate seen/unseen action breakdowns."
+            ),
             'validation_unseen': actions['validation_unseen_actions'],
             'test_unseen': actions['test_unseen_actions'],
         })
@@ -459,6 +485,10 @@ def run_full_audit(directory: Path = DEFAULT_DATASET) -> Dict[str, Any]:
         'status': 'AUDIT_COMPLETE',
         'dataset_version': data['manifest'].get('dataset_version'),
         'catalog_version': data['manifest'].get('catalog_version'),
+        'summary': {
+            'blocker_count': len(blockers),
+            'warning_count': len(warnings),
+        },
         'verification_flags': flags,
         'decisions_and_imbalance': decisions,
         'server_distribution': servers,
@@ -485,7 +515,7 @@ def format_console_report(result: Dict[str, Any]) -> str:
     lines.append("\n[1] DATA ORIGIN & VERIFICATION FLAGS (Independent Tracking)")
     lines.append(f"  - Synthetic Manifest: {vf['manifest_synthetic']} (all rows synthetic: {vf['all_synthetic']})")
     lines.append(f"  - Human Reviewed Manifest: {vf['manifest_human_reviewed']} (all rows needs_human_review: {vf['all_needs_human_review']})")
-    lines.append(f"  - Execution Verified Status: False (all rows execution_verified=False: {vf['all_execution_unverified']})")
+    lines.append(f"  - Execution Verified Status: {not vf['all_execution_unverified']} (all rows execution_verified=False: {vf['all_execution_unverified']})")
     lines.append("  * Note: Review status and execution verification are strictly independent.")
 
     # 2. Decision Distribution
@@ -508,7 +538,7 @@ def format_console_report(result: Dict[str, Any]) -> str:
 
     # 3. Server Distribution Shift
     srv = result['server_distribution']
-    lines.append("\n[3] SERVER DISTRIBUTION SHIFT (select_tools Targets)")
+    lines.append("\n[3] SERVER DISTRIBUTION SHIFT (select_tools Targets, Per-Example Unique Server)")
     lines.append("  Server          | Train (%) | Val (%)   | Test (%)  | Ratio (Val/Train)")
     lines.append("  " + "-" * 65)
     all_servers = sorted(set(srv['percentages'].get('train', {}).keys()) | set(srv['percentages'].get('validation', {}).keys()))
@@ -518,14 +548,20 @@ def format_console_report(result: Dict[str, Any]) -> str:
         tep = srv['percentages'].get('test', {}).get(s, 0.0)
         ratio = round(vp / tp, 2) if tp else 0.0
         lines.append(f"  {s:<15} | {tp:>7.1f}%  | {vp:>7.1f}%  | {tep:>7.1f}%  | {ratio:>6.2f}x")
+    dt = srv.get('denominator_select_tools_count', {})
+    lines.append(f"  * Denominator: select_tools examples (Train: {dt.get('train', 0)}, Val: {dt.get('validation', 0)}, Test: {dt.get('test', 0)})")
 
     # 4. Tool Coverage & Unseen Classes
     tc = result['tool_coverage']
+    total_reg = tc['total_registered_tools']
+    train_pct = round(tc['train_covered'] / total_reg * 100, 1) if total_reg else 0.0
+    val_pct = round(tc['validation_covered'] / total_reg * 100, 1) if total_reg else 0.0
+    test_pct = round(tc['test_covered'] / total_reg * 100, 1) if total_reg else 0.0
     lines.append("\n[4] TOOL COVERAGE & UNSEEN CLASSES IN EVALUATION")
-    lines.append(f"  - Total Registered Tools: {tc['total_registered_tools']}")
-    lines.append(f"  - Train Covered Tools:    {tc['train_covered']} / {tc['total_registered_tools']} (100.0%)")
-    lines.append(f"  - Val Covered Tools:      {tc['validation_covered']} / {tc['total_registered_tools']} ({tc['validation_covered']/tc['total_registered_tools']*100:.1f}%)")
-    lines.append(f"  - Test Covered Tools:     {tc['test_covered']} / {tc['total_registered_tools']} ({tc['test_covered']/tc['total_registered_tools']*100:.1f}%)")
+    lines.append(f"  - Total Registered Tools: {total_reg}")
+    lines.append(f"  - Train Covered Tools:    {tc['train_covered']} / {total_reg} ({train_pct:.1f}%)")
+    lines.append(f"  - Val Covered Tools:      {tc['validation_covered']} / {total_reg} ({val_pct:.1f}%)")
+    lines.append(f"  - Test Covered Tools:     {tc['test_covered']} / {total_reg} ({test_pct:.1f}%)")
     lines.append(f"  - Tools Missing in Val:   {tc['missing_in_validation_count']} tools")
     lines.append(f"  - Tools Missing in Test:  {tc['missing_in_test_count']} tools")
     lines.append(f"  - Tools Missing in Both:  {tc['missing_in_both_eval_splits_count']} tools:")
@@ -554,8 +590,9 @@ def format_console_report(result: Dict[str, Any]) -> str:
 
     # 7. Context & Clarify Scarcity
     ctx = result['context_and_clarify']
+    total_scenarios = ctx.get('total_scenario_items', len(ctx['context_scenario_ids']))
     lines.append("\n[7] CONTEXT DEPENDENCY & CLARIFY SCARCITY")
-    lines.append(f"  - Total Scenarios with non-empty context: {ctx['total_scenarios_with_context']} / 376 items")
+    lines.append(f"  - Total Scenarios with non-empty context: {ctx['total_scenarios_with_context']} / {total_scenarios} items")
     lines.append(f"  - Clarify Scenarios Total: {ctx['total_clarify_scenarios']} (Train: {ctx['clarify_split_distribution'].get('train', 0)}, Val: {ctx['validation_clarify_count']}, Test: {ctx['test_clarify_count']})")
     lines.append("  * Note: Val and Test each contain ONLY 1 clarify scenario.")
 
@@ -564,15 +601,51 @@ def format_console_report(result: Dict[str, Any]) -> str:
     lines.append("  AUDIT VERDICT & CRITICAL ACTION ITEMS BEFORE TRAINING")
     lines.append("=" * 78)
     if result['blockers']:
-        lines.append("  [CRITICAL BLOCKERS]")
+        lines.append(f"  [CRITICAL BLOCKERS ({len(result['blockers'])})]")
         for b in result['blockers']:
             lines.append(f"  - [{b['code']}] {b['message']}")
     if result['warnings']:
-        lines.append("  [HIGH/MEDIUM WARNINGS]")
+        lines.append(f"  [HIGH/MEDIUM WARNINGS ({len(result['warnings'])})]")
         for w in result['warnings']:
             lines.append(f"  - [{w['code']} | {w['severity']}] {w['message']}")
 
     return "\n".join(lines)
+
+
+def validate_output_summary_path(output_path: Path, dataset_dir: Path) -> Path:
+    """Ensure output summary does not overwrite or reside inside dataset directory or alias any dataset file.
+
+    Raises ValueError if output_path is within dataset_dir, matches a dataset file,
+    or hardlinks/symlinks to an existing dataset file.
+    """
+    output_resolved = output_path.resolve()
+    dataset_resolved = dataset_dir.resolve()
+
+    # Reject if output path is inside dataset directory or equals dataset directory
+    try:
+        output_resolved.relative_to(dataset_resolved)
+        raise ValueError(f"Refusing to write --output-summary inside dataset directory: {output_path}")
+    except ValueError as e:
+        if "Refusing to write --output-summary inside dataset directory" in str(e):
+            raise
+        pass
+
+    if output_resolved == dataset_resolved:
+        raise ValueError(f"Refusing to overwrite dataset directory with --output-summary: {output_path}")
+
+    # Reject if output path points to or aliases any existing file in the dataset directory
+    if dataset_resolved.exists() and dataset_resolved.is_dir():
+        for item in dataset_resolved.iterdir():
+            if item.is_file():
+                if output_resolved == item.resolve():
+                    raise ValueError(f"Refusing to overwrite dataset file with --output-summary: {output_path}")
+                if output_path.exists():
+                    try:
+                        if os.path.samefile(output_path, item):
+                            raise ValueError(f"Output summary aliases an existing dataset file: {output_path}")
+                    except OSError:
+                        pass
+    return output_path
 
 
 def main() -> int:
@@ -590,8 +663,13 @@ def main() -> int:
         return 1
 
     if args.output_summary:
-        args.output_summary.parent.mkdir(parents=True, exist_ok=True)
-        args.output_summary.write_text(json.dumps(audit_res, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        try:
+            target_path = validate_output_summary_path(args.output_summary, args.directory)
+            target_path.parent.mkdir(parents=True, exist_ok=True)
+            target_path.write_text(json.dumps(audit_res, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        except Exception as e:
+            sys.stderr.write(f"Failed to write output summary: {e}\n")
+            return 1
 
     if not args.quiet:
         if args.json:
