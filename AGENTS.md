@@ -4,7 +4,7 @@
 
 Jery는 사용자 요청, 이전 대화, 후보 도구 명세를 받아 다음 MCP 도구를 선택하는 경량 로컬 모델 프로젝트다. 결정 유형은 `select_tools`, `no_tool`, `clarify`, `unsupported`다.
 
-현재 구현은 한국어 합성 데이터셋 v1 130개·v2 1,162개와 재생성·검증 스크립트다. 전체 MCP 분류 데이터의 범위와 계약은 `datasets/mcp-routing-v2/README.md`를 따른다. 읽기 전용 Hermes SQLite 수집·정제, 검토 후보 저장과 체크포인트 API도 구현되어 있다. 모델, 추론 서버와 검토 UI는 아직 없다. 수집기 실행과 한계는 `docs/data/hermes-collector.md`를 따른다. 기능 완료 여부는 코드와 검증 결과로 확인하고, 계획을 구현된 기능처럼 보고하지 않는다.
+현재 구현은 한국어 합성 데이터셋 v1 130개·v2 1,162개와 재생성·검증 스크립트다. 전체 MCP 분류 데이터의 범위와 계약은 `datasets/mcp-routing-v2/README.md`를 따른다. 읽기 전용 Hermes SQLite 수집·정제, 검토 후보 저장과 체크포인트 API도 구현되어 있다. 검색·선형 기준 모델과 학습·평가 CLI, 로컬 예측 함수도 구현되어 있다. 미검토 합성 데이터의 탐색 실험이며 `docs/model/baseline.md`와 `docs/data/local-training.md`를 따른다. 추론 HTTP 서버와 검토 UI는 아직 없다. 수집기 실행과 한계는 `docs/data/hermes-collector.md`를 따른다. 기능 완료 여부는 코드와 검증 결과로 확인하고, 계획을 구현된 기능처럼 보고하지 않는다.
 
 ## 역할과 파일 소유권
 

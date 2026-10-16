@@ -1,0 +1,2 @@
+# Baseline routers (src/jery/model, src/jery/evaluation) use the Python 3.9+ standard library only.
+# No third-party packages or model downloads are required.
