@@ -1,10 +1,10 @@
-# 로그 검토 후보 API v1 — 구현 예정 계약
+# 로그 검토 후보 API v1
 
-이 문서는 `workflows/n8n/hermes-logs-to-review.json`이 요구하는 로컬 수집기 계약이다. 현재 해당 API 구현은 없다. 기존 합성 학습 데이터의 스키마를 변경하지 않는다.
+이 문서는 `workflows/n8n/hermes-logs-to-review.json`이 요구하는 로컬 수집기 계약이다. 구현은 `src/jery/runtime/collector_api.py`와 `src/jery/data/`에 있으며, 실행 방법과 입력 한계는 [수집기 문서](../data/hermes-collector.md)를 따른다. 기존 합성 학습 데이터의 스키마를 변경하지 않는다.
 
 ## GET /v1/routing-candidates
 
-Query: `consumer=jery-dataset-v1`, `limit=100`. Header Auth를 사용한다. 응답은 JSON 본문이며 다음 구조다. 아래 사례는 API 형식 설명용으로 만든 예시이고 실제 로그에서 추출한 데이터가 아니다.
+Query: `consumer=jery-dataset-v1`, `limit=100`. `Authorization: Bearer <token>` Header Auth를 사용한다. `limit`은 1~1000이며 ACK 전 발행된 배치에는 기존 크기를 유지한다. 응답은 JSON 본문이며 다음 구조다. 아래 사례는 API 형식 설명용으로 만든 예시이고 실제 로그에서 추출한 데이터가 아니다.
 
 ```json
 {
@@ -36,10 +36,10 @@ Query: `consumer=jery-dataset-v1`, `limit=100`. Header Auth를 사용한다. 응
 - `observed_choices`는 관측된 호출 목록이다. 병렬 호출은 여러 항목, 무호출 사례는 빈 배열이다. 검토된 정답이 아니다.
 - `outcome`은 `unknown`, `ok`, `error`, `mixed` 중 하나다. 선택의 적절성과는 별개의 실행 관측값이다.
 - `session_group`은 원본 세션과 파생 세션을 함께 묶는 가명 식별자다.
-- `candidate_tools_reconstructed`는 당시 후보를 원본 기록에서 확보했는지, 나중에 복원했는지를 구분한다.
+- `candidate_tools_reconstructed`는 당시 후보를 원본 기록에서 확보했는지(false), 나중에 복원했는지(true)를 구분한다. 현재 구현은 명시적으로 제공한 카탈로그 전체로 복원하는 true 경로만 지원하며, 복원을 지정하지 않으면 보류한다.
 - 수집기는 해당 버전의 명세를 보관하고 도구 ID 및 action을 검증한다. 당시 후보를 신뢰성 있게 확보하지 못한 사례는 별도 보류 대상으로 관리한다.
 - `batch_id`와 사례 ID는 재시도에도 동일해야 한다. ACK 전까지 동일 소비자의 미완료 배치를 다시 반환하고, GET 자체로 커서를 전진시키지 않는다.
-- 수집기는 개인정보와 비밀을 제거한 뒤에만 `sanitized: true`를 반환한다. n8n 실행 기록에도 정제된 데이터만 들어가야 한다.
+- 수집기는 개인정보와 비밀을 제거한 뒤에만 `sanitized: true`를 반환한다. n8n 실행 기록에도 정제된 데이터만 들어가야 한다. 현재 정제 정책은 패턴 제거와 사용자 제공 식별자 치환이며 자유 텍스트의 미탐 가능성은 별도 검토해야 한다.
 
 ## POST /v1/review-batches
 

@@ -2,7 +2,7 @@
 
 파일: [hermes-logs-to-review.json](hermes-logs-to-review.json)
 
-실제 Hermes 로그에서 정제된 검토 후보를 주기적으로 수집하는 **n8n 가져오기용 초안**이다. 수집기 API는 아직 구현되지 않았으며, 이 파일만으로 데이터가 생성되지 않는다. n8n에 배포하거나 활성화하지 않았다.
+실제 Hermes 로그에서 정제된 검토 후보를 주기적으로 수집하는 **n8n 가져오기용 초안**이다. [수집기 API](../../docs/data/hermes-collector.md)를 먼저 실행해야 하며, 이 파일만으로 데이터가 생성되지 않는다. n8n에 배포하거나 활성화하지 않았다.
 
 ```text
 Manual Trigger / Every 5 Minutes
@@ -18,7 +18,7 @@ Manual Trigger / Every 5 Minutes
 1. n8n의 파일 가져오기 기능으로 JSON을 가져온다.
 2. `Configuration`의 `collector_url`을 n8n에서 접근 가능한 수집기 주소로 바꾼다. 기본 `http://jery-collector:8080`은 예시이며 실제 서비스가 아니다. Docker의 `localhost`는 n8n 컨테이너 자체를 가리킨다.
 3. 두 HTTP Request 노드에 수집기용 Header Auth credential을 선택한다. 예를 들어 헤더 이름 `Authorization`, 값 `Bearer <token>`을 credential에 저장한다. JSON에는 인증 값이 없다.
-4. [수집기 API 계약](../../docs/contracts/log-candidates-api-v1.md)을 구현한다.
+4. [수집기 실행 문서](../../docs/data/hermes-collector.md)에 따라 소스·카탈로그·정제 정책을 설정하고 API를 실행한다.
 5. `Manual Trigger`로 수집·검증·저장 응답을 확인한 뒤 주기 실행을 활성화한다. 시간대는 `Asia/Seoul`이다.
 
 HTTP 단계는 60초 timeout과 최대 3회 재시도를 사용한다. 잘못된 배치는 전체 실행을 실패시키며 저장과 체크포인트 갱신 단계로 넘어가지 않는다. 저장 API가 멱등성을 보장해야 재시도로 중복이 생기지 않는다.
@@ -34,4 +34,4 @@ HTTP 단계는 60초 timeout과 최대 3회 재시도를 사용한다. 잘못된
 
 코드 노드는 출처·후보 참조·최소 필드를 검증하고 허용된 필드만 저장 요청에 포함한다. `sanitized: true`는 수집기의 선언이며 자동 개인정보 탐지나 제거 기능이 아니다. 데이터는 n8n에 도달하기 전에 정제되어야 한다.
 
-JSON 파싱, 연결 참조, JavaScript 검증 분기와 저장 응답 확인 로직을 로컬에서 확인했다. 실제 n8n 가져오기·실행과 API 연결은 아직 검증하지 않았다.
+JSON 파싱, 연결 참조, JavaScript 검증 분기와 저장 응답 확인 로직을 로컬에서 확인했다. 합성 SQLite를 이용한 수집기 HTTP 왕복과 이 워크플로의 검증 JavaScript 호환성은 통합 테스트로 확인했다. 실제 n8n 가져오기·실행과 배포는 아직 검증하지 않았다.

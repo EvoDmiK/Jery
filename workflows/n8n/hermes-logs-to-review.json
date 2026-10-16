@@ -155,7 +155,7 @@
       "parameters": {
         "height": 260,
         "width": 1000,
-        "content": "## Jery: real log candidates → review queue (draft)\nCollector API is NOT implemented yet. Set collector_url and select the same Header Auth credential in both HTTP nodes.\nThe collector must read Hermes in read-only mode, sanitize data, persist pending batches, and atomically upsert review candidates + advance the cursor. Repeated/concurrent requests must be idempotent.\nCalls are observations, never verified labels. Human review and final JSONL export are separate steps.\nImport inactive; test with Manual Trigger before enabling the schedule."
+        "content": "## Jery: real log candidates → review queue (draft)\nRun scripts/collect_hermes_logs.py serve first (see docs/data/hermes-collector.md). Set collector_url and select the same Header Auth credential in both HTTP nodes.\nThe collector must read Hermes in read-only mode, sanitize data, persist pending batches, and atomically upsert review candidates + advance the cursor. Repeated/concurrent requests must be idempotent.\nCalls are observations, never verified labels. Human review and final JSONL export are separate steps.\nImport inactive; test with Manual Trigger before enabling the schedule."
       }
     }
   ],
