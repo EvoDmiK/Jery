@@ -1,10 +1,15 @@
-"""Prediction adapter: predict(request, context, candidate_tools, catalog) -> label-shaped dict."""
+"""Public prediction adapter for docs/contracts/prediction-v1.md.
+
+predict(request, context, candidate_tools, catalog, model=None)
+  -> {"decision", "choices": [{"tool", "action"?}], "ranked_tools": [tool_id, ...], "confidence"?}
+"""
 import gzip
 import json
 import os
 from pathlib import Path
 
-from .features import DECISIONS, index_catalog
+from jery.runtime.prediction import model_input as contract_input, validate_prediction
+
 from .routers import LinearRouter, RetrievalRouter
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -15,43 +20,73 @@ _cache = {}
 def save_model(model, path, meta=None):
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    data = model.to_dict() if hasattr(model, 'to_dict') else {'config': model.config()}
+    data = model.to_dict()
     data['meta'] = meta or {}
     with gzip.open(path, 'wt', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, sort_keys=True)
 
 
-def load_model(path, catalog):
+def read_artifact(path):
     with gzip.open(path, 'rt', encoding='utf-8') as f:
-        data = json.load(f)
-    cfg = data['config']
-    if cfg['kind'] == 'retrieval':
-        return RetrievalRouter(catalog, threshold=cfg['threshold'], fallback=cfg['fallback'])
-    return LinearRouter.from_dict(data, catalog)
+        return json.load(f)
+
+
+def load_model(path):
+    """Restore a router, including its training-time TF-IDF state; no catalog is needed or refit."""
+    data = read_artifact(path)
+    cls = RetrievalRouter if data['config']['kind'] == 'retrieval' else LinearRouter
+    return cls.from_dict(data)
+
+
+def _cached_model(path):
+    """Cache by resolved path plus file identity so a replaced or rewritten artifact is reloaded."""
+    path = Path(path).resolve()
+    st = path.stat()
+    key = (str(path), st.st_ino, st.st_size, st.st_mtime_ns)
+    if key not in _cache:
+        for old in [k for k in _cache if k[0] == key[0]]:
+            del _cache[old]
+        _cache[key] = load_model(path)
+    return _cache[key]
+
+
+def _as_catalog(catalog):
+    """Accept tools.json, a list of specs or {id: spec}; the runtime contract takes {'tools': [...]}."""
+    if isinstance(catalog, dict) and 'tools' in catalog:
+        return catalog
+    if isinstance(catalog, dict):
+        return {'tools': [dict(spec, id=tool_id) for tool_id, spec in catalog.items()]}
+    if isinstance(catalog, list):
+        return {'tools': catalog}
+    raise ValueError('catalog must be tools.json, a spec list or an id -> spec mapping')
+
+
+def to_contract(internal):
+    """Internal router output (acceptable_choices + scored ranking) -> prediction-v1."""
+    out = {'decision': internal['decision'],
+           'choices': [dict(c) for c in internal['acceptable_choices']],
+           'ranked_tools': [r['tool'] for r in internal.get('ranked_tools') or []]}
+    if 'confidence' in internal:
+        out['confidence'] = internal['confidence']
+    return out
 
 
 def predict(request, context, candidate_tools, catalog, model=None):
-    """Route one turn.
+    """Route one turn under prediction-v1.
 
-    request: str; context: list of {"role", "content"} turns before the tool choice;
-    candidate_tools: list of tool ids (mcp__{server}__{name}); catalog: tools.json dict, list of
-    specs or {id: spec}. model: a loaded router, a model path, or None for $JERY_MODEL_PATH /
+    request: nonempty str. context: [{"role": "user"|"assistant"|"tool", "content": str}] before the
+    tool choice. candidate_tools: unique tool ids (may be empty). catalog: tools.json dict (or a spec
+    list / {id: spec}); only the candidates' id/server/name/description/input_schema reach the model.
+    model: a loaded router, an artifact path, or None for $JERY_MODEL_PATH, else
     models/mcp-routing-v2/latest/model.json.gz.
 
-    Returns {"decision": one of DECISIONS, "acceptable_choices": [{"tool", "action"?}] (empty
-    unless select_tools; the tool is always in candidate_tools), "ranked_tools": [{"tool", "score"}]}.
+    Raises ValueError for invalid inputs or a prediction that violates the contract (tool outside the
+    candidates, action outside the schema enum, bad ranking).
     """
-    if not isinstance(request, str):
-        raise TypeError('request must be a string')
-    catalog = index_catalog(catalog)
+    features = contract_input({'request': request, 'context': context, 'candidate_tools': candidate_tools},
+                              _as_catalog(catalog))
     if model is None or isinstance(model, (str, Path)):
-        path = str(model or os.environ.get('JERY_MODEL_PATH') or DEFAULT_MODEL)
-        if path not in _cache:
-            _cache[path] = load_model(path, catalog)
-        model = _cache[path]
-    inp = {'request': request, 'context': list(context or []), 'candidate_tools': list(candidate_tools or [])}
-    result = model.predict(inp, catalog)
-    allowed = set(inp['candidate_tools'])
-    if result['decision'] not in DECISIONS or any(c['tool'] not in allowed for c in result['acceptable_choices']):
-        raise AssertionError('router returned a selection outside the candidates')
-    return result
+        model = _cached_model(model or os.environ.get('JERY_MODEL_PATH') or DEFAULT_MODEL)
+    internal = model.predict({k: features[k] for k in ('request', 'context', 'candidate_tools')},
+                             features['catalog'])
+    return validate_prediction(to_contract(internal), features['candidate_tools'], features['catalog'])

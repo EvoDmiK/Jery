@@ -1,5 +1,7 @@
 """Model inputs and text features. Only request, context and candidate tool specs are read."""
 from collections import Counter
+import hashlib
+import json
 import math
 import re
 import unicodedata
@@ -83,16 +85,33 @@ def tool_text(tool_id, spec):
 
 
 class TfidfIndex:
-    """Character n-gram TF-IDF over tool specs. IDF uses catalog text only, never labels."""
+    """Character n-gram TF-IDF over tool specs. IDF uses the training catalog text only, never labels.
 
-    def __init__(self, catalog):
-        self.catalog = index_catalog(catalog)
-        docs = {tool_id: Counter(tokens(tool_text(tool_id, spec))) for tool_id, spec in self.catalog.items()}
-        df = Counter(t for counts in docs.values() for t in counts)
+    The fitted state (idf, default_idf) is saved with a model and restored on load, so scores do not
+    depend on which catalog subset is passed at prediction time. Tool vectors are computed from the
+    spec passed at prediction time with the frozen IDF and cached by spec text.
+    """
+
+    def __init__(self, catalog=None, state=None):
+        self.catalog = index_catalog(catalog) if catalog is not None else {}
+        self._vectors = {}
+        if state is not None:
+            self.idf = dict(state['idf'])
+            self.default_idf = float(state['default_idf'])
+            self.fit_tools = int(state['fit_tools'])
+            self.fit_catalog_sha256 = state.get('fit_catalog_sha256')
+            return
+        docs = [Counter(tokens(tool_text(tool_id, spec))) for tool_id, spec in sorted(self.catalog.items())]
+        df = Counter(t for counts in docs for t in counts)
         n = max(len(docs), 1)
         self.idf = {t: math.log((1 + n) / (1 + d)) + 1.0 for t, d in df.items()}
         self.default_idf = math.log(1 + n) + 1.0
-        self.vectors = {tool_id: self._vector(counts) for tool_id, counts in docs.items()}
+        self.fit_tools = len(docs)
+        self.fit_catalog_sha256 = catalog_sha256(self.catalog)
+
+    def state(self):
+        return {'idf': self.idf, 'default_idf': self.default_idf, 'fit_tools': self.fit_tools,
+                'fit_catalog_sha256': self.fit_catalog_sha256}
 
     def _vector(self, counts):
         vec = {t: (1.0 + math.log(c)) * self.idf.get(t, self.default_idf) for t, c in counts.items()}
@@ -103,13 +122,22 @@ class TfidfIndex:
         return self._vector(Counter(t for text in query_text(request, context) for t in tokens(text)))
 
     def tool_vector(self, tool_id, catalog=None):
-        if tool_id in self.vectors:
-            return self.vectors[tool_id]
-        spec = (catalog or {}).get(tool_id)
-        return self._vector(Counter(tokens(tool_text(tool_id, spec))))
+        spec = (catalog if catalog is not None else self.catalog).get(tool_id)
+        text = tool_text(tool_id, spec)
+        key = (tool_id, text)
+        if key not in self._vectors:
+            self._vectors[key] = self._vector(Counter(tokens(text)))
+        return self._vectors[key]
 
     @staticmethod
     def cosine(a, b):
         if len(a) > len(b):
             a, b = b, a
         return sum(v * b.get(t, 0.0) for t, v in a.items())
+
+
+def catalog_sha256(catalog):
+    """Stable hash of the spec fields that feed tool_text (for provenance, not as a feature)."""
+    keep = ('id', 'server', 'name', 'description', 'input_schema')
+    items = [{k: spec.get(k) for k in keep} for _, spec in sorted(index_catalog(catalog).items())]
+    return hashlib.sha256(json.dumps(items, ensure_ascii=False, sort_keys=True).encode()).hexdigest()

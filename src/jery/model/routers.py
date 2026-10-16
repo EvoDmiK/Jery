@@ -8,15 +8,34 @@ from .features import (
 )
 
 
-def _result(decision, ranked, action=None):
-    """Prediction in label shape. Selection is always one of the given candidates."""
+def _result(decision, ranked, action=None, confidence=None):
+    """Internal prediction in label shape (acceptable_choices + scored ranking).
+
+    jery.model.predict converts this to the public prediction-v1 contract at the boundary.
+    """
     choices = []
     if decision == 'select_tools' and ranked:
         choice = {'tool': ranked[0]['tool']}
         if action:
             choice['action'] = action
         choices.append(choice)
-    return {'decision': decision, 'acceptable_choices': choices, 'ranked_tools': ranked}
+    out = {'decision': decision, 'acceptable_choices': choices, 'ranked_tools': ranked}
+    if confidence is not None:
+        out['confidence'] = confidence
+    return out
+
+
+def schema_actions(spec):
+    """Valid action enum from a candidate's input schema."""
+    action = ((spec or {}).get('input_schema') or {}).get('properties', {}).get('action', {})
+    return set(action.get('enum') or []) if isinstance(action, dict) else set()
+
+
+def _restore_index(data):
+    if 'index' not in data:
+        raise ValueError('model artifact has no saved TF-IDF index state; '
+                         'run python3 -m jery.model.augment_index with the original training catalog')
+    return TfidfIndex(state=data['index'])
 
 
 class RetrievalRouter:
@@ -24,8 +43,8 @@ class RetrievalRouter:
 
     kind = 'retrieval'
 
-    def __init__(self, catalog, threshold=0.0, fallback='unsupported'):
-        self.index = TfidfIndex(catalog)
+    def __init__(self, catalog=None, threshold=0.0, fallback='unsupported', index=None):
+        self.index = index or TfidfIndex(catalog)
         self.threshold = threshold
         self.fallback = fallback
 
@@ -45,6 +64,14 @@ class RetrievalRouter:
     def config(self):
         return {'kind': self.kind, 'threshold': self.threshold, 'fallback': self.fallback}
 
+    def to_dict(self):
+        return {'config': self.config(), 'index': self.index.state()}
+
+    @classmethod
+    def from_dict(cls, data):
+        cfg = {k: v for k, v in data['config'].items() if k != 'kind'}
+        return cls(index=_restore_index(data), **cfg)
+
 
 class LinearRouter:
     """Softmax over {candidates} + {no_tool, clarify, unsupported}.
@@ -55,8 +82,8 @@ class LinearRouter:
 
     kind = 'linear'
 
-    def __init__(self, catalog, epochs=10, lr=0.2, l2=0.0, use_spec=True, seed=13):
-        self.index = TfidfIndex(catalog)
+    def __init__(self, catalog=None, epochs=10, lr=0.2, l2=0.0, use_spec=True, seed=13, index=None):
+        self.index = index or TfidfIndex(catalog)
         self.epochs, self.lr, self.l2, self.use_spec, self.seed = epochs, lr, l2, use_spec, seed
         self.w = {}
         self.actions = {}
@@ -165,23 +192,24 @@ class LinearRouter:
         best = max(range(len(options)), key=lambda i: scores[i])
         label = options[best][0]
         if label in NULL_DECISIONS:
-            return _result(label, ranked)
-        names = self.actions.get(label, [])
+            return _result(label, ranked, confidence=round(probs[best], 6))
+        valid = schema_actions(catalog.get(label))
+        names = [a for a in self.actions.get(label, []) if a in valid]
         action = None
         if len(names) == 1:
             action = names[0]
         elif names:
             action = max(names, key=lambda a: self._score(phi, ['A:' + label + ':' + a], []))
-        return _result('select_tools', ranked, action)
+        return _result('select_tools', ranked, action, confidence=round(probs[best], 6))
 
     # ----- persistence -----
     def to_dict(self):
-        return {'config': self.config(), 'weights': self.w, 'actions': self.actions}
+        return {'config': self.config(), 'weights': self.w, 'actions': self.actions, 'index': self.index.state()}
 
     @classmethod
-    def from_dict(cls, data, catalog):
+    def from_dict(cls, data):
         cfg = {k: v for k, v in data['config'].items() if k != 'kind'}
-        model = cls(catalog, **cfg)
+        model = cls(index=_restore_index(data), **cfg)
         model.w = data['weights']
         model.actions = data['actions']
         return model

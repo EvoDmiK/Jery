@@ -21,6 +21,7 @@ import time
 from jery.evaluation.metrics import evaluate
 from jery.model.features import index_catalog, model_input
 from jery.model.predict import save_model
+from jery.model.profile import dataset_profile
 from jery.model.routers import LinearRouter, RetrievalRouter
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -194,7 +195,7 @@ def main(argv=None):
         'git_sha': git_sha(),
         'data': dict(meta, split_counts=manifest['split_counts'], data_dir=os.path.relpath(data_dir, ROOT),
                      test_gold_tool_classes=families['linear']['test']['gold_tool_classes'],
-                     catalog_tools=len(cat_index)),
+                     catalog_tools=len(cat_index), profile=dataset_profile(splits, catalog)),
         'protocol': 'fit on train only; hyperparameters and family chosen by validation joint_accuracy '
                     '(tie: macro F1, tool acc); test evaluated once after selection',
         'selected': {'family': selected_name, 'config': families[selected_name]['config'],
