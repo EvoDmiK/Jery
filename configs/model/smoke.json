@@ -1,0 +1,10 @@
+{
+  "data_dir": "datasets/mcp-routing-v2",
+  "output_dir": "outputs/model/smoke",
+  "model_dir": "models/smoke",
+  "seed": 13,
+  "max_workers": 2,
+  "threads_per_worker": 1,
+  "retrieval_grid": {"threshold": [0.0, 0.05], "fallback": ["unsupported"]},
+  "linear_grid": {"epochs": [1], "lr": [0.3], "l2": [0.0], "use_spec": [true, false]}
+}
