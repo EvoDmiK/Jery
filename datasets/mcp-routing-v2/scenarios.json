@@ -1,0 +1,5593 @@
+[
+  {
+    "scenario_id": "obsidian_vault.vault.1",
+    "split": "train",
+    "requests": [
+      "볼트에서 MCP 관련 노트를 찾아줘.",
+      "내 Obsidian 안에서 MCP를 다룬 문서 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "search"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.vault.2",
+    "split": "train",
+    "requests": [
+      "Obsidian Projects 폴더에 어떤 파일이 있는지 보여줘.",
+      "볼트의 Projects 디렉터리 파일 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "list"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.vault.3",
+    "split": "train",
+    "requests": [
+      "볼트에 Ideas/Jery.md를 만들고 내용은 '도구 선택 모델'로 저장해줘.",
+      "Obsidian Ideas/Jery.md 파일을 새로 생성해서 '도구 선택 모델'이라고 적어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "create"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.vault.4",
+    "split": "validation",
+    "requests": [
+      "볼트의 Draft.md 파일명을 Final.md로 바꿔줘.",
+      "Obsidian에서 Draft.md를 Final.md라는 이름으로 변경해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "rename"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.vault.5",
+    "split": "test",
+    "requests": [
+      "볼트에서 #robotics 태그가 붙은 문서를 찾아줘.",
+      "내 Obsidian 노트 중 robotics 태그를 가진 것들을 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "search"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.edit.1",
+    "split": "train",
+    "requests": [
+      "볼트의 Jery.md 끝에 '다음 단계: 로그 수집'을 추가해줘.",
+      "Obsidian Jery.md 맨 아래에 '다음 단계: 로그 수집'이라는 줄을 붙여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "append"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.edit.2",
+    "split": "train",
+    "requests": [
+      "볼트의 Plan.md에서 '초안'을 '검토 중'으로 바꿔줘.",
+      "Obsidian Plan.md 안의 '초안' 문구를 찾아 '검토 중'으로 치환해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "window"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.edit.3",
+    "split": "train",
+    "requests": [
+      "볼트의 Notes.md 10번째 줄 앞에 '확인 필요'를 삽입해줘.",
+      "Obsidian Notes.md의 10번 줄 바로 위에 '확인 필요'라는 줄을 넣어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "at_line"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.edit.4",
+    "split": "validation",
+    "requests": [
+      "볼트의 Project.md frontmatter에서 status 값을 done으로 수정해줘.",
+      "Obsidian Project.md의 frontmatter status 필드를 done으로 변경해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "patch"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.edit.5",
+    "split": "test",
+    "requests": [
+      "볼트의 Roadmap.md에서 '할 일' 제목 아래에 '데이터 검토' 항목을 추가해줘.",
+      "Obsidian Roadmap.md의 할 일 섹션에 '데이터 검토'를 덧붙여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "patch"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.view.1",
+    "split": "train",
+    "requests": [
+      "Obsidian에서 지금 편집 중인 노트를 보여줘.",
+      "현재 Obsidian 에디터에 열린 문서 내용을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__view",
+        "action": "active"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.view.2",
+    "split": "train",
+    "requests": [
+      "볼트의 Jery.md 40번째 줄 주변을 보여줘.",
+      "Obsidian Jery.md에서 40번 줄을 중심으로 앞뒤 내용을 보고 싶어."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__view",
+        "action": "window"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.view.3",
+    "split": "train",
+    "requests": [
+      "볼트의 Projects/Jery.md를 Obsidian 앱에서 열어줘.",
+      "Obsidian 앱으로 Projects/Jery.md 노트를 열어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__view",
+        "action": "open_in_obsidian"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.view.4",
+    "split": "validation",
+    "requests": [
+      "볼트의 Notes.md에서 '평가 기준'이라는 문구 주변만 보여줘.",
+      "Obsidian Notes.md 안에서 '평가 기준' 근처 문맥을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__view",
+        "action": "window"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.view.5",
+    "split": "test",
+    "requests": [
+      "Obsidian의 현재 활성 문서 내용을 확인해줘.",
+      "지금 선택된 Obsidian 노트의 본문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__view",
+        "action": "active"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.graph.1",
+    "split": "train",
+    "requests": [
+      "볼트의 Jery.md를 링크하는 다른 노트들을 찾아줘.",
+      "Obsidian Jery.md로 들어오는 백링크 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "backlinks"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.graph.2",
+    "split": "train",
+    "requests": [
+      "볼트의 MCP.md에서 나가는 문서 링크를 보여줘.",
+      "Obsidian MCP.md가 링크하는 노트 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "forwardlinks"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.graph.3",
+    "split": "train",
+    "requests": [
+      "볼트에서 Jery.md와 Hermes.md가 링크로 어떻게 이어지는지 찾아줘.",
+      "Obsidian Jery.md부터 Hermes.md까지 연결 경로를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "path"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.graph.4",
+    "split": "validation",
+    "requests": [
+      "볼트의 Routing.md에서 링크를 따라 두 단계까지 연결된 노트를 탐색해줘.",
+      "Obsidian Routing.md를 출발점으로 링크 그래프를 깊이 2까지 순회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "traverse"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.graph.5",
+    "split": "test",
+    "requests": [
+      "Obsidian 볼트 전체의 링크 연결 통계를 보여줘.",
+      "내 볼트의 문서 링크 수와 연결 구조 통계를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "statistics"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_price.1",
+    "split": "train",
+    "requests": [
+      "삼성전자 현재 주가를 조회해줘.",
+      "지금 삼성전자 주식 가격이 얼마인지 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_price.2",
+    "split": "train",
+    "requests": [
+      "005930의 현재가와 전일 대비 등락률을 보여줘.",
+      "종목코드 005930의 지금 가격과 등락률을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_price.3",
+    "split": "train",
+    "requests": [
+      "현대차 주식의 현재 가격을 알려줘.",
+      "현대차 실시간 주가를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_price.4",
+    "split": "validation",
+    "requests": [
+      "SK하이닉스 지금 주가가 얼마야?",
+      "SK하이닉스의 현재 시세를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_price.5",
+    "split": "test",
+    "requests": [
+      "카카오 현재 주가와 장 운영 상태를 조회해줘.",
+      "지금 카카오 시세와 거래장 상태를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_news.1",
+    "split": "train",
+    "requests": [
+      "삼성전자 관련 최신 주식 뉴스를 찾아줘.",
+      "삼성전자에 관한 최근 증권 기사를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_news"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_news.2",
+    "split": "train",
+    "requests": [
+      "반도체 업종 뉴스 다섯 개를 가져와줘.",
+      "반도체 산업 관련 최신 주식 기사 5개를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_news"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_news.3",
+    "split": "train",
+    "requests": [
+      "오늘 주요 증권 헤드라인을 보여줘.",
+      "특정 종목 지정 없이 최신 주식 뉴스 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_news"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_news.4",
+    "split": "validation",
+    "requests": [
+      "현대차 관련 주식 뉴스 열 개를 검색해줘.",
+      "현대차에 대한 최신 증권 기사 10건을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_news"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_stock_news.5",
+    "split": "test",
+    "requests": [
+      "배터리 산업 관련 주식 뉴스를 조회해줘.",
+      "최근 배터리 업종에 관한 증권 뉴스를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_news"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_price_history.1",
+    "split": "train",
+    "requests": [
+      "삼성전자의 지난 30일 종가 이력을 조회해줘.",
+      "삼성전자 과거 30일 일별 종가를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_price_history.2",
+    "split": "train",
+    "requests": [
+      "005930의 토스와 네이버 종가를 비교해줘.",
+      "종목 005930의 과거 종가를 토스와 네이버 소스로 교차검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_price_history.3",
+    "split": "train",
+    "requests": [
+      "현대차의 지난 90일 종가를 보여줘.",
+      "현대차 주식의 최근 90일 가격 이력을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_price_history.4",
+    "split": "validation",
+    "requests": [
+      "SK하이닉스 지난 7일 종가를 네이버 기준으로 가져와줘.",
+      "네이버 소스에서 SK하이닉스의 최근 7일 종가 이력을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_price_history.5",
+    "split": "test",
+    "requests": [
+      "카카오의 과거 60일 종가를 토스 기준으로 조회해줘.",
+      "토스 소스로 카카오의 지난 60일 가격 기록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_portfolio.1",
+    "split": "train",
+    "requests": [
+      "Swallow 모의투자 계좌의 총 자산을 조회해줘.",
+      "Swallow 가상 투자 계좌가 현재 얼마인지 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_portfolio"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_portfolio.2",
+    "split": "train",
+    "requests": [
+      "Swallow 모의계좌 예수금 잔고를 보여줘.",
+      "내 Swallow 가상 계좌에 남은 현금을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_portfolio"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_portfolio.3",
+    "split": "train",
+    "requests": [
+      "Swallow 모의투자 보유 종목 목록을 보여줘.",
+      "Swallow 가상 포트폴리오에 어떤 주식을 갖고 있는지 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_portfolio"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_portfolio.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 모의투자 전체 평가손익을 조회해줘.",
+      "내 Swallow 가상 포트폴리오의 현재 평가 손익을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_portfolio"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_portfolio.5",
+    "split": "test",
+    "requests": [
+      "Swallow 모의계좌 보유 종목들의 평균단가를 보여줘.",
+      "Swallow 가상 계좌에 있는 주식들의 평균 매입 가격을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_portfolio"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_trades.1",
+    "split": "train",
+    "requests": [
+      "Swallow 모의투자 최근 체결 내역을 보여줘.",
+      "Swallow 가상 계좌의 최근 매매 기록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_trades"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_trades.2",
+    "split": "train",
+    "requests": [
+      "Swallow에서 005930 매매 이력만 가져와줘.",
+      "Swallow 모의투자 종목코드 005930의 체결 기록을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_trades"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_trades.3",
+    "split": "train",
+    "requests": [
+      "Swallow 최근 거래 20건을 조회해줘.",
+      "Swallow 가상 매매 체결 내역을 최신 20개 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_trades"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_trades.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 모의투자 최근 매매의 실현 손익을 확인해줘.",
+      "Swallow에서 최근 체결된 거래별 실현 손익 기록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_trades"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_trades.5",
+    "split": "test",
+    "requests": [
+      "Swallow 최근 체결 기록에 남긴 AI 시그널 근거를 보여줘.",
+      "Swallow 가상 매매 이력에서 주문 근거로 기록된 AI 시그널을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_trades"
+      }
+    ]
+  },
+  {
+    "scenario_id": "kestrel.get_codex_reset_status.1",
+    "split": "train",
+    "requests": [
+      "Codex 사용량 리셋 현황을 조회해줘.",
+      "Codex 사용량 초기화 상태를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__kestrel__get_codex_reset_status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "kestrel.get_codex_reset_status.2",
+    "split": "train",
+    "requests": [
+      "Codex 최근 리셋 이벤트가 언제였는지 조회해줘.",
+      "Codex 사용량이 최근에 리셋된 이벤트 시각을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__kestrel__get_codex_reset_status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "kestrel.get_codex_reset_status.3",
+    "split": "train",
+    "requests": [
+      "Codex 예정된 리셋 이벤트가 있는지 찾아줘.",
+      "Codex 사용량 초기화 예정 이벤트를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__kestrel__get_codex_reset_status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "kestrel.get_codex_reset_status.4",
+    "split": "validation",
+    "requests": [
+      "Codex 리셋 서비스에서 현재 리셋 상태를 가져와줘.",
+      "Codex 사용량 리셋 상태 서비스의 최신 정보를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__kestrel__get_codex_reset_status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "kestrel.get_codex_reset_status.5",
+    "split": "test",
+    "requests": [
+      "Codex 리셋 이벤트 시각을 조회해서 한국 시간으로 알려줘.",
+      "Codex 사용량 리셋 이벤트 시간을 가져와 KST로 표시해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__kestrel__get_codex_reset_status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_reset_portfolio.1",
+    "split": "train",
+    "requests": [
+      "Swallow 모의계좌의 보유주식과 체결 이력을 모두 지우고 기본 예수금으로 초기화해줘.",
+      "Swallow 가상 투자 계좌를 최초 상태로 리셋해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_reset_portfolio"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_reset_portfolio.1",
+    "split": "train",
+    "requests": [
+      "Swallow 투자 실험을 처음부터 다시 할게. 가상 포트폴리오 전체를 초기화해줘.",
+      "Swallow 모의투자 계좌의 현금과 보유 종목을 기본 상태로 되돌려줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_reset_portfolio"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_reset_portfolio.1",
+    "split": "train",
+    "requests": [
+      "테스트 종료했으니 Swallow 모의계좌를 기본 1천만 원 상태로 재설정해줘.",
+      "Swallow 가상 매매 이력을 비우고 기본 예수금으로 계좌를 리셋해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_reset_portfolio"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_reset_portfolio.1",
+    "split": "train",
+    "requests": [
+      "Swallow의 모든 가상 보유 종목과 매매 기록을 삭제해서 새 모의투자를 시작하게 해줘.",
+      "Swallow 모의 포트폴리오 전체를 처음 상태로 초기화해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_reset_portfolio"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_4"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_reset_portfolio.1",
+    "split": "train",
+    "requests": [
+      "새 전략을 시험하려고 Swallow 가상 계좌를 기본 예수금과 빈 거래 내역으로 바꿔줘.",
+      "Swallow 모의계좌를 리셋해서 보유주식 없는 기본 상태로 만들어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_reset_portfolio"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_5"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_trigger_pipeline.1",
+    "split": "train",
+    "requests": [
+      "Swallow 주식 브리핑 파이프라인을 지금 실행해줘.",
+      "Swallow의 뉴스 수집부터 Discord 브리핑까지 전체 자동 파이프라인을 시작해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_trigger_pipeline"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_trigger_pipeline.1",
+    "split": "train",
+    "requests": [
+      "Swallow에서 RSS 수집과 AI 뉴스 선별, 모의체결, 알림 발송을 한 번 돌려줘.",
+      "Swallow 주식 자동 브리핑 워크플로를 즉시 가동해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_trigger_pipeline"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_trigger_pipeline.1",
+    "split": "train",
+    "requests": [
+      "정기 실행 시간까지 기다리지 말고 Swallow 브리핑 작업을 수동 실행해줘.",
+      "지금 Swallow 주식 브리핑 전체 작업을 트리거해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_trigger_pipeline"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_trigger_pipeline.1",
+    "split": "train",
+    "requests": [
+      "Swallow n8n 주식 브리핑 파이프라인을 한 차례 실행해줘.",
+      "Swallow 자동 뉴스 분석과 모의매매 브리핑 작업을 지금 시작해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_trigger_pipeline"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_4"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_trigger_pipeline.1",
+    "split": "train",
+    "requests": [
+      "Swallow의 뉴스부터 가상 체결과 Discord 발송까지 이어지는 파이프라인을 돌려줘.",
+      "Swallow 주식 브리핑 자동화 전체를 즉시 실행해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_trigger_pipeline"
+      }
+    ],
+    "missing_target_case": true,
+    "variant_id": "wording_5"
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_order.1",
+    "split": "train",
+    "requests": [
+      "Swallow 모의계좌에서 삼성전자 005930을 단가 80000원에 가상 매수해줘.",
+      "Swallow 가상 주문으로 종목 005930 삼성전자를 가격 80000원에 BUY 처리해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_order"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_order.2",
+    "split": "train",
+    "requests": [
+      "Swallow에서 현대차 005380을 단가 220000원으로 가상 매도해줘.",
+      "Swallow 모의투자 현대차 종목코드 005380을 가격 220000원에 SELL 주문해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_order"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_order.3",
+    "split": "train",
+    "requests": [
+      "Swallow 가상 계좌에서 SK하이닉스 000660을 170000원 단가로 매수해줘.",
+      "Swallow 모의 BUY 주문을 넣어줘. 종목 000660, 이름 SK하이닉스, 단가 170000원이야."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_order"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_order.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 모의계좌 카카오 035720을 50000원에 매도해줘.",
+      "Swallow 가상 SELL 주문: 종목코드 035720, 종목명 카카오, 주문 단가 50000원."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_order"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_order.5",
+    "split": "test",
+    "requests": [
+      "Swallow에서 NAVER 035420을 190000원에 모의 매수해줘.",
+      "Swallow 가상 BUY 주문으로 NAVER, 코드 035420, 단가 190000원을 지정해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_order"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_check_stock.1",
+    "split": "train",
+    "requests": [
+      "Swallow 모의계좌에 005930을 보유 중인지 확인해줘.",
+      "Swallow 가상 포트폴리오에서 삼성전자 005930 보유 여부를 개별 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_check_stock"
+      },
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_check_stock.2",
+    "split": "train",
+    "requests": [
+      "Swallow 모의투자 000660의 평균 매입단가를 확인해줘.",
+      "Swallow에서 SK하이닉스 000660 한 종목의 평단가를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_check_stock"
+      },
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_check_stock.3",
+    "split": "train",
+    "requests": [
+      "Swallow에서 005380 보유분의 수익률을 개별 확인해줘.",
+      "Swallow 가상 계좌의 현대차 005380 종목 손익률을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_check_stock"
+      },
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_check_stock.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 모의계좌에 카카오 035720이 들어 있는지 한 종목만 확인해줘.",
+      "Swallow 포트폴리오에서 035720 종목의 보유 상태를 개별 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_check_stock"
+      },
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_check_stock.5",
+    "split": "test",
+    "requests": [
+      "Swallow가 가진 NAVER 035420의 보유 현황을 확인해줘.",
+      "Swallow 모의투자에서 035420 한 종목의 평단과 수익률을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_check_stock"
+      },
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_watchlist.1",
+    "split": "train",
+    "requests": [
+      "Swallow 관심종목 목록을 보여줘.",
+      "Swallow에 등록해 둔 관심 주식들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_watchlist",
+        "action": "list"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_watchlist.2",
+    "split": "train",
+    "requests": [
+      "Swallow 관심종목에 삼성전자 005930을 추가해줘.",
+      "Swallow에서 005930 삼성전자를 관심 목록에 등록해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_watchlist",
+        "action": "add"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_watchlist.3",
+    "split": "train",
+    "requests": [
+      "Swallow 관심종목에서 현대차 005380을 제거해줘.",
+      "Swallow에서 005380 현대차를 관심 목록에서 비활성화해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_watchlist",
+        "action": "remove"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_watchlist.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 관심목록에 SK하이닉스 000660을 추가하고 메모는 반도체 관찰로 남겨줘.",
+      "Swallow 관심종목으로 000660을 등록하고 반도체 관찰이라는 메모를 적어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_watchlist",
+        "action": "add"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_watchlist.5",
+    "split": "test",
+    "requests": [
+      "Swallow 관심주식 목록에서 카카오 035720을 빼줘.",
+      "Swallow의 035720 관심종목 등록을 해제해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_watchlist",
+        "action": "remove"
+      }
+    ],
+    "missing_target_case": true
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_news_alerts.1",
+    "split": "train",
+    "requests": [
+      "Swallow 관심종목에 대해 발송된 뉴스 알림 이력을 조회해줘.",
+      "Swallow 관심주식 뉴스 알림 기록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_news_alerts"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_news_alerts.2",
+    "split": "train",
+    "requests": [
+      "Swallow에서 삼성전자 관련 뉴스 알림이 왔던 내역을 확인해줘.",
+      "Swallow 관심종목 삼성전자의 과거 뉴스 알림 기록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_news_alerts"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_news_alerts.3",
+    "split": "train",
+    "requests": [
+      "Swallow에 남아 있는 경쟁사 뉴스 기반 관심종목 알림을 확인해줘.",
+      "Swallow 피어 뉴스가 관심주식에 미친 영향으로 발생한 알림 내역을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_news_alerts"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_news_alerts.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 공급망 뉴스로 생성된 관심종목 알림 기록을 보여줘.",
+      "Swallow의 공급망 관련 주식 뉴스 알림 이력을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_news_alerts"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_get_news_alerts.5",
+    "split": "test",
+    "requests": [
+      "특정 종목 없이 Swallow 관심목록 전체의 최근 뉴스 알림들을 가져와줘.",
+      "Swallow 모든 관심주식의 최신 뉴스 알림 이력을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_news_alerts"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_backtest.1",
+    "split": "train",
+    "requests": [
+      "삼성전자에 RSI 전략을 적용한 과거 모의 백테스트를 Swallow에서 실행해줘.",
+      "Swallow에서 삼성전자 주식의 RSI 과매도 반등 전략을 백테스트해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_backtest"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_backtest.2",
+    "split": "train",
+    "requests": [
+      "Swallow로 현대차의 최근 500거래일 RSI 전략 성과를 백테스트해줘.",
+      "현대차 과거 일봉 500일로 Swallow RSI 전략 검증을 돌려줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_backtest"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_backtest.3",
+    "split": "train",
+    "requests": [
+      "Swallow에서 SK하이닉스 RSI 백테스트를 하고 MDD와 승률을 계산해줘.",
+      "SK하이닉스의 과거 일봉으로 Swallow RSI 모의 전략 테스트를 실행해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_backtest"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_backtest.4",
+    "split": "validation",
+    "requests": [
+      "Swallow에서 카카오의 300거래일 RSI 백테스트를 초기자금 1천만 원으로 실행해줘.",
+      "카카오 RSI 전략을 Swallow로 과거 300일 동안 백테스트해줘. 가상 초기자금은 10000000원이야."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_backtest"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_backtest.5",
+    "split": "test",
+    "requests": [
+      "Swallow에서 NAVER의 RSI 전략을 익절 5퍼센트와 손절 3퍼센트 조건으로 백테스트해줘.",
+      "NAVER 과거 가격으로 RSI 모의 전략을 돌리고 익절 5%, 손절 3%를 적용해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_backtest"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_news_impact.1",
+    "split": "train",
+    "requests": [
+      "Swallow 뉴스 발행 시점 가격과 현재 가격을 비교해 뉴스 영향을 분석해줘.",
+      "Swallow에서 뉴스 이후 주가 변동률을 추적 분석해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_news_impact"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_news_impact.2",
+    "split": "train",
+    "requests": [
+      "Swallow 뉴스의 호재 예측이 실제 주가 방향과 맞았는지 분석해줘.",
+      "Swallow AI 뉴스 판단의 적중 여부를 주가 변화로 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_news_impact"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_news_impact.3",
+    "split": "train",
+    "requests": [
+      "Swallow 악재 뉴스 판단 이후 실제 주가가 어떻게 움직였는지 분석해줘.",
+      "Swallow 뉴스 AI 예측과 이후 가격 변화를 비교해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_news_impact"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_news_impact.4",
+    "split": "validation",
+    "requests": [
+      "Swallow 뉴스에 따른 모의체결과 실현손익의 관계를 추적해줘.",
+      "Swallow에서 뉴스가 가상 체결 및 손익에 끼친 영향을 분석해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_news_impact"
+      }
+    ]
+  },
+  {
+    "scenario_id": "swallow_trader.swallow_news_impact.5",
+    "split": "test",
+    "requests": [
+      "Swallow 뉴스 발행 당시 대비 현재 주가와 가상 포지션 수익률 변화를 분석해줘.",
+      "Swallow 뉴스 이후 가격 변화와 모의투자 손익의 영향을 추적해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_news_impact"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.workflow.1",
+    "split": "train",
+    "requests": [
+      "Obsidian의 현재 상태를 보고 다음에 할 작업을 추천해줘.",
+      "현재 Obsidian 작업 맥락에 맞는 다음 행동을 제안해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__workflow",
+        "action": "suggest"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "obsidian_vault.workflow.1",
+    "split": "train",
+    "requests": [
+      "볼트에서 이어서 할 만한 작업을 현재 상태 기준으로 추천해줘.",
+      "Obsidian 작업 흐름에 맞는 다음 단계 제안을 받아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__workflow",
+        "action": "suggest"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "obsidian_vault.workflow.1",
+    "split": "train",
+    "requests": [
+      "지금 Obsidian 편집 맥락을 바탕으로 작업 흐름 제안을 가져와줘.",
+      "현재 노트 상태를 고려한 Obsidian 후속 행동 추천을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__workflow",
+        "action": "suggest"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "obsidian_vault.workflow.1",
+    "split": "train",
+    "requests": [
+      "Obsidian의 현재 작업 상황에서 다음에 할 수 있는 일을 추천해줘.",
+      "지금 볼트 작업 상태를 보고 이어갈 작업을 제안해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__workflow",
+        "action": "suggest"
+      }
+    ],
+    "variant_id": "wording_4"
+  },
+  {
+    "scenario_id": "obsidian_vault.workflow.1",
+    "split": "train",
+    "requests": [
+      "Obsidian 현재 상태에 맞춘 워크플로 제안을 확인해줘.",
+      "볼트의 현 작업 흐름을 바탕으로 다음 행동 추천을 받아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__workflow",
+        "action": "suggest"
+      }
+    ],
+    "variant_id": "wording_5"
+  },
+  {
+    "scenario_id": "obsidian_vault.system.1",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP 서버의 시스템 정보를 조회해줘.",
+      "Obsidian 연결 서버의 상세 정보를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__system",
+        "action": "info"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.system.2",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP에서 사용할 수 있는 명령 목록을 보여줘.",
+      "Obsidian 서버가 지원하는 action 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__system",
+        "action": "commands"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.system.3",
+    "split": "train",
+    "requests": [
+      "Obsidian 서버로 https://example.org/guide 웹 본문을 가져와줘.",
+      "https://example.org/guide 내용을 Obsidian 웹 가져오기 기능으로 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__system",
+        "action": "fetch_web"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.system.4",
+    "split": "validation",
+    "requests": [
+      "Obsidian MCP 서버 정보와 동작 환경을 확인해줘.",
+      "볼트 연결을 제공하는 Obsidian 서버의 시스템 세부정보를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__system",
+        "action": "info"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.system.5",
+    "split": "test",
+    "requests": [
+      "Obsidian 서버를 통해 https://example.org/tutorial 웹 문서를 읽어줘.",
+      "https://example.org/tutorial 본문을 Obsidian의 웹 콘텐츠 가져오기로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__system",
+        "action": "fetch_web"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.bases.1",
+    "split": "train",
+    "requests": [
+      "Obsidian 볼트에 있는 .base 파일들을 나열해줘.",
+      "Obsidian Bases 설정 파일 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__bases",
+        "action": "list"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.bases.2",
+    "split": "train",
+    "requests": [
+      "Obsidian Projects.base의 YAML 설정을 읽어줘.",
+      "볼트의 Projects.base 설정 내용을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__bases",
+        "action": "read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.bases.3",
+    "split": "train",
+    "requests": [
+      "Obsidian Projects.base에서 status가 active인 노트만 필터링해서 조회해줘.",
+      "Obsidian Base Projects.base에 active 상태 필터를 적용해 노트들을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__bases",
+        "action": "query"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.bases.4",
+    "split": "validation",
+    "requests": [
+      "Obsidian Projects.base의 Overview 뷰를 보여줘.",
+      "Projects.base에 정의된 Overview 화면 데이터를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__bases",
+        "action": "view"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.bases.5",
+    "split": "test",
+    "requests": [
+      "Obsidian Projects.base를 CSV 형식으로 내보내줘.",
+      "볼트의 Projects.base 데이터를 CSV로 추출해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__bases",
+        "action": "export"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.dataview.1",
+    "split": "train",
+    "requests": [
+      "Obsidian Dataview에서 LIST FROM #project 쿼리를 실행해줘.",
+      "볼트에 Dataview DQL LIST FROM #project를 실행해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__dataview",
+        "action": "query"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.dataview.2",
+    "split": "train",
+    "requests": [
+      "Dataview로 Projects/Jery.md의 메타데이터와 frontmatter를 조회해줘.",
+      "Obsidian Dataview를 사용해서 Projects/Jery.md 페이지 속성을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__dataview",
+        "action": "metadata"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.dataview.3",
+    "split": "train",
+    "requests": [
+      "Obsidian Dataview 쿼리 TABLE status FROM #project의 문법만 검사해줘.",
+      "Dataview DQL TABLE status FROM #project 구문이 올바른지 검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__dataview",
+        "action": "validate"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.dataview.4",
+    "split": "validation",
+    "requests": [
+      "Obsidian Dataview 플러그인을 사용할 수 있는지 상태를 확인해줘.",
+      "볼트의 Dataview 플러그인 가용 상태를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__dataview",
+        "action": "status"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.dataview.5",
+    "split": "test",
+    "requests": [
+      "Dataview에서 #todo 태그 페이지의 메타데이터 목록을 가져와줘.",
+      "Obsidian Dataview로 #todo 페이지들과 속성을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__dataview",
+        "action": "list"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.list_resources.1",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP가 제공하는 리소스 URI 목록을 조회해줘.",
+      "Obsidian 서버의 MCP resources 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__list_resources"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "obsidian_vault.list_resources.1",
+    "split": "train",
+    "requests": [
+      "Obsidian 서버에 등록된 MCP 리소스들을 나열해줘.",
+      "Obsidian에서 읽을 수 있는 MCP 리소스 URI들을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__list_resources"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "obsidian_vault.list_resources.1",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP의 사용 가능한 리소스 항목을 보여줘.",
+      "Obsidian 서버가 노출하는 resource 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__list_resources"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "obsidian_vault.list_resources.1",
+    "split": "train",
+    "requests": [
+      "볼트 파일 목록 대신 Obsidian MCP 리소스 카탈로그를 가져와줘.",
+      "Obsidian 서버의 resources URI 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__list_resources"
+      }
+    ],
+    "variant_id": "wording_4"
+  },
+  {
+    "scenario_id": "obsidian_vault.list_resources.1",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP 리소스 주소를 아직 모르니 제공되는 리소스 목록부터 확인해줘.",
+      "Obsidian MCP가 노출하는 리소스 URI들을 먼저 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__list_resources"
+      }
+    ],
+    "variant_id": "wording_5"
+  },
+  {
+    "scenario_id": "obsidian_vault.read_resource.1",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP 리소스 URI obsidian://test/resource-alpha를 읽어줘.",
+      "Obsidian 서버의 obsidian://test/resource-alpha 리소스 본문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__read_resource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.read_resource.2",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP의 obsidian://test/resource-beta 주소에 있는 리소스를 조회해줘.",
+      "리소스 URI obsidian://test/resource-beta를 Obsidian 서버에서 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__read_resource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.read_resource.3",
+    "split": "train",
+    "requests": [
+      "Obsidian MCP 리소스 obsidian://test/resource-gamma 내용을 확인해줘.",
+      "Obsidian의 obsidian://test/resource-gamma resource를 URI로 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__read_resource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.read_resource.4",
+    "split": "validation",
+    "requests": [
+      "Obsidian MCP에서 obsidian://test/resource-delta 리소스를 읽어줘.",
+      "Obsidian 서버의 리소스 URI obsidian://test/resource-delta 본문을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__read_resource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "obsidian_vault.read_resource.5",
+    "split": "test",
+    "requests": [
+      "Obsidian MCP 리소스 URI obsidian://test/resource-epsilon의 내용을 가져와줘.",
+      "Obsidian의 obsidian://test/resource-epsilon 리소스를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__read_resource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_law.1",
+    "split": "train",
+    "requests": [
+      "근로기준법의 법령 식별자를 검색해줘.",
+      "근로기준법을 법령명으로 검색해서 lawId를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_law"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_law.2",
+    "split": "train",
+    "requests": [
+      "개인정보 보호법이라는 이름으로 법령을 검색해줘.",
+      "개인정보 보호법의 법령 검색 결과와 식별자를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_law"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_law.3",
+    "split": "train",
+    "requests": [
+      "광진구 주차장 설치 및 관리 조례를 이름으로 검색해줘.",
+      "법령 검색에서 광진구 주차장 조례의 식별자를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_law"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_law.4",
+    "split": "validation",
+    "requests": [
+      "외국환거래규정의 법령 검색 결과를 가져와줘.",
+      "외국환거래규정이라는 행정규칙을 명칭으로 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_law"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_law.5",
+    "split": "test",
+    "requests": [
+      "관세법을 법령명 검색해서 식별번호를 확인해줘.",
+      "관세법의 lawId와 mst를 찾기 위한 검색을 해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_law"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_law_text.1",
+    "split": "train",
+    "requests": [
+      "법령일련번호 mst=100001의 제10조 본문을 조회해줘.",
+      "mst 100001로 식별한 법령에서 제10조 조문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_law_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_law_text.2",
+    "split": "train",
+    "requests": [
+      "lawId=100002 법령의 현행 전문을 조회해줘.",
+      "법령ID 100002의 현재 조문 본문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_law_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_law_text.3",
+    "split": "train",
+    "requests": [
+      "mst=100003 법령의 제148조의2를 자연어 조문 번호로 조회해줘.",
+      "법령일련번호 100003에서 제148조의2 본문을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_law_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_law_text.4",
+    "split": "validation",
+    "requests": [
+      "mst=100004 법령의 2020년 1월 1일 시행 버전 제38조를 가져와줘.",
+      "mst 100004 법령 제38조를 기준일 20200101로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_law_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_law_text.5",
+    "split": "test",
+    "requests": [
+      "lawId=100005로 확인한 법령의 제234조의2를 읽어줘.",
+      "법령ID 100005의 제234조의2 조문을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_law_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.ordinance_radar.1",
+    "split": "train",
+    "requests": [
+      "광진구 주차장 설치 및 관리 조례가 인용한 상위법의 개정으로 정비가 필요한지 점검해줘.",
+      "광진구 주차장 조례의 상위법 개정을 추적해 조례 정비 대상을 표시해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__ordinance_radar"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.ordinance_radar.2",
+    "split": "train",
+    "requests": [
+      "조례번호 ordinSeq=200001의 근거 상위법이 조례 시행 후 개정됐는지 검사해줘.",
+      "자치법규 200001을 상위법 개정 레이더로 점검해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__ordinance_radar"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.ordinance_radar.3",
+    "split": "train",
+    "requests": [
+      "서울특별시 공무원 복무 조례를 대상으로 상위법 개정에 따른 정비 여부를 확인해줘.",
+      "서울특별시 공무원 복무 조례의 근거 법령 개정과 조례 시행일을 대조해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__ordinance_radar"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.ordinance_radar.4",
+    "split": "validation",
+    "requests": [
+      "ordinSeq=200002 조례의 정비 필요성을 인용 상위법 개정 기준으로 검사해줘.",
+      "조례번호 200002에 대해 상위법 변경에 따른 정비 레이더를 실행해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__ordinance_radar"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.ordinance_radar.5",
+    "split": "test",
+    "requests": [
+      "광진구 지방공무원 복무 조례가 참조하는 상위법 개정 현황을 점검해줘.",
+      "광진구 지방공무원 복무 조례를 상위법 개정 추적 대상으로 검사해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__ordinance_radar"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_annexes.1",
+    "split": "train",
+    "requests": [
+      "도로교통법 시행규칙의 운전면허 취소·정지 별표를 조회해줘.",
+      "도로교통법 시행규칙 별표 중 운전면허 취소 및 정지 기준을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_annexes"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_annexes.2",
+    "split": "train",
+    "requests": [
+      "관세법의 별표4 내용을 찾아줘.",
+      "관세법 별표 4를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_annexes"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_annexes.3",
+    "split": "train",
+    "requests": [
+      "건축법 시행규칙의 허가 신청 서식을 가져와줘.",
+      "건축법 시행규칙에 딸린 건축허가 신청 서식을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_annexes"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_annexes.4",
+    "split": "validation",
+    "requests": [
+      "도로교통법 시행규칙의 2015년 6월 1일 기준 과태료 별표를 조회해줘.",
+      "기준일 2015-06-01에 적용되던 도로교통법 시행규칙 과태료 별표를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_annexes"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_annexes.5",
+    "split": "test",
+    "requests": [
+      "지방세법의 별표와 첨부 서식 목록을 확인해줘.",
+      "지방세법에 붙은 별표 및 서식을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_annexes"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_research.1",
+    "split": "train",
+    "requests": [
+      "관세법의 법률·시행령·시행규칙, 위임 관계와 별표를 묶어 체계적으로 조사해줘.",
+      "관세법 법령 체계를 3단 법령과 위임 및 별표까지 통합 리서치해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_research"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_research.2",
+    "split": "train",
+    "requests": [
+      "영업정지 처분의 법적 근거를 법령·판례·행정심판례까지 통합 조사해줘.",
+      "영업정지 근거에 대해 법령과 해석례, 판례, 행심을 엮어 리서치해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_research"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_research.3",
+    "split": "train",
+    "requests": [
+      "과세처분 불복을 준비할 수 있도록 판례와 조세심판례를 종합 조사해줘.",
+      "과세처분에 대한 불복 준비용으로 판례·심판례를 묶어 조사해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_research"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_research.4",
+    "split": "validation",
+    "requests": [
+      "건축허가 절차를 수수료와 별표 서식까지 포함해서 통합 조사해줘.",
+      "건축허가의 절차·수수료·신청 서식을 함께 리서치해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_research"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_research.5",
+    "split": "test",
+    "requests": [
+      "여러 지방자치단체의 주차 조례를 비교하고 상위법 적합성까지 조사해줘.",
+      "전국 주차 조례 비교와 상위법 적합성을 통합 리서치해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_research"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_analysis.1",
+    "split": "train",
+    "requests": [
+      "다음 글의 법령 인용이 실존하는지 검증해줘: 민법 제750조에 따른 손해배상.",
+      "텍스트 속 민법 제750조라는 조문 인용이 실제 존재하는지 교차검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_analysis"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_analysis.2",
+    "split": "train",
+    "requests": [
+      "대법원 2013다61381 판결이 후속 판례에서 변경되거나 폐기됐는지 확인해줘.",
+      "사건번호 2013다61381의 후속 인용을 추적해 판례 생사를 검사해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_analysis"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_analysis.3",
+    "split": "train",
+    "requests": [
+      "2020년 1월 1일 당시 민법 제750조의 적용 버전과 부칙 경과조치를 분석해줘.",
+      "민법 제750조를 2020-01-01 행위시법 기준으로 정밀 분석해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_analysis"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_analysis.4",
+    "split": "validation",
+    "requests": [
+      "민법 제103조를 인용한 판례·헌재·해석례·조례의 역방향 인용 관계를 분석해줘.",
+      "민법 제103조의 인용 영향 지도를 만들어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_analysis"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.legal_analysis.5",
+    "split": "test",
+    "requests": [
+      "2021년 3월 1일 당시 도로교통법 제148조의2의 시행 버전과 경과조치를 판단해줘.",
+      "도로교통법 제148조의2를 기준일 20210301의 적용법과 부칙까지 분석해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__legal_analysis"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.discover_tools.1",
+    "split": "train",
+    "requests": [
+      "법률 서버에서 법률용어 풀이 전용 도구를 찾아줘.",
+      "법률용어 정의에 쓸 수 있는 전문 도구를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__discover_tools"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.discover_tools.2",
+    "split": "train",
+    "requests": [
+      "법률 MCP에 외국 법령 번역 관련 전문 도구가 있는지 찾아줘.",
+      "법률 서버의 전문 도구 중 외국 법령 번역 기능을 탐색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__discover_tools"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.discover_tools.3",
+    "split": "train",
+    "requests": [
+      "법률 MCP에서 조약 관련 전문 도구 목록을 찾아줘.",
+      "조약 업무에 쓸 법률 서버의 추가 도구를 탐색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__discover_tools"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.discover_tools.4",
+    "split": "validation",
+    "requests": [
+      "법률 서버가 제공하는 노동위원회 전문 도구를 검색해줘.",
+      "노동위 분야의 추가 법률 도구들을 발견해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__discover_tools"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.discover_tools.5",
+    "split": "test",
+    "requests": [
+      "법률 MCP의 학칙 처리 전용 도구들을 찾아줘.",
+      "학칙 관련 작업에 사용할 수 있는 법률 전문 도구를 탐색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__discover_tools"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.execute_tool.1",
+    "split": "train",
+    "requests": [
+      "앞서 법률 도구 탐색으로 확인한 search_law_bulk를 params={\"queries\":[\"민법\",\"상법\"]}로 실행해줘.",
+      "발견된 법률 도구 search_law_bulk에 queries로 민법과 상법을 넘겨 프록시 실행해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "사용 가능한 법률 전문 도구를 찾아줘."
+      },
+      {
+        "role": "tool",
+        "content": "합성 탐색 결과: search_law_bulk, params 스키마는 queries: 문자열 배열."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__execute_tool"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.execute_tool.2",
+    "split": "train",
+    "requests": [
+      "법률 서버에서 발견한 search_law_bulk를 queries=[\"근로기준법\"] 파라미터로 실행해줘.",
+      "탐색 결과의 search_law_bulk에 근로기준법을 queries로 전달해 호출해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "사용 가능한 법률 전문 도구를 찾아줘."
+      },
+      {
+        "role": "tool",
+        "content": "합성 탐색 결과: search_law_bulk, params 스키마는 queries: 문자열 배열."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__execute_tool"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.execute_tool.3",
+    "split": "train",
+    "requests": [
+      "발견된 전문 도구 search_law_bulk로 개인정보 보호법과 정보통신망법을 일괄 조회해줘.",
+      "법률 도구 탐색에서 확인한 search_law_bulk를 두 법령 이름의 queries로 실행해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "사용 가능한 법률 전문 도구를 찾아줘."
+      },
+      {
+        "role": "tool",
+        "content": "합성 탐색 결과: search_law_bulk, params 스키마는 queries: 문자열 배열."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__execute_tool"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.execute_tool.4",
+    "split": "validation",
+    "requests": [
+      "확인된 search_law_bulk에 queries=[\"관세법\",\"지방세법\"]을 전달해 법률 프록시로 호출해줘.",
+      "도구 탐색 결과 search_law_bulk를 관세법과 지방세법 목록으로 실행해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "사용 가능한 법률 전문 도구를 찾아줘."
+      },
+      {
+        "role": "tool",
+        "content": "합성 탐색 결과: search_law_bulk, params 스키마는 queries: 문자열 배열."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__execute_tool"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.execute_tool.5",
+    "split": "test",
+    "requests": [
+      "법률 전문 도구 search_law_bulk를 queries=[\"도로교통법\"]으로 실행해줘.",
+      "앞서 발견한 search_law_bulk를 도로교통법 검색 목록과 함께 프록시 호출해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "사용 가능한 법률 전문 도구를 찾아줘."
+      },
+      {
+        "role": "tool",
+        "content": "합성 탐색 결과: search_law_bulk, params 스키마는 queries: 문자열 배열."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__execute_tool"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_decisions.1",
+    "split": "train",
+    "requests": [
+      "사건번호를 지정하지 않고 부당해고 관련 판례를 검색해줘.",
+      "부당해고 키워드로 판례 목록을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_decisions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_decisions.2",
+    "split": "train",
+    "requests": [
+      "개인정보 제공 동의에 관한 개인정보보호위원회 결정례를 검색해줘.",
+      "개인정보위 결정례 중 정보 제공 동의 관련 자료를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_decisions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_decisions.3",
+    "split": "train",
+    "requests": [
+      "부당노동행위에 대한 노동위원회 결정례를 검색해줘.",
+      "노동위 결정 검색에서 부당노동행위 사례를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_decisions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_decisions.4",
+    "split": "validation",
+    "requests": [
+      "법인세 손금 인정 관련 조세심판원 심판례를 검색해줘.",
+      "조세심판례 중 법인세 손금에 관한 결정을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_decisions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.search_decisions.5",
+    "split": "test",
+    "requests": [
+      "영업정지 처분에 관한 행정심판 재결을 검색해줘.",
+      "행정심판 결정례에서 영업정지 관련 자료를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__search_decisions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_decision_text.1",
+    "split": "train",
+    "requests": [
+      "판례 도메인의 id=300001 결정 본문을 조회해줘.",
+      "precedent 도메인에서 식별자 300001의 판례 전문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_decision_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_decision_text.2",
+    "split": "train",
+    "requests": [
+      "개인정보위 도메인 pipc의 id=300002 결정문 전문을 읽어줘.",
+      "pipc 결정례 식별자 300002의 본문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_decision_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_decision_text.3",
+    "split": "train",
+    "requests": [
+      "노동위 nlrc 도메인 id=300003의 결정 내용을 조회해줘.",
+      "식별번호 300003인 nlrc 결정문 본문을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_decision_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_decision_text.4",
+    "split": "validation",
+    "requests": [
+      "조세심판 tax_tribunal 도메인의 id=300004 전문을 가져와줘.",
+      "tax_tribunal에서 결정 ID 300004의 본문을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_decision_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "korean_law.get_decision_text.5",
+    "split": "test",
+    "requests": [
+      "행정심판 admin_appeal의 id=300005 재결문을 가져와줘.",
+      "admin_appeal 도메인 식별자 300005의 결정 전문을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__korean_law__get_decision_text"
+      }
+    ]
+  },
+  {
+    "scenario_id": "no_tool.1",
+    "split": "train",
+    "requests": [
+      "안녕, 반가워!",
+      "안녕하세요!"
+    ],
+    "context": [],
+    "decision": "no_tool",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "no_tool.2",
+    "split": "train",
+    "requests": [
+      "MCP라는 약어를 풀어서 설명해줘.",
+      "Model Context Protocol이 무엇인지 일반적으로 설명해줘."
+    ],
+    "context": [],
+    "decision": "no_tool",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "no_tool.3",
+    "split": "train",
+    "requests": [
+      "이 문장을 영어로 번역해줘: 나는 데이터를 모으고 있다.",
+      "'나는 데이터를 모으고 있다'를 영어 문장으로 바꿔줘."
+    ],
+    "context": [],
+    "decision": "no_tool",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "no_tool.4",
+    "split": "validation",
+    "requests": [
+      "다음 글을 요약해줘: Jery는 로컬에서 도구를 선택하는 모델이다.",
+      "'Jery는 로컬에서 도구를 선택하는 모델이다'라는 문장을 짧게 요약해줘."
+    ],
+    "context": [],
+    "decision": "no_tool",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "no_tool.5",
+    "split": "test",
+    "requests": [
+      "과거 가격 이력과 현재가의 차이를 개념적으로 설명해줘.",
+      "현재 주가와 과거 종가 데이터가 어떻게 다른지 설명해줘."
+    ],
+    "context": [],
+    "decision": "no_tool",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.1",
+    "split": "train",
+    "requests": [
+      "그 종목 현재가 조회해줘.",
+      "아까 그 주식 지금 가격 알려줘."
+    ],
+    "context": [],
+    "decision": "clarify",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.2",
+    "split": "train",
+    "requests": [
+      "그 노트의 이름을 바꿔줘.",
+      "그 문서를 다른 이름으로 변경해줘."
+    ],
+    "context": [],
+    "decision": "clarify",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.3",
+    "split": "train",
+    "requests": [
+      "그 파일에서 문구를 바꿔줘.",
+      "그 노트 내용을 수정해줘."
+    ],
+    "context": [],
+    "decision": "clarify",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.4",
+    "split": "validation",
+    "requests": [
+      "두 노트 사이의 링크 경로를 찾아줘.",
+      "그 문서 둘이 링크로 어떻게 연결되는지 확인해줘."
+    ],
+    "context": [],
+    "decision": "clarify",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.5",
+    "split": "test",
+    "requests": [
+      "그 주식의 가격 이력을 가져와줘.",
+      "그 종목 과거 종가를 조회해줘."
+    ],
+    "context": [],
+    "decision": "clarify",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "unsupported.1",
+    "split": "train",
+    "requests": [
+      "내 Google 캘린더에 내일 오후 3시 회의를 등록해줘.",
+      "Google Calendar에 내일 15시 회의 일정을 만들어줘."
+    ],
+    "context": [],
+    "decision": "unsupported",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "unsupported.2",
+    "split": "train",
+    "requests": [
+      "내 Gmail 계정으로 보고서 이메일을 발송해줘.",
+      "내 Gmail에서 메일을 작성해서 발송해줘."
+    ],
+    "context": [],
+    "decision": "unsupported",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "unsupported.3",
+    "split": "train",
+    "requests": [
+      "우리 집 거실 스마트 조명을 켜줘.",
+      "집에 연결된 거실 전등을 원격으로 켜줘."
+    ],
+    "context": [],
+    "decision": "unsupported",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "unsupported.4",
+    "split": "validation",
+    "requests": [
+      "휴대폰 카메라로 지금 사진을 찍어줘.",
+      "내 스마트폰의 카메라 셔터를 눌러 새 사진을 촬영해줘."
+    ],
+    "context": [],
+    "decision": "unsupported",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "unsupported.5",
+    "split": "test",
+    "requests": [
+      "30초짜리 애니메이션 동영상 파일을 렌더링해줘.",
+      "새로운 30초 애니메이션 영상을 생성해서 영상 파일로 저장해줘."
+    ],
+    "context": [],
+    "decision": "unsupported",
+    "acceptable_choices": []
+  },
+  {
+    "scenario_id": "clarify.1",
+    "split": "train",
+    "requests": [
+      "그 종목 현재가 조회해줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "종목은 삼성전자 005930으로 정했어."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_stock_price"
+      }
+    ],
+    "variant_id": "context_resolved"
+  },
+  {
+    "scenario_id": "clarify.2",
+    "split": "train",
+    "requests": [
+      "그 노트의 이름을 바꿔줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "Obsidian의 Draft.md를 Final.md로 바꾸려고 해."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__vault",
+        "action": "rename"
+      }
+    ],
+    "variant_id": "context_resolved"
+  },
+  {
+    "scenario_id": "clarify.3",
+    "split": "train",
+    "requests": [
+      "그 파일에서 문구를 바꿔줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "Obsidian Plan.md에서 초안을 검토 중으로 치환할 거야."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__edit",
+        "action": "window"
+      }
+    ],
+    "variant_id": "context_resolved"
+  },
+  {
+    "scenario_id": "clarify.4",
+    "split": "validation",
+    "requests": [
+      "두 노트 사이의 링크 경로를 찾아줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "볼트의 Start.md와 Goal.md 사이 연결을 확인하자."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__obsidian_vault__graph",
+        "action": "path"
+      }
+    ],
+    "variant_id": "context_resolved"
+  },
+  {
+    "scenario_id": "clarify.5",
+    "split": "test",
+    "requests": [
+      "그 주식의 가격 이력을 가져와줘."
+    ],
+    "context": [
+      {
+        "role": "user",
+        "content": "카카오 주식의 과거 30일 종가를 살펴볼 거야."
+      }
+    ],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__swallow_trader__swallow_get_price_history"
+      }
+    ],
+    "variant_id": "context_resolved"
+  },
+  {
+    "scenario_id": "grafana.alerting_manage_routing.1",
+    "split": "train",
+    "requests": [
+      "Grafana의 알림 통지 정책 트리를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_manage_routing"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_manage_routing.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 알림 연락처 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_manage_routing"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_manage_routing.3",
+    "split": "test",
+    "requests": [
+      "Grafana의 알림 시간 간격 설정 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_manage_routing"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_rules_read.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 등록된 알림 규칙 목록을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_rules_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_rules_read.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 알림 규칙 UID rule-test의 상세 정의를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_rules_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_rules_read.3",
+    "split": "test",
+    "requests": [
+      "Grafana 규칙 rule-test의 저장된 변경 버전 이력을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_rules_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_silences_read.1",
+    "split": "train",
+    "requests": [
+      "Grafana 알림의 현재 silence 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_silences_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_silences_read.2",
+    "split": "validation",
+    "requests": [
+      "Grafana silence ID silence-test의 상세 내용을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_silences_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.alerting_silences_read.3",
+    "split": "test",
+    "requests": [
+      "Grafana 알림 규칙 rule-test와 관련된 무음 설정들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__alerting_silences_read"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.analyze_loki_labels.1",
+    "split": "train",
+    "requests": [
+      "Loki 데이터소스 logs-test의 라벨 구성을 감사하고 누락된 기본 라벨을 진단해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__analyze_loki_labels"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.analyze_loki_labels.2",
+    "split": "validation",
+    "requests": [
+      "다음 Loki 라벨 전략의 정규화 문제를 분석해줘: service, ServiceName, env."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__analyze_loki_labels"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.analyze_loki_labels.3",
+    "split": "test",
+    "requests": [
+      "Loki 데이터소스 logs-test에서 최근 한 시간 쿼리 성능과 라벨 전략의 문제를 진단해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__analyze_loki_labels"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.check_datasources_health.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 연결된 데이터소스 전체의 건강 상태를 점검해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__check_datasources_health"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.check_datasources_health.2",
+    "split": "validation",
+    "requests": [
+      "Grafana에서 Prometheus 유형 데이터소스들의 헬스체크를 해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__check_datasources_health"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.check_datasources_health.3",
+    "split": "test",
+    "requests": [
+      "Grafana 데이터소스 UID metrics-test의 연결 건강 상태를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__check_datasources_health"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.diff_tempo_traces.1",
+    "split": "train",
+    "requests": [
+      "Tempo 데이터소스 traces-test에서 trace-a와 trace-b의 차이를 비교해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__diff_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.diff_tempo_traces.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test의 trace-c와 trace-d를 전체 span 패치 형식으로 대조해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__diff_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.diff_tempo_traces.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 trace-e와 trace-f의 구조 차이를 요약해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__diff_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.generate_deeplink.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 UID board-test의 딥링크 URL을 만들어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__generate_deeplink"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.generate_deeplink.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 대시보드 board-test의 패널 7로 바로 가는 링크를 생성해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__generate_deeplink"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.generate_deeplink.3",
+    "split": "test",
+    "requests": [
+      "Grafana Explore에서 데이터소스 metrics-test로 이동하는 딥링크를 만들어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__generate_deeplink"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_alert_group.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 알림 그룹 ID group-test의 상세 내용을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_alert_group"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_alert_group.1",
+    "split": "train",
+    "requests": [
+      "OnCall 알림 그룹 group-test의 가장 최근 경보와 원본 payload를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_alert_group"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.get_alert_group.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 알림 그룹 group-test 한 건의 상태와 세부정보를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_alert_group"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_annotation_tags.1",
+    "split": "train",
+    "requests": [
+      "Grafana annotation에 사용하는 태그 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotation_tags"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_annotation_tags.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 주석 태그 중 deploy 이름으로 필터링해서 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotation_tags"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_annotation_tags.3",
+    "split": "test",
+    "requests": [
+      "Grafana annotation 태그를 최대 20개 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotation_tags"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_annotations.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 board-test의 annotation을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotations"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_annotations.2",
+    "split": "validation",
+    "requests": [
+      "Grafana에서 deploy 태그가 붙은 주석 기록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotations"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_annotations.3",
+    "split": "test",
+    "requests": [
+      "Grafana board-test 패널 7의 최근 한 시간 annotation들을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_annotations"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_assertions.1",
+    "split": "train",
+    "requests": [
+      "최근 한 시간 prod 환경 서비스 api-test의 assertion 요약을 Grafana에서 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_assertions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_assertions.2",
+    "split": "validation",
+    "requests": [
+      "Grafana의 namespace test에 속한 api-test 서비스 assertion을 최근 30분 기준으로 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_assertions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_assertions.3",
+    "split": "test",
+    "requests": [
+      "Grafana에서 site test의 api-test 서비스 assertion 상태를 오늘 00시부터 지금까지 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_assertions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_current_oncall_users.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 일정 schedule-test에서 지금 당직 중인 사람들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_current_oncall_users"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_current_oncall_users.1",
+    "split": "train",
+    "requests": [
+      "OnCall schedule-test의 현재 근무자 이름과 상세 정보를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_current_oncall_users"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.get_current_oncall_users.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall schedule-test 기준으로 지금 호출해야 할 당직자 목록을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_current_oncall_users"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_by_uid.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 UID board-test의 전체 JSON을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_by_uid"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_by_uid.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 대시보드 board-test의 저장 버전 2 내용을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_by_uid"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_by_uid.1",
+    "split": "train",
+    "requests": [
+      "Grafana board-test 대시보드의 패널과 변수 및 설정을 통째로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_by_uid"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_panel_queries.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 board-test에 들어 있는 패널 쿼리들을 추출해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_panel_queries"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_panel_queries.2",
+    "split": "validation",
+    "requests": [
+      "Grafana board-test의 패널 7에 설정된 데이터 쿼리를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_panel_queries"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_panel_queries.3",
+    "split": "test",
+    "requests": [
+      "Grafana board-test 대시보드의 중첩 row 패널까지 포함해 쿼리 정의를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_panel_queries"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_property.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 board-test에서 JSONPath $.title 값만 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_property"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_property.2",
+    "split": "validation",
+    "requests": [
+      "Grafana board-test의 $.templating.list 속성만 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_property"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_property.3",
+    "split": "test",
+    "requests": [
+      "Grafana board-test 대시보드에서 $.tags 필드만 추출해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_property"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_summary.1",
+    "split": "train",
+    "requests": [
+      "Grafana board-test 대시보드의 제목과 패널 수를 간략 요약해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_summary"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_summary.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 board-test의 패널 유형과 변수 개요를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_summary"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.get_dashboard_summary.1",
+    "split": "train",
+    "requests": [
+      "Grafana board-test의 전체 JSON 대신 압축된 메타데이터 요약을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_dashboard_summary"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_datasource.1",
+    "split": "train",
+    "requests": [
+      "Grafana 데이터소스 UID metrics-test의 상세 설정을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_datasource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_datasource.2",
+    "split": "validation",
+    "requests": [
+      "Grafana에서 이름이 Test Metrics인 데이터소스 정보를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_datasource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_datasource.3",
+    "split": "test",
+    "requests": [
+      "Grafana 데이터소스 logs-test의 타입과 접속 설정을 상세 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_datasource"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_doc.1",
+    "split": "train",
+    "requests": [
+      "Grafana 문서 https://grafana.com/docs/grafana/latest/의 목차만 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_doc"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_doc.2",
+    "split": "validation",
+    "requests": [
+      "https://grafana.com/docs/grafana/latest/dashboards/ 문서 본문을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_doc"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_doc.3",
+    "split": "test",
+    "requests": [
+      "Grafana 문서 https://grafana.com/docs/grafana/latest/에서 Dashboards 섹션을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_doc"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_incident.1",
+    "split": "train",
+    "requests": [
+      "Grafana incident ID incident-test의 전체 상세 정보를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_incident"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_incident.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 사고 incident-test의 심각도와 상태, 라벨을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_incident"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_incident.3",
+    "split": "test",
+    "requests": [
+      "Grafana incident-test 사고의 시간 정보와 사용자 정의 필드까지 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_incident"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_oncall_shift.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 근무 shift-test의 상세 시간을 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_oncall_shift"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_oncall_shift.1",
+    "split": "train",
+    "requests": [
+      "OnCall shift-test 교대 근무에 배정된 사용자 정보를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_oncall_shift"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.get_oncall_shift.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall shift-test 한 건의 전체 근무 세부정보를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_oncall_shift"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_panel_image.1",
+    "split": "train",
+    "requests": [
+      "Grafana board-test의 패널 7을 PNG 이미지로 렌더링해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_panel_image"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_panel_image.2",
+    "split": "validation",
+    "requests": [
+      "Grafana board-test 대시보드 전체를 폭 1200픽셀 PNG로 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_panel_image"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_panel_image.3",
+    "split": "test",
+    "requests": [
+      "Grafana board-test 패널 9를 어두운 테마의 PNG 이미지로 출력해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_panel_image"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_plugin.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 grafana-clock-panel 플러그인이 설치됐는지 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_plugin"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_plugin.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 플러그인 grafana-clock-panel의 설치된 버전을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_plugin"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_plugin.3",
+    "split": "test",
+    "requests": [
+      "현재 Grafana에서 grafana-clock-panel 플러그인의 활성 상태를 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_plugin"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_snapshot.1",
+    "split": "train",
+    "requests": [
+      "Grafana 스냅샷 키 snapshot-test의 메타데이터를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_snapshot"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.get_snapshot.1",
+    "split": "train",
+    "requests": [
+      "Grafana snapshot-test 스냅샷의 대시보드 payload를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_snapshot"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.get_snapshot.1",
+    "split": "train",
+    "requests": [
+      "스냅샷 키 snapshot-test로 Grafana 저장 화면의 전체 내용을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_snapshot"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.get_tempo_trace.1",
+    "split": "train",
+    "requests": [
+      "Tempo 데이터소스 traces-test에서 trace-a 한 건을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_trace"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_tempo_trace.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test의 trace-b를 span span-test에 초점을 맞춰 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_trace"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_tempo_trace.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 trace-c의 전체 분산 추적을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_trace"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_tempo_traceql_docs.1",
+    "split": "train",
+    "requests": [
+      "TraceQL의 기본 필터 문법 레퍼런스를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_traceql_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_tempo_traceql_docs.2",
+    "split": "validation",
+    "requests": [
+      "TraceQL의 구조 연산자 문서를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_traceql_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.get_tempo_traceql_docs.3",
+    "split": "test",
+    "requests": [
+      "TraceQL metrics 쿼리의 문법과 예제를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__get_tempo_traceql_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.grafana_api_request.1",
+    "split": "train",
+    "requests": [
+      "Grafana API의 /api/health 엔드포인트를 GET으로 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__grafana_api_request"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.grafana_api_request.2",
+    "split": "validation",
+    "requests": [
+      "Grafana의 /api/org API를 GET 호출해서 현재 조직을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__grafana_api_request"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.grafana_api_request.3",
+    "split": "test",
+    "requests": [
+      "Grafana /api/user API의 GET 응답에서 login 필드만 jq로 추출해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__grafana_api_request"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_alert_groups.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall의 알림 그룹들을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_alert_groups"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_alert_groups.2",
+    "split": "validation",
+    "requests": [
+      "OnCall에서 resolved 상태인 알림 그룹 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_alert_groups"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_alert_groups.3",
+    "split": "test",
+    "requests": [
+      "Grafana OnCall에서 팀 team-test의 알림 그룹 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_alert_groups"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_dashboard_versions.1",
+    "split": "train",
+    "requests": [
+      "Grafana 대시보드 board-test의 저장된 버전 목록을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_dashboard_versions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_dashboard_versions.2",
+    "split": "validation",
+    "requests": [
+      "Grafana board-test의 최근 저장 버전 5개의 변경 메타데이터를 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_dashboard_versions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_dashboard_versions.3",
+    "split": "test",
+    "requests": [
+      "Grafana 대시보드 board-test의 버전 작성자와 저장 시각 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_dashboard_versions"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_datasources.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 설정된 데이터소스와 UID 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_datasources"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_datasources.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 데이터소스 중 Loki 유형만 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_datasources"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_datasources.3",
+    "split": "test",
+    "requests": [
+      "Grafana에서 이름에 Test가 포함된 데이터소스 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_datasources"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_incident_custom_fields.1",
+    "split": "train",
+    "requests": [
+      "Grafana 사고에 정의된 사용자 정의 필드 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incident_custom_fields"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.list_incident_custom_fields.1",
+    "split": "train",
+    "requests": [
+      "Grafana incident 커스텀 필드의 타입과 선택 가능한 옵션들을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incident_custom_fields"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.list_incident_custom_fields.3",
+    "split": "test",
+    "requests": [
+      "Grafana incident의 보관된 커스텀 필드까지 포함해 정의 목록을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incident_custom_fields"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_incidents.1",
+    "split": "train",
+    "requests": [
+      "Grafana에서 현재 active 상태의 사고 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incidents"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_incidents.2",
+    "split": "validation",
+    "requests": [
+      "Grafana의 resolved 사고들을 최신 5건 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incidents"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_incidents.3",
+    "split": "test",
+    "requests": [
+      "Grafana 사고 목록에서 훈련용 drill incident까지 포함해 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_incidents"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_names.1",
+    "split": "train",
+    "requests": [
+      "Loki 데이터소스 logs-test의 라벨 키 이름들을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_names.2",
+    "split": "validation",
+    "requests": [
+      "Loki logs-test에서 최근 한 시간에 존재한 라벨 이름을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_names.3",
+    "split": "test",
+    "requests": [
+      "Loki logs-test의 app=api-test 스트림에 있는 라벨 키 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_values.1",
+    "split": "train",
+    "requests": [
+      "Loki 데이터소스 logs-test에서 app 라벨의 값 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_values.2",
+    "split": "validation",
+    "requests": [
+      "Loki logs-test의 env 라벨에 어떤 값들이 있는지 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_loki_label_values.3",
+    "split": "test",
+    "requests": [
+      "Loki logs-test에서 service_name 라벨 값들을 최근 한 시간 기준으로 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_loki_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_schedules.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 당직 일정들을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_schedules"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_schedules.2",
+    "split": "validation",
+    "requests": [
+      "Grafana OnCall에서 팀 team-test의 일정 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_schedules"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_schedules.3",
+    "split": "test",
+    "requests": [
+      "Grafana OnCall 일정 schedule-test의 요약을 목록 조회로 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_schedules"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_teams.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall에 등록된 팀 목록을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_teams"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.list_oncall_teams.2",
+    "split": "validation",
+    "requests": [
+      "Grafana OnCall 팀 디렉터리의 2페이지를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_teams"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_teams.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall에서 사용 가능한 모든 팀을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_teams"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.list_oncall_users.1",
+    "split": "train",
+    "requests": [
+      "Grafana OnCall 사용자 디렉터리를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_users"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_users.2",
+    "split": "validation",
+    "requests": [
+      "Grafana OnCall에서 사용자 ID user-test 정보를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_users"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_oncall_users.3",
+    "split": "test",
+    "requests": [
+      "Grafana 일반 사용자 대신 OnCall 사용자 이름 operator-test로 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_oncall_users"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_names.1",
+    "split": "train",
+    "requests": [
+      "Prometheus 데이터소스 metrics-test에 존재하는 라벨 이름들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_names.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus metrics-test에서 up 시리즈의 라벨 키를 최근 한 시간 기준으로 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_names.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test의 라벨 이름을 최대 20개 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_values.1",
+    "split": "train",
+    "requests": [
+      "Prometheus metrics-test에서 job 라벨의 값들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_values.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus 데이터소스 metrics-test의 instance 라벨 값 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_label_values.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test에서 env 라벨 값들을 최근 한 시간 기준으로 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_metadata.1",
+    "split": "train",
+    "requests": [
+      "Prometheus metrics-test의 메트릭 도움말과 타입 메타데이터를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_metadata"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_metadata.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus metrics-test에서 up 메트릭의 metadata를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_metadata"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_metadata.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test의 메트릭별 설명과 단위를 최대 5개 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_metadata"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_names.1",
+    "split": "train",
+    "requests": [
+      "Prometheus metrics-test에서 사용할 수 있는 메트릭 이름들을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_names.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus metrics-test의 이름이 _bucket으로 끝나는 메트릭들을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_prometheus_metric_names.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test에서 메트릭 이름 목록의 2페이지를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_prometheus_metric_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_provisioning_repositories.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 등록된 provisioning 저장소들을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_provisioning_repositories"
+      }
+    ],
+    "variant_id": "wording_1"
+  },
+  {
+    "scenario_id": "grafana.list_provisioning_repositories.1",
+    "split": "train",
+    "requests": [
+      "Grafana git-sync 프로비저닝 저장소의 브랜치와 경로 목록을 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_provisioning_repositories"
+      }
+    ],
+    "variant_id": "wording_2"
+  },
+  {
+    "scenario_id": "grafana.list_provisioning_repositories.1",
+    "split": "train",
+    "requests": [
+      "Grafana 프로비저닝 저장소들의 동기화 상태와 slug를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_provisioning_repositories"
+      }
+    ],
+    "variant_id": "wording_3"
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_names.1",
+    "split": "train",
+    "requests": [
+      "Pyroscope 데이터소스 profiles-test의 라벨 이름을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_names.2",
+    "split": "validation",
+    "requests": [
+      "Pyroscope profiles-test에서 최근 한 시간의 프로파일 라벨 키들을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_names.3",
+    "split": "test",
+    "requests": [
+      "Pyroscope profiles-test에서 service_name=api-test인 프로파일들의 라벨 키를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_values.1",
+    "split": "train",
+    "requests": [
+      "Pyroscope profiles-test에서 service_name 라벨 값들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_values.2",
+    "split": "validation",
+    "requests": [
+      "Pyroscope 데이터소스 profiles-test의 env 라벨 값 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_label_values.3",
+    "split": "test",
+    "requests": [
+      "Pyroscope profiles-test에서 instance 라벨 값들을 최근 한 시간 기준으로 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_label_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_profile_types.1",
+    "split": "train",
+    "requests": [
+      "Pyroscope profiles-test에서 사용할 수 있는 프로파일 유형을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_profile_types"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_profile_types.2",
+    "split": "validation",
+    "requests": [
+      "Pyroscope profiles-test에 최근 한 시간 동안 수집된 프로파일 종류를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_profile_types"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_pyroscope_profile_types.3",
+    "split": "test",
+    "requests": [
+      "Pyroscope profiles-test의 service_name=api-test에 존재하는 프로파일 타입을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_pyroscope_profile_types"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_snapshots.1",
+    "split": "train",
+    "requests": [
+      "Grafana에 저장된 대시보드 스냅샷 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_snapshots"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_snapshots.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 스냅샷 중 이름에 Test가 포함된 항목을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_snapshots"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_snapshots.3",
+    "split": "test",
+    "requests": [
+      "Grafana 스냅샷 목록을 최대 5개 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_snapshots"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_names.1",
+    "split": "train",
+    "requests": [
+      "Tempo traces-test에서 resource 범위의 속성 이름을 나열해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_names.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test의 span 범위 attribute 키들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_names.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 event 범위 속성명 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_names"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_values.1",
+    "split": "train",
+    "requests": [
+      "Tempo traces-test에서 resource.service.name 속성의 값들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_values.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test의 span.http.method 속성값 목록을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.list_tempo_attribute_values.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 resource.deployment.environment 속성값들을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__list_tempo_attribute_values"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_logs.1",
+    "split": "train",
+    "requests": [
+      "Loki logs-test에서 LogQL {app=\"api-test\"}로 최근 한 시간 로그를 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_logs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_logs.2",
+    "split": "validation",
+    "requests": [
+      "Loki logs-test에서 {app=\"api-test\"} |= \"error\" 쿼리의 로그 20건을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_logs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_logs.3",
+    "split": "test",
+    "requests": [
+      "Loki logs-test에서 {env=\"test\"} 스트림 로그를 시간 오름차순으로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_logs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_patterns.1",
+    "split": "train",
+    "requests": [
+      "Loki logs-test에서 {app=\"api-test\"} 로그에 반복되는 패턴을 분석해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_patterns"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_patterns.2",
+    "split": "validation",
+    "requests": [
+      "Loki logs-test의 {env=\"test\"} 스트림에서 탐지된 로그 패턴과 빈도를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_patterns"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_patterns.3",
+    "split": "test",
+    "requests": [
+      "Loki logs-test의 {service_name=\"api-test\"}에 대해 최근 한 시간 로그 패턴들을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_patterns"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_stats.1",
+    "split": "train",
+    "requests": [
+      "Loki logs-test에서 {app=\"api-test\"}의 인덱스 수준 스트림 통계를 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_stats"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_stats.2",
+    "split": "validation",
+    "requests": [
+      "Loki logs-test의 {env=\"test\"} 셀렉터가 읽을 로그 용량과 청크 수를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_stats"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_loki_stats.3",
+    "split": "test",
+    "requests": [
+      "Loki logs-test에서 {service_name=\"api-test\"}의 스트림·엔트리 통계만 읽어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_loki_stats"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus.1",
+    "split": "train",
+    "requests": [
+      "Prometheus metrics-test에서 up을 지금 시점의 instant 쿼리로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus metrics-test에서 rate(http_requests_total[5m])을 최근 한 시간 범위로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test에서 sum(up)을 최근 30분, 60초 간격으로 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus_histogram.1",
+    "split": "train",
+    "requests": [
+      "Prometheus metrics-test에서 http_request_duration_seconds_bucket의 95백분위 지연시간을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus_histogram"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus_histogram.2",
+    "split": "validation",
+    "requests": [
+      "Prometheus metrics-test의 http_request_duration_seconds_bucket에서 99백분위 값을 구해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus_histogram"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_prometheus_histogram.3",
+    "split": "test",
+    "requests": [
+      "Prometheus metrics-test에서 http_request_duration_seconds_bucket의 50백분위를 job=api-test 조건으로 계산해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_prometheus_histogram"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_pyroscope.1",
+    "split": "train",
+    "requests": [
+      "Pyroscope profiles-test에서 process_cpu:cpu:nanoseconds:cpu:nanoseconds 프로파일을 최근 한 시간 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_pyroscope"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_pyroscope.2",
+    "split": "validation",
+    "requests": [
+      "Pyroscope profiles-test의 process_cpu:cpu:nanoseconds:cpu:nanoseconds 프로파일을 service_name=api-test 조건으로 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_pyroscope"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_pyroscope.3",
+    "split": "test",
+    "requests": [
+      "Pyroscope profiles-test에서 process_cpu:cpu:nanoseconds:cpu:nanoseconds 프로파일의 최근 30분 타임시리즈를 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_pyroscope"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_tempo_metrics.1",
+    "split": "train",
+    "requests": [
+      "Tempo traces-test에서 TraceQL {} | count_over_time()으로 최근 한 시간 추적 건수 메트릭을 계산해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_tempo_metrics"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_tempo_metrics.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test에 { resource.service.name = \"api-test\" } | count_over_time()을 instant 방식으로 실행해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_tempo_metrics"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.query_tempo_metrics.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 {} | rate()를 최근 30분 범위의 추적 메트릭으로 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__query_tempo_metrics"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_dashboards.1",
+    "split": "train",
+    "requests": [
+      "Grafana에서 제목에 Test가 들어간 대시보드를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_dashboards"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_dashboards.2",
+    "split": "validation",
+    "requests": [
+      "Grafana folder-test 폴더 안의 대시보드들을 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_dashboards"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_dashboards.3",
+    "split": "test",
+    "requests": [
+      "Grafana에서 별표 표시한 대시보드 중 team-test 태그가 있는 항목을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_dashboards"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_docs.1",
+    "split": "train",
+    "requests": [
+      "Grafana 공식 문서에서 Loki 라벨 설계 관련 페이지를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_docs.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 문서 검색에서 Prometheus histogram을 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_docs.3",
+    "split": "test",
+    "requests": [
+      "Grafana 문서 검색으로 제공되는 제품 그룹 목록을 보여줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_docs"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_folders.1",
+    "split": "train",
+    "requests": [
+      "Grafana에서 제목에 Test가 들어간 폴더를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_folders"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_folders.2",
+    "split": "validation",
+    "requests": [
+      "Grafana 대시보드 폴더 목록을 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_folders"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_folders.3",
+    "split": "test",
+    "requests": [
+      "Grafana에서 Observability 폴더의 UID를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_folders"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_plugin_information.1",
+    "split": "train",
+    "requests": [
+      "Grafana 플러그인 카탈로그에서 clock 패널 플러그인을 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_plugin_information"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_plugin_information.2",
+    "split": "validation",
+    "requests": [
+      "설치 여부 대신 Grafana 플러그인 카탈로그의 PostgreSQL 관련 후보를 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_plugin_information"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_plugin_information.3",
+    "split": "test",
+    "requests": [
+      "Grafana 플러그인 마켓에서 trace 관련 플러그인 정보를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_plugin_information"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_tempo_traces.1",
+    "split": "train",
+    "requests": [
+      "Tempo traces-test에서 { resource.service.name = \"api-test\" }로 trace를 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_tempo_traces.2",
+    "split": "validation",
+    "requests": [
+      "Tempo traces-test에서 { status = error }인 추적들을 최근 한 시간 기준으로 찾아줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.search_tempo_traces.3",
+    "split": "test",
+    "requests": [
+      "Tempo traces-test에서 { duration > 1s }인 trace들을 검색해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__search_tempo_traces"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.suggest_loki_alloy_label_config.1",
+    "split": "train",
+    "requests": [
+      "허용 라벨 service_name과 env만 남기는 Loki Alloy 설정 스니펫을 생성해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__suggest_loki_alloy_label_config"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.suggest_loki_alloy_label_config.2",
+    "split": "validation",
+    "requests": [
+      "Loki Alloy에 app과 env 라벨을 유지하면서 로그 레벨을 정규화하는 설정을 제안해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__suggest_loki_alloy_label_config"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.suggest_loki_alloy_label_config.3",
+    "split": "test",
+    "requests": [
+      "승인 라벨 service_name, env와 필수 라벨 env를 적용할 Alloy loki.process 구성을 만들어줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__suggest_loki_alloy_label_config"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.user_info.1",
+    "split": "train",
+    "requests": [
+      "현재 Grafana 인증 계정의 로그인 이름과 현재 조직을 조회해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__user_info"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.user_info.2",
+    "split": "validation",
+    "requests": [
+      "Grafana에서 현재 사용자에게 서버 관리자 권한이 있는지 확인해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__user_info"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.user_info.3",
+    "split": "test",
+    "requests": [
+      "Grafana 현재 계정이 접근할 수 있는 조직 목록과 신원을 가져와줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__user_info"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.validate_provisioning_file.1",
+    "split": "train",
+    "requests": [
+      "Grafana provisioning 저장소 repo-test의 dashboards/test.json을 dry-run 검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__validate_provisioning_file"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.validate_provisioning_file.2",
+    "split": "validation",
+    "requests": [
+      "Grafana repo-test의 dashboards/test.json이 main 브랜치에서 수용될지 사전 검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__validate_provisioning_file"
+      }
+    ]
+  },
+  {
+    "scenario_id": "grafana.validate_provisioning_file.3",
+    "split": "test",
+    "requests": [
+      "Grafana repo-test의 dashboards/test.json을 커밋 test-commit 기준으로 적용 없이 검증해줘."
+    ],
+    "context": [],
+    "decision": "select_tools",
+    "acceptable_choices": [
+      {
+        "tool": "mcp__grafana__validate_provisioning_file"
+      }
+    ]
+  }
+]

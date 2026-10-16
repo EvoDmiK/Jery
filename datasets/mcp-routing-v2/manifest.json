@@ -1,0 +1,44 @@
+{
+  "dataset_version": "mcp-routing-v2",
+  "catalog_version": "hermes-mcp-57e701d87790",
+  "task": "next_step_tool_routing",
+  "language": "ko",
+  "seed": "mcp-v2",
+  "synthetic": true,
+  "human_reviewed": false,
+  "servers": 5,
+  "tools": 96,
+  "scenarios": 340,
+  "examples": 1162,
+  "split_counts": {
+    "train": 668,
+    "validation": 248,
+    "test": 246
+  },
+  "decision_counts": {
+    "select_tools": 1062,
+    "unsupported": 60,
+    "no_tool": 20,
+    "clarify": 20
+  },
+  "server_tool_counts": {
+    "grafana": 62,
+    "kestrel": 1,
+    "korean_law": 10,
+    "obsidian_vault": 10,
+    "swallow_trader": 13
+  },
+  "split_tool_coverage": {
+    "train": 96,
+    "validation": 85,
+    "test": 84
+  },
+  "sha256": {
+    "tools.json": "d8a97f14b63fe9321f65942c6947d0c7d2370542b7cc9cb22f0683a42ca9a48b",
+    "scenarios.json": "f0ee33a27ac4eefbe5b88b896f454c0366d5583f5d2ed5513764cd73d0538cc9",
+    "labels.json": "13ebc1b3efdb00692d54527ea94fdf8596b7193f32c4677ef7ab15f49d0fe6df",
+    "train.jsonl": "5eb09bc5d05668f82fe669c36b44ec2bd4d758e46cdec9a4b8c73edd5ddb9bd9",
+    "validation.jsonl": "6840efb974df1ddded18b6b27b765c1cfa43d182238eca2b6fae5c0c63d5ddf6",
+    "test.jsonl": "7a1fc5600a24b265f6864914a567e03ba0bd18f5b53f896f692465c09df832c4"
+  }
+}

@@ -4,7 +4,7 @@
 
 Jery는 사용자 요청, 이전 대화, 후보 도구 명세를 받아 다음 MCP 도구를 선택하는 경량 로컬 모델 프로젝트다. 결정 유형은 `select_tools`, `no_tool`, `clarify`, `unsupported`다.
 
-현재 구현은 한국어 합성 데이터셋 130개와 재생성·검증 스크립트다. 읽기 전용 Hermes SQLite 수집·정제, 검토 후보 저장과 체크포인트 API도 구현되어 있다. 모델, 추론 서버와 검토 UI는 아직 없다. 수집기 실행과 한계는 `docs/data/hermes-collector.md`를 따른다. 기능 완료 여부는 코드와 검증 결과로 확인하고, 계획을 구현된 기능처럼 보고하지 않는다.
+현재 구현은 한국어 합성 데이터셋 v1 130개·v2 1,162개와 재생성·검증 스크립트다. 전체 MCP 분류 데이터의 범위와 계약은 `datasets/mcp-routing-v2/README.md`를 따른다. 읽기 전용 Hermes SQLite 수집·정제, 검토 후보 저장과 체크포인트 API도 구현되어 있다. 모델, 추론 서버와 검토 UI는 아직 없다. 수집기 실행과 한계는 `docs/data/hermes-collector.md`를 따른다. 기능 완료 여부는 코드와 검증 결과로 확인하고, 계획을 구현된 기능처럼 보고하지 않는다.
 
 ## 역할과 파일 소유권
 
@@ -59,7 +59,7 @@ Jery는 사용자 요청, 이전 대화, 후보 도구 명세를 받아 다음 M
 
 ## 공통 데이터 계약
 
-- 현재 필드와 의미는 `datasets/hermes-routing-v1/README.md`, 카탈로그와 manifest를 기준으로 한다.
+- 현재 필드와 의미는 선택한 데이터셋의 README, 카탈로그와 manifest를 기준으로 한다. v1은 `datasets/hermes-routing-v1/README.md`, 전체 MCP v2는 `datasets/mcp-routing-v2/README.md`를 따른다. v1과 v2를 단순 결합하지 않는다.
 - 도구 ID는 `mcp__{server}__{name}`이다. 도구 명세는 사례의 `tool_catalog_version`에 연결한다.
 - `acceptable_choices`는 허용되는 선택의 대안 목록이다. 여러 단계의 실행 계획으로 해석하지 않는다.
 - `unsupported`는 해당 사례의 후보 도구로 처리 불가라는 뜻이다.
@@ -94,6 +94,7 @@ AGENTS.md 작성이나 역할 확인만으로 다른 에이전트에게 작업�
 
 ```sh
 python3 scripts/validate_dataset.py
+python3 scripts/validate_mcp_dataset.py
 ```
 
 `build_seed_dataset.py`는 기존 분할과 manifest를 덮어쓰므로 합성 데이터를 재생성하는 작업에만 실행한다. 모델과 검토 도구는 담당 기능에 맞는 테스트를 실행한다. 설명 문서만 변경한 경우에는 문서 내용, 링크와 `git diff --check`를 확인한다.

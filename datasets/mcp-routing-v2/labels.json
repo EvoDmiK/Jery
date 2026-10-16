@@ -1,0 +1,638 @@
+[
+  {
+    "tool": "mcp__grafana__alerting_manage_routing",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__alerting_rules_read",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__alerting_silences_read",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__analyze_loki_labels",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__check_datasources_health",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__diff_tempo_traces",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__generate_deeplink",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_alert_group",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_annotation_tags",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_annotations",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_assertions",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_current_oncall_users",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_dashboard_by_uid",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_dashboard_panel_queries",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_dashboard_property",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_dashboard_summary",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_datasource",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_doc",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_incident",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_oncall_shift",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_panel_image",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_plugin",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_snapshot",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_tempo_trace",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__get_tempo_traceql_docs",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__grafana_api_request",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_alert_groups",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_dashboard_versions",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_datasources",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_incident_custom_fields",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_incidents",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_loki_label_names",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_loki_label_values",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_oncall_schedules",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_oncall_teams",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_oncall_users",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_prometheus_label_names",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_prometheus_label_values",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_prometheus_metric_metadata",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_prometheus_metric_names",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_provisioning_repositories",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_pyroscope_label_names",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_pyroscope_label_values",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_pyroscope_profile_types",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_snapshots",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_tempo_attribute_names",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__list_tempo_attribute_values",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_loki_logs",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_loki_patterns",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_loki_stats",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_prometheus",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_prometheus_histogram",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_pyroscope",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__query_tempo_metrics",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__search_dashboards",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__search_docs",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__search_folders",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__search_plugin_information",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__search_tempo_traces",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__suggest_loki_alloy_label_config",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__user_info",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__grafana__validate_provisioning_file",
+    "server": "grafana",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__kestrel__get_codex_reset_status",
+    "server": "kestrel",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__discover_tools",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__execute_tool",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__get_annexes",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__get_decision_text",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__get_law_text",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__legal_analysis",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__legal_research",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__ordinance_radar",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__search_decisions",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__korean_law__search_law",
+    "server": "korean_law",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__obsidian_vault__bases",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "list",
+      "read",
+      "create",
+      "query",
+      "view",
+      "export"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__dataview",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "query",
+      "list",
+      "metadata",
+      "validate",
+      "status"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__edit",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "window",
+      "append",
+      "patch",
+      "at_line",
+      "from_buffer"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__graph",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "traverse",
+      "neighbors",
+      "path",
+      "statistics",
+      "backlinks",
+      "forwardlinks",
+      "search-traverse",
+      "advanced-traverse",
+      "tag-traverse",
+      "tag-analysis",
+      "shared-tags"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__list_resources",
+    "server": "obsidian_vault",
+    "kind": "resource_utility",
+    "actions": []
+  },
+  {
+    "tool": "mcp__obsidian_vault__read_resource",
+    "server": "obsidian_vault",
+    "kind": "resource_utility",
+    "actions": []
+  },
+  {
+    "tool": "mcp__obsidian_vault__system",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "info",
+      "commands",
+      "fetch_web"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__vault",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "list",
+      "read",
+      "create",
+      "update",
+      "delete",
+      "search",
+      "fragments",
+      "move",
+      "rename",
+      "copy",
+      "split",
+      "combine",
+      "concatenate"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__view",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "file",
+      "window",
+      "active",
+      "open_in_obsidian"
+    ]
+  },
+  {
+    "tool": "mcp__obsidian_vault__workflow",
+    "server": "obsidian_vault",
+    "kind": "tool",
+    "actions": [
+      "suggest"
+    ]
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_backtest",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_check_stock",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_news_alerts",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_portfolio",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_price_history",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_stock_news",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_stock_price",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_get_trades",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_news_impact",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_order",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_reset_portfolio",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_trigger_pipeline",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": []
+  },
+  {
+    "tool": "mcp__swallow_trader__swallow_watchlist",
+    "server": "swallow_trader",
+    "kind": "tool",
+    "actions": [
+      "list",
+      "add",
+      "remove"
+    ]
+  }
+]
