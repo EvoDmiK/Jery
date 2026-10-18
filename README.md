@@ -41,6 +41,12 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 예측 명령은 로컬 학습 모델이 필요하며 실제 MCP를 실행하지 않는다. [첫 실험 결과](docs/data/weekend-baseline-20261016.md), [학습·절전 방지 실행 절차](docs/data/local-training.md), [모델 구현](docs/model/baseline.md), [예측 계약](docs/contracts/prediction-v1.md)을 참고한다. 학습·가중치·원본 결과 경로는 Git에서 제외한다.
 
+[Laya 첫 파일럿](docs/data/laya-pilot-20261017.md)에서는 M4에서 FP16 인코더를 고정하고 헤드를 32건으로 학습했다. 64스텝 학습과 저장·복원을 확인했지만 검증 12건의 내부 선택 정답은 학습 전후 모두 0건이었다. 공학 실행 확인용 결과이며 공개 예측 함수나 운영 모델에는 연결하지 않았다.
+
+[Laya 전체 데이터 64에폭 실험](docs/data/laya-full-training-20261017.md)은 v2의 668/248/246건을 모두 사용하고, `Jery` MLflow Experiment의 Parent–Child 구조로 세 학습률을 순차 비교한다. 실제 진행 상태와 완료 결과는 연결된 MLflow run 및 상태 파일에서 확인한다.
+
+[후속 균형 학습·Hyperopt 실험](docs/model/laya-balanced-hyperopt-20261018.md)은 학습 창 비중 40/40/10/10, 검증 기준 최적 head 복원·patience 5 조기 종료, Hyperopt TPE 5회 탐색을 적용한다. 이전 고정 64에폭 실험은 결과를 보존하고 중단했다.
+
 ## 초기 데이터셋
 
 [Hermes routing v1](datasets/hermes-routing-v1/README.md)은 Hermes `hybrid-v2`의 로컬 MCP 스키마 캐시에서 추출한 도구 명세를 바탕으로 작성한 한국어 합성 데이터셋이다.
@@ -169,4 +175,4 @@ graphify query "build_seed_dataset validate_dataset"
 
 현재 데이터는 수집 구조와 초기 실험을 위한 작은 합성 데이터셋이다. 실제 사용 로그를 포함하지 않으며, 정답은 사람 검토 전의 초안이다. 여러 도구 조합, 대화 맥락에 따른 선택, 실행 실패 이후의 판단도 포함하지 않는다. 반복되는 작업 유형과 표현 때문에 현재 평가 분할만으로 운영 성능을 추정하기 어렵다.
 
-다음 단계는 정답 검토, 실제 사용 사례 수집, 별도 실제 요청 평가 세트 구성, 기준 모델의 학습·평가와 로컬 추론 구현이다.
+다음 단계는 정답 검토, 후보 수 편향을 줄인 데이터 구성, 별도 평가 세트 확보와 동일 데이터에서의 기준 모델·Laya 비교다.

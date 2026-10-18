@@ -1,0 +1,19 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-full-v2-64epochs-20261017",
+  "dataset_version": "mcp-routing-v2",
+  "export_dir": "outputs/laya-full-20261017/export",
+  "epochs": 64,
+  "seed": 3407,
+  "head_learning_rates": [0.0001, 0.0003, 0.001],
+  "micro_batch": 1,
+  "grad_accum": 4,
+  "timeout_hours_per_child": 48,
+  "child_params": ["head_lr", "epochs", "seed", "effective_batch_size"],
+  "child_metrics": ["train_loss", "val_accuracy", "val_macro_f1", "val_coverage", "test_accuracy", "test_macro_f1", "test_coverage"],
+  "selection": "highest final validation case_accuracy; tie lower head_lr; final epoch only",
+  "test_policy": "one final evaluation per predeclared child, never used for selection",
+  "aggregation_policy": "exhaustive windows and label-blind winner tournament; no cross-window probability comparison; delegate counts wrong and coverage separately",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base"
+}

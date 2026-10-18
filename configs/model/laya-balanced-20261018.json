@@ -1,0 +1,37 @@
+{
+  "export_dir": "outputs/laya-full-20261017/export",
+  "model_dir": "models/laya-multilingual",
+  "model_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+  "models_dir": "models/laya-balanced-20261018",
+  "outputs_dir": "outputs/model/laya-balanced-20261018",
+  "seed": 3407,
+  "epochs": 64,
+  "probe_steps": 8,
+  "max_seq_length": 1024,
+  "micro_batch": 1,
+  "grad_accum": 4,
+  "head_learning_rate": 0.0001,
+  "encoder_learning_rate": 2e-05,
+  "lr_scheduler": "linear",
+  "warmup_steps": 64,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "gradient_checkpointing": true,
+  "checkpoint_every_epochs": 1,
+  "eval_batch_size": 16,
+  "mlx_memory_limit_gb": 16,
+  "mlx_cache_limit_gib": 2,
+  "memory_guard_gib": 20,
+  "train_bucket_ratios": {
+    "tool": 4,
+    "window_none": 4,
+    "no_tool": 1,
+    "clarify": 1
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 5,
+    "min_delta": 0.004,
+    "include_baseline": true
+  }
+}
