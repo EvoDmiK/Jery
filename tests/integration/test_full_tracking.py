@@ -13,6 +13,18 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_recovery_preserves_original_source_and_configuration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ('source.json', 'configuration.json'):
+                path = Path(directory) / name
+                tracking.write_json(path, {'original': True})
+                before = path.read_bytes()
+                tracking.write_json(path, {'original': False}, overwrite=False)
+                self.assertEqual(path.read_bytes(), before)
+            fresh = Path(directory) / 'fresh.json'
+            tracking.write_json(fresh, {'new': True}, overwrite=False)
+            self.assertEqual(json.loads(fresh.read_text()), {'new': True})
+
     @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
     def test_hyperopt_replay_uses_only_finished_validation(self):
         plan = {'seed': 3407, 'hyperopt': {'head_lr': [1e-5, 1e-3], 'weight_decay': [0., .01],

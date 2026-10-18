@@ -20,12 +20,15 @@ from run_laya_repeats import upload
 from sync_laya_training_metrics import request
 
 ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_TRACKING_URI = 'https://mlflow.dove-nest.com'
 PARAMS = {'head_lr', 'epochs', 'seed', 'effective_batch_size'}
 METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
            'test_accuracy', 'test_macro_f1', 'test_coverage'}
 
 
-def write_json(path, data):
+def write_json(path, data, *, overwrite=True):
+    if not overwrite and path.exists():
+        return
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False) as handle:
         json.dump(data, handle, indent=2, ensure_ascii=False, allow_nan=False)
@@ -101,7 +104,7 @@ def main():
     parser.add_argument('--python', required=True, type=Path)
     parser.add_argument('--state-dir', type=Path, default=ROOT / 'outputs/laya-full-20261017/tracking')
     parser.add_argument('--model-config', type=Path, default=ROOT / 'configs/model/laya-full-20261017.json')
-    parser.add_argument('--tracking-uri', default='http://192.168.219.99:5000')
+    parser.add_argument('--tracking-uri', default=DEFAULT_TRACKING_URI)
     parser.add_argument('--detach', action='store_true')
     options = parser.parse_args()
     folder = options.state_dir.resolve()
@@ -129,7 +132,9 @@ def main():
         if hashlib.sha256(path.read_bytes()).hexdigest() != expected_export['splits'][split]['sha256']:
             raise ValueError('Export changed: ' + split)
     os.environ.update(PYTHONPATH=str(ROOT / 'src'), HF_HUB_OFFLINE='1', USE_TF='0', TOKENIZERS_PARALLELISM='false')
-    state.update(status='running', supervisor_pid=os.getpid(), started_at=datetime.now(timezone.utc).isoformat())
+    state.update(status='running', supervisor_pid=os.getpid(), tracking_uri=base,
+                 started_at=datetime.now(timezone.utc).isoformat())
+    state.pop('error', None)
     write_json(state_path, state)
     stopped, child_process = False, None
 
@@ -150,7 +155,11 @@ def main():
     def network_call(function, *args):
         while True:
             try:
-                return function(*args)
+                result = function(*args)
+                if state.pop('tracking_error', None) is not None:
+                    state['tracking_recovered_at'] = datetime.now(timezone.utc).isoformat()
+                    write_json(state_path, state)
+                return result
             except Exception as error:
                 if not transient(error) or stopped:
                     raise
@@ -270,7 +279,7 @@ def main():
         local = folder / item['local_id']; local.mkdir(parents=True, exist_ok=True)
         configuration = local / 'configuration.json'
         write_json(configuration, {'config': {**config, **overrides}, 'plan': plan,
-                                  'data_parent_artifact_uri': state['parent_artifact_uri'] + '/data'})
+                                  'data_parent_artifact_uri': state['parent_artifact_uri'] + '/data'}, overwrite=False)
         item.setdefault('verified_artifacts', {})['configuration.json'] = store_json(
             item['run_id'], item['artifact_uri'], 'configuration.json', configuration)
         sources = {}
@@ -282,7 +291,7 @@ def main():
                      'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py', 'requirements-decision.txt']:
             path = ROOT / name
             sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}
-        write_json(local / 'source.json', sources)
+        write_json(local / 'source.json', sources, overwrite=False)
         item['verified_artifacts']['source.json'] = store_json(item['run_id'], item['artifact_uri'], 'source.json', local / 'source.json')
         out = ROOT / config['outputs_dir'] / item['local_id']
         command = [str(options.python.absolute()), '-m', 'jery.model.laya_full', '--config', str(options.model_config.absolute()),

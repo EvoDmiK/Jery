@@ -71,4 +71,14 @@ DECISION_PYTHON=/Volumes/Dove-Nest-SSD/app-data/orca/kimdove/home/workspaces/Jer
 
 작은 실제 MLX 검증은 원본 파생 train 8/val 3/test 3창, 균형화 후 20회 노출을 사용했다. 테스트 전용 patience 1/min_delta 1.0으로 첫 에폭 조기 종료와 epoch 0 복원을 강제했다. 중단 없이 실행한 경우와 첫 에폭 기록 직후 강제 중단·재시작한 경우 모두 5 step, 에폭 기록 1개, 최종 head SHA `378e43dafcdf0b5d2fa4bdc64db5cb4024fa313e77181b24dea78d942240bf96`, 복원 차이 0.0이었다. 이는 경로 검증이며 품질 측정이 아니다.
 
-균형·콜백·추적 테스트와 실제 Hyperopt 제안/완료 결과 재구성 테스트를 실행했다. 데이터 v1/v2 검증, 요청 번역 쌍의 원본 보존 테스트도 통과했다. `git diff --check`와 `graphify update .`를 실행했다. 작업 브랜치는 `dev-codex`, 기준 HEAD `bd6d2ccd0e452deff84181748fc84e56df1ccdec`이며 이번 변경은 미커밋·미푸시 상태다.
+균형·콜백·추적 테스트와 실제 Hyperopt 제안/완료 결과 재구성 테스트를 실행했다. 데이터 v1/v2 검증, 요청 번역 쌍의 원본 보존 테스트도 통과했다. `git diff --check`와 `graphify update .`를 실행했다. 실행 시작 시 브랜치는 `dev-codex`, 기준 HEAD는 `bd6d2ccd0e452deff84181748fc84e56df1ccdec`였으며 미커밋 상태였다. 이후 구현을 `f135208`로 커밋·푸시했고 전체 테스트 109개가 통과했다.
+
+## 2026-10-19 MLflow 연결 복구
+
+첫 trial은 2026-10-18 11:12 KST에 5에폭·10,665 step, 총 6,304.3초로 학습·평가를 마쳤다. 5에폭 연속 baseline을 넘지 못해 epoch 0 head를 복원했다(검증 16.13%, 평가 15.04%). 이후 학습용 Python의 내부 IP `192.168.219.99:5000` 연결이 `No route to host`로 실패해 동기화와 후속 trial이 대기했다. 같은 Python에서 공개 HTTPS 주소로 기존 Experiment와 run을 읽을 수 있음을 확인했다. macOS 권한이나 네트워크 설정을 변경하지 않았다.
+
+실행기의 기본 연결을 `https://mlflow.dove-nest.com`으로 바꾸고 실제 `tracking_uri`를 상태 파일에 기록한다. 성공한 연결에서는 과거 오류 상태를 해제한다. 재시작 시 기존 `configuration.json`과 `source.json`을 덮어쓰지 않도록 보완해 당시 실행 증거를 유지한다.
+
+기존 실행기를 종료한 후 위 재현 명령에 `--tracking-uri https://mlflow.dove-nest.com`을 명시해 같은 Parent와 trial 상태로 재개했다. 첫 trial은 `report.json`을 재사용해 재학습하지 않았다. 원래 가중치·report·단계·에폭 로그·소스·설정의 SHA-256은 모두 일치한다. 누락 에폭 4·5를 동기화했고 네 개 학습 곡선은 에폭 1~5를 각 한 번씩 포함한다. 가중치 59,086,741바이트 업로드·읽기 검증 후 첫 Child는 FINISHED가 됐다.
+
+두 번째 [Child `fc2c6a50fde549cbb2aebd3e696483e8`](https://mlflow.dove-nest.com/#/experiments/47/runs/fc2c6a50fde549cbb2aebd3e696483e8)를 시작했다. LR 4.914736689552478e-5, weight decay 0.01, label smoothing 0.1이며 동일한 균형·콜백 정책을 사용한다. 관련 추적·실행기 테스트 9개, v1/v2 데이터 검증과 diff 검사를 통과했다. 복구 영수증은 `outputs/laya-balanced-20261018/tracking/recovery-20261019-before.json`에 있으며 후속 복구 결과는 Parent JSON Artifact로 보관한다.
