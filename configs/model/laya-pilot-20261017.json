@@ -1,0 +1,22 @@
+{
+  "export_dir": "outputs/laya-pilot-20261017/export",
+  "model_dir": "models/laya-multilingual",
+  "model_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+  "models_dir": "models/laya-pilot-20261017",
+  "outputs_dir": "outputs/model/laya-pilot-20261017",
+  "seed": 3407,
+  "max_seq_length": 1024,
+  "micro_batch": 1,
+  "grad_accum": 4,
+  "max_steps": 64,
+  "head_learning_rate": 0.0001,
+  "encoder_learning_rate": 0.00002,
+  "lr_scheduler": "linear",
+  "warmup_steps": 4,
+  "weight_decay": 0.0,
+  "max_grad_norm": 1.0,
+  "gradient_checkpointing": true,
+  "mlx_memory_limit_gb": 16,
+  "memory_guard_gib": 20,
+  "latency_repeats": 5
+}

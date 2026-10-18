@@ -1,0 +1,17 @@
+# Laya head-only pilot (src/jery/model/laya_pilot.py), installed into tmp/venv-decision with Python 3.12.15.
+# The pins below are the exact set the pilot ran with; unsloth-zoo pins mlx 0.32.3 on Apple Silicon.
+# Decision-training code in unsloth/unsloth-zoo is AGPL-3.0-only: local experiments only until licensing is reviewed.
+unsloth==2026.10.6
+unsloth-zoo==2026.10.6
+mlx==0.32.3
+mlx-lm==0.31.3
+torch==2.14.1
+transformers==5.17.0
+tokenizers==0.23.3
+laya==0.4.9
+#
+# Source check (2026-10-17): installed unsloth/models/decision_mlx.py and _decision_common.py are byte-identical
+# to unsloth@2f63c766; unsloth_zoo/mlx/decision.py equals unsloth-zoo@9e560677 after CRLF normalisation.
+# unsloth_zoo/mlx/trainer.py differs only in _local_grad_step (LM trainer): main replaces mx.stop_gradient with
+# `+ 0` to dodge an mlx 0.32.4 compile bug. MLXDecisionTrainer never calls it and mlx is 0.32.3, so no patch is applied.
+# Importing unsloth writes ./unsloth_compiled_cache/ in the working directory; it is generated and safe to delete.
