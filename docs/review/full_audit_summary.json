@@ -1,0 +1,241 @@
+{
+  "audit_passed": true,
+  "export_dir": "/Volumes/Dove-Nest-SSD/projects/Jery/outputs/laya-full-20261017/export",
+  "dataset_dir": "/Volumes/Dove-Nest-SSD/projects/Jery/datasets/mcp-routing-v2",
+  "manifest_sha256": "ded2f8e2d2ee0035d164b04719c5c2dc0cda5e2bb815b0db355d024563803b7e",
+  "manifest_size": 2999,
+  "source_checksums": {
+    "verified": true,
+    "details": {
+      "test.jsonl": {
+        "expected": "7a1fc5600a24b265f6864914a567e03ba0bd18f5b53f896f692465c09df832c4",
+        "actual": "7a1fc5600a24b265f6864914a567e03ba0bd18f5b53f896f692465c09df832c4",
+        "matches": true
+      },
+      "tools.json": {
+        "expected": "d8a97f14b63fe9321f65942c6947d0c7d2370542b7cc9cb22f0683a42ca9a48b",
+        "actual": "d8a97f14b63fe9321f65942c6947d0c7d2370542b7cc9cb22f0683a42ca9a48b",
+        "matches": true
+      },
+      "train.jsonl": {
+        "expected": "5eb09bc5d05668f82fe669c36b44ec2bd4d758e46cdec9a4b8c73edd5ddb9bd9",
+        "actual": "5eb09bc5d05668f82fe669c36b44ec2bd4d758e46cdec9a4b8c73edd5ddb9bd9",
+        "matches": true
+      },
+      "validation.jsonl": {
+        "expected": "6840efb974df1ddded18b6b27b765c1cfa43d182238eca2b6fae5c0c63d5ddf6",
+        "actual": "6840efb974df1ddded18b6b27b765c1cfa43d182238eca2b6fae5c0c63d5ddf6",
+        "matches": true
+      }
+    },
+    "mismatches": []
+  },
+  "export_integrity": {
+    "valid": true,
+    "errors": [],
+    "stats": {
+      "train": {
+        "source_rows": 668,
+        "rows": 4172,
+        "scenario_groups": 165,
+        "original_decisions": {
+          "select_tools": 3906,
+          "clarify": 78,
+          "unsupported": 110,
+          "no_tool": 78
+        },
+        "window_labels": {
+          "T7": 75,
+          "window_none": 3409,
+          "T1": 71,
+          "T3": 74,
+          "clarify": 78,
+          "T2": 86,
+          "T4": 68,
+          "T6": 77,
+          "no_tool": 78,
+          "T5": 75,
+          "T0": 81
+        }
+      },
+      "validation": {
+        "source_rows": 248,
+        "rows": 1592,
+        "scenario_groups": 88,
+        "original_decisions": {
+          "select_tools": 1510,
+          "unsupported": 30,
+          "clarify": 26,
+          "no_tool": 26
+        },
+        "window_labels": {
+          "T1": 27,
+          "window_none": 1305,
+          "T4": 21,
+          "T5": 30,
+          "T6": 31,
+          "T3": 26,
+          "T0": 46,
+          "T2": 27,
+          "clarify": 26,
+          "T7": 27,
+          "no_tool": 26
+        }
+      },
+      "test": {
+        "source_rows": 246,
+        "rows": 1577,
+        "scenario_groups": 87,
+        "original_decisions": {
+          "select_tools": 1495,
+          "clarify": 26,
+          "unsupported": 30,
+          "no_tool": 26
+        },
+        "window_labels": {
+          "window_none": 1293,
+          "T6": 24,
+          "T5": 33,
+          "T2": 31,
+          "T7": 26,
+          "T3": 31,
+          "T4": 23,
+          "T1": 29,
+          "T0": 35,
+          "clarify": 26,
+          "no_tool": 26
+        }
+      }
+    },
+    "scenario_overlaps": {}
+  },
+  "split_audits": {
+    "train": {
+      "source_fidelity": {
+        "valid": true,
+        "errors": [],
+        "verified_rows": 4172
+      },
+      "candidate_coverage": {
+        "valid": true,
+        "errors": [],
+        "total_source_cases": 668,
+        "full_coverage_cases": 668,
+        "candidate_coverage_ratio": 1.0,
+        "window_count_distribution": {
+          "1": 344,
+          "12": 318,
+          "2": 6
+        }
+      },
+      "semantics": {
+        "valid": true,
+        "errors": [],
+        "positive_select": 607,
+        "window_none_select": 3299,
+        "multi_target_windows": 5,
+        "non_select": {
+          "clarify": 78,
+          "unsupported": 110,
+          "no_tool": 78
+        },
+        "total_rows": 4172
+      },
+      "sanitization_and_cards": {
+        "valid": true,
+        "errors": [],
+        "flag_checks": {
+          "synthetic": 4172,
+          "needs_human_review": 4172,
+          "execution_unverified": 4172
+        },
+        "total_rows": 4172
+      }
+    },
+    "validation": {
+      "source_fidelity": {
+        "valid": true,
+        "errors": [],
+        "verified_rows": 1592
+      },
+      "candidate_coverage": {
+        "valid": true,
+        "errors": [],
+        "total_source_cases": 248,
+        "full_coverage_cases": 248,
+        "candidate_coverage_ratio": 1.0,
+        "window_count_distribution": {
+          "1": 124,
+          "12": 122,
+          "2": 2
+        }
+      },
+      "semantics": {
+        "valid": true,
+        "errors": [],
+        "positive_select": 235,
+        "window_none_select": 1275,
+        "multi_target_windows": 1,
+        "non_select": {
+          "unsupported": 30,
+          "clarify": 26,
+          "no_tool": 26
+        },
+        "total_rows": 1592
+      },
+      "sanitization_and_cards": {
+        "valid": true,
+        "errors": [],
+        "flag_checks": {
+          "synthetic": 1592,
+          "needs_human_review": 1592,
+          "execution_unverified": 1592
+        },
+        "total_rows": 1592
+      }
+    },
+    "test": {
+      "source_fidelity": {
+        "valid": true,
+        "errors": [],
+        "verified_rows": 1577
+      },
+      "candidate_coverage": {
+        "valid": true,
+        "errors": [],
+        "total_source_cases": 246,
+        "full_coverage_cases": 246,
+        "candidate_coverage_ratio": 1.0,
+        "window_count_distribution": {
+          "12": 121,
+          "1": 125
+        }
+      },
+      "semantics": {
+        "valid": true,
+        "errors": [],
+        "positive_select": 232,
+        "window_none_select": 1263,
+        "multi_target_windows": 2,
+        "non_select": {
+          "clarify": 26,
+          "unsupported": 30,
+          "no_tool": 26
+        },
+        "total_rows": 1577
+      },
+      "sanitization_and_cards": {
+        "valid": true,
+        "errors": [],
+        "flag_checks": {
+          "synthetic": 1577,
+          "needs_human_review": 1577,
+          "execution_unverified": 1577
+        },
+        "total_rows": 1577
+      }
+    }
+  },
+  "error_count": 0,
+  "all_errors": []
+}
