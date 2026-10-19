@@ -54,3 +54,9 @@ Claude는 weighted loss와 독립 학습 선택 정책, AGY는 독립 결과 감
 별도 출력 경로에서 native checkpoint 30을 읽어 optimizer state 30→31과 global step 30→31을 확인했다. 원본 checkpoint의 모든 파일 해시는 재개 전후 동일했다. 증거는 Git 밖 `outputs/laya-routing-v2-20261019/`와 새 Parent의 readiness JSON artifact에 보존한다.
 
 Claude의 읽기 전용 통합 검토 후, prepared configuration과 실제 실행 configuration이 같고 policy version도 일치하는지 실행 전 검사하도록 보강했다. Parent의 `best_val_accuracy`는 v2에서 최고 trained validation 점수를 뜻한다. 최종 test는 별도로 보호된 serving head 기준이다.
+
+### 전체 데이터 재학습 시작
+
+2026-10-19 14:24 KST, 회사 RTX 5070 Ti에서 [새 Parent](https://mlflow.dove-nest.com/#/experiments/47/runs/bc61fce284ae468e8b7022508f36e819)를 시작했다. 첫 [Child](https://mlflow.dove-nest.com/#/experiments/47/runs/18dc59a3819d42739340f20890702b08)는 가중치 1.0 조건이며 0.5·0.25 조건이 순차 실행된다. 실제 optimizer step 128 이상과 유한한 loss·gradient를 확인했다. 에폭 곡선은 해당 에폭의 validation이 끝난 뒤 기록한다. Mac 학습은 중단 상태다.
+
+학습 코드 기준은 `275fee1`이다. Claude 구현 `b3ea679`는 `2480f06`으로, AGY의 `1e5610f`·`08a7c3d`·`e7a7655` 최종 변경은 생성 JSON을 제외하고 `275fee1`로 통합했다. 통합 후 전체 테스트 132개, v1/v2 데이터 검증 및 실제 CUDA smoke 독립 감사를 통과했다. 데이터셋과 readiness 증거 JSON 다섯 개를 새 Parent에 업로드하고 재조회 해시를 검증했다. 진행 상태는 시점별 관측이며 최종 성능 개선 여부는 아직 평가하지 않았다.
