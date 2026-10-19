@@ -1,0 +1,18 @@
+{
+  "data_dir": "datasets/mcp-routing-v2",
+  "output_dir": "outputs/model/mcp-routing-v2",
+  "model_dir": "models/mcp-routing-v2",
+  "seed": 13,
+  "max_workers": 4,
+  "threads_per_worker": 1,
+  "retrieval_grid": {
+    "threshold": [0.0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.15],
+    "fallback": ["unsupported", "no_tool", "clarify"]
+  },
+  "linear_grid": {
+    "epochs": [5, 10, 20],
+    "lr": [0.1, 0.3],
+    "l2": [0.0, 0.0001],
+    "use_spec": [true, false]
+  }
+}

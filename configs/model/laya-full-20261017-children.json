@@ -1,0 +1,5 @@
+[
+  {"run_id": "lr1e-4-s3407", "override": {"head_learning_rate": 0.0001}},
+  {"run_id": "lr3e-4-s3407", "override": {"head_learning_rate": 0.0003}},
+  {"run_id": "lr1e-3-s3407", "override": {"head_learning_rate": 0.001}}
+]

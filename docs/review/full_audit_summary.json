@@ -1,7 +1,7 @@
 {
   "audit_passed": true,
-  "export_dir": "/Volumes/Dove-Nest-SSD/projects/Jery/outputs/laya-full-20261017/export",
-  "dataset_dir": "/Volumes/Dove-Nest-SSD/projects/Jery/datasets/mcp-routing-v2",
+  "export_dir": "outputs/laya-full-20261017/export",
+  "dataset_dir": "datasets/mcp-routing-v2",
   "manifest_sha256": "ded2f8e2d2ee0035d164b04719c5c2dc0cda5e2bb815b0db355d024563803b7e",
   "manifest_size": 2999,
   "source_checksums": {

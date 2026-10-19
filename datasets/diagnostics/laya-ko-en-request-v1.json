@@ -1,0 +1,59 @@
+{
+  "version": "laya-ko-en-request-probe-v1",
+  "purpose": "diagnostic only; excluded from training and hyperparameter selection",
+  "review_status": "needs_human_review",
+  "translation_method": "assistant translation; proper names and literal note values retained",
+  "control": "Only state.request changes; candidates, context, question schema, order and labels stay identical. This is not a fully English-input benchmark.",
+  "source_split": "validation",
+  "source_sha256": "aa2c7175a6fb1564af7e992faa8aa64dce45418a9f9e32308a17e075815baf1b",
+  "pairs": [
+    {
+      "source_id": "swallow_trader.swallow_news_impact.4.base.subset.1",
+      "english_request": "Track the relationship between news-driven simulated trade executions and realized profit or loss in Swallow."
+    },
+    {
+      "source_id": "grafana.list_prometheus_label_names.2.base.subset.1",
+      "english_request": "List the label keys of the up series in the Prometheus metrics-test datasource for the past hour."
+    },
+    {
+      "source_id": "grafana.alerting_silences_read.2.base.subset.1",
+      "english_request": "Read the details of Grafana silence ID silence-test."
+    },
+    {
+      "source_id": "swallow_trader.swallow_watchlist.4.base.subset.2",
+      "english_request": "Add 000660 to the Swallow watchlist with the note \"반도체 관찰\"."
+    },
+    {
+      "source_id": "swallow_trader.swallow_get_stock_price.4.base.subset.1",
+      "english_request": "What is the current stock price of SK hynix?"
+    },
+    {
+      "source_id": "obsidian_vault.system.4.base.subset.1",
+      "english_request": "Check the Obsidian MCP server information and runtime environment."
+    },
+    {
+      "source_id": "obsidian_vault.graph.4.base.subset.1",
+      "english_request": "Starting from Routing.md in the vault, explore linked notes up to two hops away."
+    },
+    {
+      "source_id": "korean_law.discover_tools.4.base.subset.2",
+      "english_request": "Discover additional legal tools for Labor Relations Commission matters."
+    },
+    {
+      "source_id": "no_tool.4.base.subset.1",
+      "english_request": "Summarize this text: Jery is a model that selects tools locally."
+    },
+    {
+      "source_id": "clarify.4.base.subset.1",
+      "english_request": "Find the link path between two notes."
+    },
+    {
+      "source_id": "unsupported.4.base.subset.2",
+      "english_request": "Press the camera shutter on my smartphone to take a new photo."
+    },
+    {
+      "source_id": "swallow_trader.swallow_order.4.base.target_absent.1",
+      "english_request": "Sell Kakao 035720 at 50000 won in my Swallow simulated account."
+    }
+  ]
+}

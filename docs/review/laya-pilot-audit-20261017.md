@@ -42,12 +42,12 @@ Codex가 생성한 Laya 파일럿 32건 학습용 및 12건 검증용 익스포�
 
 `dev-agy`는 파이썬 표준 라이브러리(Python 3.9+ pure stdlib)만을 사용하여 clean checkout 환경에서도 외부 파일이나 절대경로에 의존하지 않고 재현 가능한 감사 도구와 단위 테스트를 구현하였다:
 
-1. **독립 감사 스크립트**: [`apps/review/pilot_audit.py`](../apps/review/pilot_audit.py)
+1. **독립 감사 스크립트**: [`apps/review/pilot_audit.py`](../../apps/review/pilot_audit.py)
    - 상대경로(`DEFAULT_ROOT = Path(__file__).resolve().parents[2]`)를 기본값으로 사용하며, 특정 사용자 경로 하드코딩 없이 `--export-dir` 및 `--dataset-dir` CLI 인자를 명시적으로 지원.
-   - 원본 체크섬 대조, 원본 11개 필드 동일성 대조, 분할 격리, $C$ vs $W$ 매핑, `window_none` 의미론, 동적 에일리어스, 소프트 타깃 정규화, `request`/`context` 비누출 정규식 검사, 카드 필드 허용목록 및 120자 제한 검증 수행.
-2. **단위 테스트 스위트**: [`tests/review/test_pilot_audit.py`](../tests/review/test_pilot_audit.py)
+   - 원본 체크섬 대조, 원본 11개 필드 동일성 대조, 분할 격리, $C$ vs $W$ 매핑, `window_none` 의미론, 동적 에일리어스, 소프트 타깃 정규화, `request`/`context`의 도구 ID·결정 키워드 검사, 카드 필드 허용목록 및 120자 제한 검증 수행.
+2. **단위 테스트 스위트**: [`tests/review/test_pilot_audit.py`](../../tests/review/test_pilot_audit.py)
    - `tempfile.TemporaryDirectory` 내에 독립적인 미니 데이터셋과 익스포트 픽스처를 동적 생성하여 root outputs 유무와 무관하게 완전히 격리된 테스트 실행.
-   - **결함 주입 및 탐지 테스트 10종 포함**:
+   - **결함 주입 및 탐지 테스트 9종 포함**:
      1. 체크섬 키 누락 탐지 (`tools.json` 누락 시 즉시 실패)
      2. 악성/변조된 `source_id` 탐지 (원본 미존재 ID 참조 시 실패)
      3. `state.context` 변조 탐지 (원본 context와 불일치 시 실패)
@@ -56,8 +56,7 @@ Codex가 생성한 Laya 파일럿 32건 학습용 및 12건 검증용 익스포�
      6. 카드 허용목록 외 비인가 필드 주입 탐지
      7. 중복 카드 에일리어스 탐지
      8. 비인가 질문(`action_choice` 등) 주입 탐지
-     9. 음성 창에 허용 도구가 포함된 오염 탐지
-     10. train-validation 간 시나리오 그룹 누출 탐지
+     9. train-validation 간 시나리오 그룹 누출 탐지
    - 실제 환경의 root export가 존재하는 경우에만 선택적으로 실측 검증하는 가드형 테스트(`test_live_root_export_if_available`) 포함.
 3. **전체 테스트 실행 결과**:
    ```sh
@@ -168,9 +167,13 @@ Codex가 생성한 Laya 파일럿 32건 학습용 및 12건 검증용 익스포�
 ## 5. 결론 및 다음 단계 (Conclusion & Next Steps)
 
 1. **감사 최종 결론**:
-   - Codex가 빌드한 `outputs/laya-pilot-20261017/export/`는 원본 `datasets/mcp-routing-v2`와 100% 정합하며, 윈도우 의미론, 데이터 누출 방지, 카드 명세 준수, 시나리오 그룹 분리 등 모든 검증 기준을 충족한다.
-   - 따라서 **Laya 공학용 파일럿 0단계(32건 스모크 테스트)를 안전하게 진행하기에 충분**하다.
+   - Codex가 빌드한 `outputs/laya-pilot-20261017/export/`는 원본 `datasets/mcp-routing-v2`와 검사한 11개 원본 필드가 일치하며, 윈도우 의미론, 데이터 누출 방지, 카드 명세 준수, 시나리오 그룹 분리 등 모든 검증 기준을 충족한다.
+   - 따라서 **Laya 공학용 파일럿 0단계(32건 스모크 테스트)를 실행 경로 확인을 진행하기에 충분**하다.
 
 2. **다음 단계 권고사항**:
-   - `dev-claude`는 본 익스포트를 바탕으로 Laya 공식 토크나이저를 실행하여 실제 헤드 옵션 및 state 토큰 수를 측정하고(GATE-0), 32건 학습 스모크를 가동할 수 있다.
+   - 실제 토큰 예산과 학습·저장·복원 결과는 [통합 파일럿 보고서](../data/laya-pilot-20261017.md)에 기록했다.
    - `dev-agy`는 파일럿 결과가 도출되면 오류 분석 뷰어 및 검토 UI 지원을 준비한다.
+
+검사 범위는 이 합성 파일럿의 구조·계보·알려진 문자열 패턴이다. 원본 요청 텍스트의 모든 의미적 정답 누출 부재나 사람에 의한 정답 검토를 입증하지 않는다.
+
+통합 검증에서는 기존 감사 도구의 출력 경로 보호를 재사용했다. 원본 데이터·export 파일과 그 심볼릭 링크·하드 링크를 결과 출력으로 지정해도 거부하고 원본 바이트를 보존하는 CLI 테스트를 추가했다. 파일럿 감사 테스트 13개가 통과했다.

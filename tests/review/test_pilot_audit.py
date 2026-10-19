@@ -10,6 +10,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -461,6 +462,24 @@ class TestPilotAudit(unittest.TestCase):
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
             self.assertIn("Audit status: PASS", result.stdout)
             self.assertIn("Total errors: 0", result.stdout)
+
+    def test_cli_cannot_overwrite_source_export_or_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            base = Path(folder)
+            dataset, export = create_mock_dataset_and_export(base)
+            original = {p: p.read_bytes() for d in (dataset, export) for p in d.iterdir()}
+            symlink, hardlink = base / 'symlink.json', base / 'hardlink.json'
+            symlink.symlink_to(dataset / 'train.jsonl')
+            os.link(export / 'train.jsonl', hardlink)
+            for target in (dataset / 'train.jsonl', export / 'train.jsonl', symlink, hardlink):
+                with self.subTest(target=target.name):
+                    result = subprocess.run([
+                        sys.executable, str(PROJECT_ROOT / 'apps/review/pilot_audit.py'),
+                        '--export-dir', str(export), '--dataset-dir', str(dataset),
+                        '--output-json', str(target),
+                    ], capture_output=True, text=True)
+                    self.assertNotEqual(result.returncode, 0)
+                    self.assertEqual({p: p.read_bytes() for p in original}, original)
 
     def test_live_root_export_if_available(self) -> None:
         """Verify live root pilot export if present on environment, otherwise skip cleanly."""

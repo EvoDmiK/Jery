@@ -15,6 +15,11 @@ from collections import Counter
 from pathlib import Path
 from typing import Any, Dict, List, Set, Tuple
 
+if __package__:
+    from .audit import validate_output_summary_path
+else:
+    from audit import validate_output_summary_path
+
 DEFAULT_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_DATASET = DEFAULT_ROOT / "datasets/mcp-routing-v2"
 DEFAULT_EXPORT = DEFAULT_ROOT / "outputs/laya-pilot-20261017/export"
@@ -527,6 +532,11 @@ def main():
     output_str = json.dumps(result, ensure_ascii=False, indent=2)
 
     if args.output_json:
+        try:
+            validate_output_summary_path(args.output_json, args.dataset_dir)
+            validate_output_summary_path(args.output_json, args.export_dir)
+        except ValueError as exc:
+            parser.error(str(exc))
         args.output_json.parent.mkdir(parents=True, exist_ok=True)
         args.output_json.write_text(output_str + "\n", encoding="utf-8")
         print(f"Audit summary written to {args.output_json}")
