@@ -36,6 +36,8 @@
 
 ## 재현
 
+실행 Parent는 [afef02bf60dc496e8287ca3dc3057ad7](https://mlflow.dove-nest.com/#/experiments/47/runs/afef02bf60dc496e8287ca3dc3057ad7)다. 첫 Child `95ba153e90c5415bb414c6309e0c4500`에서 LR `2.2090148907640474e-6`·가중치 `0.5`가 Hyperopt 후보, 실제 config 및 MLflow params 5개에 일치함을 확인했다. 실제 optimizer step 175 이상 진행과 유한한 loss·gradient를 확인했으며, 성능 개선 여부는 아직 평가하지 않았다. native 형식 보고서·검색 preflight·중단 증거를 Parent JSON artifact에 업로드하고 재조회 SHA-256을 확인했다. 학습 코드 기준은 `ba9d007`이다.
+
 회사 서버 checkout `/home/persona-ai/git/Jery-cuda`, Python `/home/persona-ai/envs/jery-cuda/bin/python`, 의존성 `requirements-decision-cuda.txt`를 사용한다.
 
 ```sh
