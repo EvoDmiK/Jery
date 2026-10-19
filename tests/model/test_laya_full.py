@@ -1,6 +1,10 @@
+import json
+from pathlib import Path
+import tempfile
 import unittest
 
-from jery.model.laya_full import aggregate, case_gold, case_metrics, group_cases, window_metrics
+from jery.model.laya_full import (ValidationPolicy, aggregate, balanced_indices, case_gold, case_metrics,
+                                  group_cases, repair_json_lines, window_metrics, write_json)
 
 SENTINELS = {'no_tool': 'n', 'clarify': 'c', 'window_none': 'w'}
 
@@ -29,6 +33,47 @@ def tools(prefix, n):
 
 
 class AggregateTest(unittest.TestCase):
+    def test_train_balance_preserves_every_window_and_source(self):
+        rows = [{'gold': {'route_in_window': {'label': label}}}
+                for label, count in [('window_none', 18), ('T0', 2), ('no_tool', 1), ('clarify', 1)]
+                for _ in range(count)]
+        original = json.dumps(rows)
+        indices, summary = balanced_indices(rows, {'tool': 4, 'window_none': 4, 'no_tool': 1, 'clarify': 1}, 42)
+        self.assertEqual(set(indices), set(range(22)))
+        self.assertEqual(summary['sampled_counts'], {'tool': 20, 'window_none': 20, 'no_tool': 5, 'clarify': 5})
+        self.assertEqual(indices, balanced_indices(rows, summary['ratios'], 42)[0])
+        self.assertEqual(json.dumps(rows), original)
+        with self.assertRaises(ValueError):
+            balanced_indices(rows[:18], summary['ratios'], 42)
+
+    def test_validation_policy_restores_best_and_ignores_plateaus(self):
+        policy = ValidationPolicy(patience=2, min_delta=.004)
+        self.assertTrue(policy.observe(0, .16))
+        self.assertFalse(policy.observe(1, .162))
+        self.assertTrue(policy.observe(2, .18))
+        self.assertFalse(policy.observe(3, .179))
+        self.assertFalse(policy.observe(4, .18))
+        self.assertTrue(policy.stopped)
+        self.assertEqual((policy.best_epoch, policy.best_score), (2, .18))
+        replay = ValidationPolicy(patience=2, min_delta=.004)
+        for epoch, score in enumerate([.16,.162,.18,.179,.18]): replay.observe(epoch, score)
+        self.assertEqual(replay.snapshot(), policy.snapshot())
+        with self.assertRaises(ValueError): policy.observe(5, float('nan'))
+
+    def test_interrupted_json_write_recovery(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'metrics.jsonl'
+            path.write_bytes(b'{"epoch": 1}\n{"epoch": "\xe3')
+            repair_json_lines(path)
+            self.assertEqual(path.read_text(), '{"epoch": 1}\n')
+            path.write_text('invalid\n')
+            with self.assertRaises(json.JSONDecodeError):
+                repair_json_lines(path)
+            self.assertEqual(path.read_text(), 'invalid\n')
+            target = Path(folder) / 'report.json'
+            write_json(target, {'complete': True})
+            self.assertEqual(json.loads(target.read_text()), {'complete': True})
+
     def setUp(self):
         many = tools('a', 20)
         rows = (case('single', [tools('b', 3)], 'select_tools', ['mcp__b__t1'])

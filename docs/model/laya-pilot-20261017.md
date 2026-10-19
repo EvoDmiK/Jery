@@ -16,7 +16,7 @@
 | mlx 버전 | 검토 문서의 0.32.4가 아니라 unsloth-zoo 2026.10.6의 darwin-arm64 고정값 0.32.3이다 |
 | 모델 | root `models/laya-multilingual` revision `1720e3e3357cfe1e281542e223f8273b0890ca34`, 읽기 전용, 복사 없음. `model.safetensors` SHA-256과 HF 다운로드 메타데이터를 report에 기록 |
 | export | root `outputs/laya-pilot-20261017/export`, manifest SHA-256 검증 후 사용. train sha `10769b08…`, validation sha `a2bfd802…` |
-| 라이선스 | 결정 학습 코드는 AGPL-3.0-only. 로컬 실험으로만 사용 |
+| 라이선스 | upstream 결정 학습 파일의 헤더는 AGPL-3.0-only로 명시됨 |
 
 G0: `FastDecisionModel.from_pretrained`가 체크포인트를 1.7초에 로드했고, 예제 1건 predict가 성공했다(MLX peak 0.71 GB).
 
@@ -24,20 +24,20 @@ G0: `FastDecisionModel.from_pretrained`가 체크포인트를 1.7초에 로드�
 
 ```sh
 # 환경 (한 번)
-python3.12 -m venv tmp/venv-decision  # CPython 3.12.15
+python3.12 -m venv tmp/venv-decision
 tmp/venv-decision/bin/pip install -r requirements-decision.txt
 
 # 파일럿 (재현용, 현재 CLI)
 PYTHONPATH=src HF_HUB_OFFLINE=1 USE_TF=0 TOKENIZERS_PARALLELISM=false caffeinate -i \
   tmp/venv-decision/bin/python -m jery.model.laya_pilot \
   --config configs/model/laya-pilot-20261017.json \
-  --assets-root <integration-root> --run-id <new-id>
+  --assets-root . --run-id <new-id>
 ```
 
 - 설정 [configs/model/laya-pilot-20261017.json](../../configs/model/laya-pilot-20261017.json)은 export와 모델 경로를 `--assets-root` 기준 상대 경로로 둔다. `--override '{"key": value}'`는 설정 위에 병합되며 report의 `config`에 남는다.
 - 같은 run id가 있으면 실행을 거부한다. 출력은 `outputs/model/laya-pilot-20261017/<run>/`에 쓴다: `status.json`(running/succeeded/failed), `run.log`, `report.json`, `steps.json`, `budgets.json`, `predictions_{before,after,reloaded}.jsonl`. 가중치는 `models/laya-pilot-20261017/<run>/`에 쓴다.
 - 실제 두 run은 위 CLI의 이전 상태로 실행했다. run 1은 `--assets-root`/`--override`가 없고 설정에 절대 경로가 있었다. run 2에는 `--override`가 있었다. 각 report의 `command`와 `config`가 실제 값이다. `--assets-root`는 두 run이 끝난 뒤 추가했으며, 재학습으로 검증하지 않았다.
-- run 1은 `nohup caffeinate -i …`로, run 2는 `caffeinate -i …`로 직접 실행했다. coordinator가 권한 root `scripts/run_local_training.py`는 사용하지 않았다. 그 대신 CLI 자체의 status.json, run.log, 메모리 가드로 같은 정보를 남긴다.
+- run 1은 `nohup caffeinate -i …`로, run 2는 `caffeinate -i …`로 직접 실행했다. coordinator가 안내한 root `scripts/run_local_training.py`는 사용하지 않았다. 그 대신 CLI 자체의 status.json, run.log, 메모리 가드로 같은 정보를 남긴다.
 - unsloth를 import하면 작업 디렉터리에 `unsloth_compiled_cache/`가 생긴다. 생성물이므로 삭제했다.
 - 실행 당시 브랜치는 `dev-claude` HEAD `c877fef`이고, 파일럿 파일은 아직 커밋하지 않았다(report의 `git.dirty=true`).
 
@@ -102,3 +102,5 @@ run 1의 train 정답 유형별 결과: tool 7/12, clarify 2/5, no_tool 0/6, win
 - option 순서 셔플: Laya MLX 경로의 `permute_fields`는 Clef 전용이다. export의 옵션 순서는 고정(T0…, sentinel 끝)이므로 위치 편향 검증이 필요하다.
 - root `scripts/run_local_training.py` 실행기로 감싸서 재현할 것.
 - window→공개 prediction-v1 변환(C 전체 확인 후 unsupported, 위임)과 OOF 후보, LoRA 단계, 보정은 범위 밖이다.
+
+통합 결과와 MLflow 링크는 [통합 파일럿 기록](../data/laya-pilot-20261017.md)에 있다. 원래 설정의 train top-1 상승 조건은 미충족으로 남겨 두며 추가 재학습은 하지 않았다.

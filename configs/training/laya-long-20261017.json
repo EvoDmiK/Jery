@@ -1,0 +1,5 @@
+[
+  {"trial_id": "long512-lr1e-4", "seed": 3407, "max_steps": 512, "head_learning_rate": 0.0001},
+  {"trial_id": "long512-lr3e-4", "seed": 3407, "max_steps": 512, "head_learning_rate": 0.0003},
+  {"trial_id": "long512-lr1e-3", "seed": 3407, "max_steps": 512, "head_learning_rate": 0.001}
+]

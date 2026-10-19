@@ -6,7 +6,7 @@ Jery는 사용자 요청, 이전 대화, 사용 가능한 도구 명세를 입�
 
 ## 현재 상태
 
-현재 저장소에는 초기 도구 10개의 합성 데이터 v1과 전체 MCP 도구 96개의 합성 데이터 v2, 재생성·검증 스크립트가 있다. Hermes SQLite를 읽기 전용으로 수집·정제하고 검토 후보와 체크포인트를 저장하는 로컬 API도 구현되어 있다. 모델 학습 코드, 학습된 가중치와 추론 서버는 아직 없으며, 실제 n8n 배포는 수행하지 않았다.
+현재 저장소에는 초기 도구 10개의 합성 데이터 v1과 전체 MCP 도구 96개의 합성 데이터 v2, 재생성·검증 스크립트가 있다. Hermes SQLite를 읽기 전용으로 수집·정제하고 검토 후보와 체크포인트를 저장하는 로컬 API도 구현되어 있다. 검색·선형 기준 모델의 학습·평가와 로컬 예측 함수도 구현했고 첫 학습을 완료했다. 가중치와 실험 결과는 로컬에 저장한다. 추론 HTTP 서버와 실제 n8n 배포는 아직 없다.
 
 ## 결정 유형
 
@@ -29,6 +29,27 @@ Jery는 사용자 요청, 이전 대화, 사용 가능한 도구 명세를 입�
 python3 scripts/build_mcp_dataset.py
 python3 scripts/validate_mcp_dataset.py
 ```
+
+## 로컬 학습과 분류
+
+Mac mini M4에서 검색·선형 기준 모델의 검증 설정 48개를 비교하고 첫 실험을 약 4분 만에 완료했다. 미검토 합성 test 246건 중 도구 선택 정답 230건에서 선형 모델의 도구 정확도는 82.61%, 서버 정확도는 99.13%였다. 평가에 나타난 도구는 84개이며 실제 사용 정확도를 의미하지 않는다. 보조 action 정확도는 도구를 맞힌 사례에서 36.67%로 추가 데이터 보강이 필요하다.
+
+```sh
+PYTHONPATH=src python3 -m jery.model.cli --config configs/model/mcp-routing-v2-baseline.json
+python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해줘.'
+```
+
+예측 명령은 로컬 학습 모델이 필요하며 실제 MCP를 실행하지 않는다. [첫 실험 결과](docs/data/weekend-baseline-20261016.md), [학습·절전 방지 실행 절차](docs/data/local-training.md), [모델 구현](docs/model/baseline.md), [예측 계약](docs/contracts/prediction-v1.md)을 참고한다. 학습·가중치·원본 결과 경로는 Git에서 제외한다.
+
+[Laya 첫 파일럿](docs/data/laya-pilot-20261017.md)에서는 M4에서 FP16 인코더를 고정하고 헤드를 32건으로 학습했다. 64스텝 학습과 저장·복원을 확인했지만 검증 12건의 내부 선택 정답은 학습 전후 모두 0건이었다. 공학 실행 확인용 결과이며 공개 예측 함수나 운영 모델에는 연결하지 않았다.
+
+[Laya 전체 데이터 64에폭 실험](docs/data/laya-full-training-20261017.md)은 v2의 668/248/246건을 모두 사용하고, `Jery` MLflow Experiment의 Parent–Child 구조로 세 학습률을 순차 비교한다. 실제 진행 상태와 완료 결과는 연결된 MLflow run 및 상태 파일에서 확인한다.
+
+[후속 균형 학습·Hyperopt 실험](docs/model/laya-balanced-hyperopt-20261018.md)은 학습 창 비중 40/40/10/10, 검증 기준 최적 head 복원·patience 5 조기 종료, Hyperopt TPE 5회 탐색을 적용한다. 이전 고정 64에폭 실험은 결과를 보존하고 중단했다.
+
+[Linux RTX 5070 Ti 실행 검증](docs/model/laya-cuda-probe-20261019.md)에서는 별도 CUDA 환경에서 같은 Laya 라우팅 head를 32스텝씩 학습하고 저장·재로드를 확인했다. 전체 Hyperopt 학습은 기존 Mac에서 유지하며 CUDA로 이전하지 않았다.
+
+[전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증했고, 사용자 요청으로 CUDA Hyperopt 5회를 기존 Mac 실험과 동시에 실행한다. 두 실험은 별도 Parent로 기록한다.
 
 ## 초기 데이터셋
 
@@ -158,4 +179,4 @@ graphify query "build_seed_dataset validate_dataset"
 
 현재 데이터는 수집 구조와 초기 실험을 위한 작은 합성 데이터셋이다. 실제 사용 로그를 포함하지 않으며, 정답은 사람 검토 전의 초안이다. 여러 도구 조합, 대화 맥락에 따른 선택, 실행 실패 이후의 판단도 포함하지 않는다. 반복되는 작업 유형과 표현 때문에 현재 평가 분할만으로 운영 성능을 추정하기 어렵다.
 
-다음 단계는 정답 검토, 실제 사용 사례 수집, 별도 실제 요청 평가 세트 구성, 기준 모델의 학습·평가와 로컬 추론 구현이다.
+다음 단계는 정답 검토, 후보 수 편향을 줄인 데이터 구성, 별도 평가 세트 확보와 동일 데이터에서의 기준 모델·Laya 비교다.

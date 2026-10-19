@@ -1,6 +1,6 @@
 # Laya head-only pilot (src/jery/model/laya_pilot.py), installed into tmp/venv-decision with Python 3.12.15.
 # The pins below are the exact set the pilot ran with; unsloth-zoo pins mlx 0.32.3 on Apple Silicon.
-# Decision-training code in unsloth/unsloth-zoo is AGPL-3.0-only: local experiments only until licensing is reviewed.
+# Decision-training code in unsloth/unsloth-zoo is AGPL-3.0-only (upstream file header).
 unsloth==2026.10.6
 unsloth-zoo==2026.10.6
 mlx==0.32.3
@@ -9,6 +9,8 @@ torch==2.14.1
 transformers==5.17.0
 tokenizers==0.23.3
 laya==0.4.9
+hyperopt==0.2.7
+setuptools==80.9.0  # Hyperopt 0.2.7 imports pkg_resources, removed by newer setuptools.
 #
 # Source check (2026-10-17): installed unsloth/models/decision_mlx.py and _decision_common.py are byte-identical
 # to unsloth@2f63c766; unsloth_zoo/mlx/decision.py equals unsloth-zoo@9e560677 after CRLF normalisation.

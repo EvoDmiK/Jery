@@ -1,9 +1,9 @@
 """Head-only Laya training and case-level evaluation on the exhaustive decision-export-v1 windows.
 
-Every original candidate set C is split into windows of at most 8 tools. Training uses every train window as
-exported (no resampling). Each epoch scores all validation windows and aggregates them per source case without
-labels; one JSON line per epoch goes to metrics.jsonl. The head after the last epoch is final (no epoch selection):
-it is saved, reloaded and checked, then scores test once.
+Every original candidate set C is split into windows of at most 8 tools. Training retains every train window;
+optional train-only oversampling balances decision buckets. Each epoch scores all validation windows and
+aggregates them per source case without labels. The optional validation callback stops on a plateau and restores
+the best head (including epoch zero); the legacy default uses the last epoch. Test is scored once after selection.
 
 PYTHONPATH=src tmp/venv-decision/bin/python -m jery.model.laya_full \
     --config configs/model/laya-full-20261017.json --assets-root <checkout with export and model> \
@@ -16,8 +16,10 @@ import json
 import math
 import os
 from pathlib import Path
+import random
 import statistics
 import sys
+import tempfile
 import time
 import traceback
 
@@ -34,6 +36,56 @@ DELEGATE = 'delegate'
 # The only metadata aggregation may see: lineage and the alias map, never gold or original labels.
 BLIND_METADATA = ('source_id', 'window_index', 'window_count', 'export_id', 'window_tools', 'alias_to_tool',
                   'original_candidate_tools')
+
+
+def balanced_indices(rows, ratios, seed):
+    """Train-only oversampling; retain every original window and repeat evenly within each bucket."""
+    if set(ratios) != {'tool', *NULLS} or any(not isinstance(v, int) or v <= 0 for v in ratios.values()):
+        raise ValueError('Positive integer ratios required for tool and all three null buckets')
+    buckets = {key: [] for key in ratios}
+    for index, row in enumerate(rows):
+        label = row['gold'][QUESTION]['label']
+        buckets[label if label in NULLS else 'tool'].append(index)
+    if any(not values for values in buckets.values()):
+        raise ValueError('Cannot balance a training bucket with no examples')
+    scale = max(math.ceil(len(buckets[key]) / ratio) for key, ratio in ratios.items())
+    rng, indices = random.Random(seed), []
+    for key, ratio in ratios.items():
+        pool = buckets[key][:]
+        rng.shuffle(pool)
+        target = scale * ratio
+        indices.extend((pool * math.ceil(target / len(pool)))[:target])
+    rng.shuffle(indices)
+    return indices, {'source_counts': {k: len(v) for k, v in buckets.items()},
+                     'sampled_counts': {k: scale * v for k, v in ratios.items()},
+                     'unique_windows': len(set(indices)), 'sampled_windows': len(indices),
+                     'ratios': ratios, 'seed': seed, 'indices': indices,
+                     'policy': 'training-only deterministic oversampling; no source windows removed'}
+
+
+class ValidationPolicy:
+    """Only validation case accuracy selects a head; epoch zero is an eligible baseline."""
+    def __init__(self, patience, min_delta):
+        if not isinstance(patience, int) or patience < 1 or not math.isfinite(min_delta) or min_delta < 0:
+            raise ValueError('Invalid validation patience/min_delta')
+        self.patience, self.min_delta = patience, min_delta
+        self.best_epoch, self.best_score, self.bad_epochs, self.stopped = None, None, 0, False
+
+    def observe(self, epoch, score):
+        if not math.isfinite(score) or not 0 <= score <= 1:
+            raise ValueError('Nonfinite or invalid validation accuracy')
+        improved = self.best_score is None or score > self.best_score + self.min_delta
+        if improved:
+            self.best_epoch, self.best_score, self.bad_epochs = epoch, score, 0
+        elif epoch > 0:
+            self.bad_epochs += 1
+        self.stopped = self.bad_epochs >= self.patience
+        return improved
+
+    def snapshot(self):
+        return {'monitor': 'validation.case_accuracy', 'mode': 'max', 'patience': self.patience,
+                'min_delta': self.min_delta, 'best_epoch': self.best_epoch, 'best_score': self.best_score,
+                'bad_epochs': self.bad_epochs, 'stopped': self.stopped}
 
 
 # ---- label-blind case aggregation (pure Python; reads only state, questions and the alias/window metadata) ----
@@ -280,7 +332,25 @@ class JsonLines:
 
 
 def write_json(path, data):
-    path.write_text(json.dumps(data, indent=2, ensure_ascii=False))
+    with tempfile.NamedTemporaryFile('w', dir=path.parent, delete=False) as handle:
+        json.dump(data, handle, indent=2, ensure_ascii=False, allow_nan=False)
+        handle.flush()
+        os.fsync(handle.fileno())
+        temporary = handle.name
+    os.replace(temporary, path)
+
+
+def repair_json_lines(path):
+    """Discard only an interrupted trailing write; reject corrupt complete records."""
+    if not path.exists():
+        return
+    content = path.read_bytes()
+    complete = content[:content.rfind(b'\n') + 1]
+    for line in complete.splitlines():
+        if line.strip():
+            json.loads(line)
+    if complete != content:
+        path.write_bytes(complete)
 
 
 def run(config, run_id, out, log, probe=False, resume=False):
@@ -360,11 +430,28 @@ def run(config, run_id, out, log, probe=False, resume=False):
         for item, row in zip(items[split], rows[split]):
             item['keys'] = _option_keys(_internal(row['questions'][QUESTION]))
 
+    if config.get('train_bucket_ratios'):
+        indices, balance = balanced_indices(rows['train'], config['train_bucket_ratios'], config['seed'])
+        items['train'] = [items['train'][i] for i in indices]
+        report['balance'] = {k: v for k, v in balance.items() if k != 'indices'}
+        write_json(out / 'balance.json', balance)
+        log(f"balanced training: {report['balance']}")
+
+    if resume:
+        for name in ('metrics.jsonl', 'steps.jsonl'):
+            repair_json_lines(out / name)
     metrics_log, steps_log = JsonLines(out / 'metrics.jsonl'), JsonLines(out / 'steps.jsonl')
     history = [json.loads(line) for line in (out / 'metrics.jsonl').read_text().splitlines()] if resume else []
     micro, accumulation = config['micro_batch'], config['grad_accum']
     steps_per_epoch = math.ceil(math.ceil(len(items['train']) / micro) / accumulation)
     last_validation = {}
+    callback_config = config.get('validation_callback')
+    policy = ValidationPolicy(callback_config['patience'], callback_config['min_delta']) if callback_config else None
+
+    def preserve_best(epoch):
+        destination = weights / f'best-epoch-{epoch}'
+        save_trainable(model, destination)
+        write_json(destination / 'selection.json', {'epoch': epoch, **policy.snapshot()})
 
     def validate():
         FastDecisionModel.for_inference(model)
@@ -377,8 +464,14 @@ def run(config, run_id, out, log, probe=False, resume=False):
         metrics, predictions, windows = validate()
         last_validation.update(epoch=epoch, metrics=metrics, predictions=predictions, windows=windows)
         record = {'epoch': epoch, **extra, 'validation': metrics, 'time': datetime.now(timezone.utc).isoformat(timespec='seconds')}
+        if policy:
+            if policy.observe(epoch, metrics['case_accuracy']):
+                preserve_best(epoch)
+            record['callback'] = policy.snapshot()
         metrics_log.write(record)
         history.append(record)
+        if policy:
+            write_json(out / 'callback.json', policy.snapshot())
         log(f"epoch {epoch}: train_loss {extra.get('train_loss')} val case_accuracy {metrics['case_accuracy']} "
             f"macroF1 {metrics['decision_macro_f1']} coverage {metrics['coverage']} window any-of "
             f"{metrics['window']['any_of_accuracy']:.4f} CE {metrics['window']['soft_ce']:.4f} ({metrics['seconds']['total']:.0f}s)")
@@ -391,6 +484,10 @@ def run(config, run_id, out, log, probe=False, resume=False):
         write_json(out / 'before_validation.json', before)
         log(f"before training: val case_accuracy {before['case_accuracy']} macroF1 {before['decision_macro_f1']} "
             f"coverage {before['coverage']} ({before['seconds']['total']:.0f}s)")
+    if policy:
+        policy.observe(0, report['before_validation']['case_accuracy'])
+        if not resume:
+            preserve_best(0)
 
     max_steps = config['probe_steps'] if probe else config['epochs'] * steps_per_epoch
     args = MLXTrainingConfig(
@@ -406,7 +503,7 @@ def run(config, run_id, out, log, probe=False, resume=False):
         def on_log(self, args, state, control, logs=None, **kwargs):
             if logs and 'loss' in logs and 'train_runtime' not in logs:
                 if not math.isfinite(logs['loss']):
-                    control.should_training_stop = True
+                    raise FloatingPointError('Nonfinite training loss; refusing to save a successful model')
                 epoch_losses.append(logs['loss'])
                 steps_log.write({'step': state.global_step, 'epoch': state.epoch, 'loss': logs['loss'],
                                  'grad_norm': logs.get('grad_norm'), 'encoder_lr': logs['learning_rate'],
@@ -429,9 +526,15 @@ def run(config, run_id, out, log, probe=False, resume=False):
                 (out / 'steps.jsonl').write_text(''.join(line + '\n' for line in kept))
                 history[:] = [h for h in history if h['epoch'] <= epoch]
                 (out / 'metrics.jsonl').write_text(''.join(json.dumps(h, ensure_ascii=False) + '\n' for h in history))
+                if policy:
+                    for record in history:
+                        policy.observe(record['epoch'], record['validation']['case_accuracy'])
                 log(f'resumed at step {state.global_step} (epoch {epoch}); kept {len(kept)} step and {len(history)} epoch lines')
             if epoch and epoch not in {h['epoch'] for h in history}:
                 log_epoch(epoch, {'train_loss': None, 'steps': state.global_step, 'resumed_validation': True})
+            if policy:
+                control.should_training_stop = policy.stopped
+                write_json(out / 'callback.json', policy.snapshot())
 
         def on_save(self, args, state, control, **kwargs):
             # Called after checkpoint-<step> is in place and before any further random draw.
@@ -446,10 +549,14 @@ def run(config, run_id, out, log, probe=False, resume=False):
             log_epoch(round(state.epoch), {'train_loss': statistics.fmean(losses) if losses else None,
                                            'train_loss_last': losses[-1] if losses else None, 'steps': state.global_step,
                                            'train_seconds': time.perf_counter() - train_started})
+            if policy and policy.stopped:
+                log(f'early stopping: {policy.snapshot()}')
+                control.should_training_stop = True
 
     FastDecisionModel.for_training(model, use_gradient_checkpointing=config['gradient_checkpointing'])
     trainer = DecisionTrainer(model=model, args=args, train_dataset=items['train'],
-                              head_learning_rate=config['head_learning_rate'], tokenizer=tokenizer, callbacks=[Progress()])
+                              head_learning_rate=config['head_learning_rate'], tokenizer=tokenizer,
+                              label_smoothing=config.get('label_smoothing', 0.0), callbacks=[Progress()])
     mx.reset_peak_memory()
     output = trainer.train(resume_from_checkpoint=True if resume else None)
     steps = [json.loads(line) for line in (out / 'steps.jsonl').read_text().splitlines()]
@@ -457,7 +564,7 @@ def run(config, run_id, out, log, probe=False, resume=False):
                        'mlx_peak_gb': mx.get_peak_memory() / 1e9, 'steps_per_epoch': steps_per_epoch, 'max_steps': max_steps,
                        'train_windows': len(items['train']), 'effective_batch_size': micro * accumulation,
                        'loss_first': steps[0]['loss'], 'loss_last': steps[-1]['loss']}
-    if max(s['step'] for s in steps) < max_steps or not all(math.isfinite(s['loss']) for s in steps):
+    if (max(s['step'] for s in steps) < max_steps and not (policy and policy.stopped)) or not all(math.isfinite(s['loss']) for s in steps):
         raise RuntimeError(f'training stopped early or produced a non-finite loss after {len(steps)} steps')
     after = dict(tree_flatten(model.trainable_parameters()))
     deltas = {name: float(np.abs(np.array(after[name]) - value).max()) for name, value in head_before.items()}
@@ -483,15 +590,23 @@ def run(config, run_id, out, log, probe=False, resume=False):
         log(f"probe: {json.dumps({k: v for k, v in report['probe'].items() if k != 'validation_after_probe_steps'})}")
         return report, {}
 
-    # The last-epoch head is final: save, reload into a fresh base, check identity, then score test once.
-    if last_validation.get('epoch') != config['epochs']:
-        last_validation.update(zip(('metrics', 'predictions', 'windows'), validate()), epoch=config['epochs'])
+    completed_epochs = int(round(trainer.state.epoch))
+    selected_epoch = policy.best_epoch if policy else config['epochs']
+    if policy:
+        load_trainable(model, weights / f'best-epoch-{selected_epoch}')
+        report['selection'] = {**policy.snapshot(), 'completed_epochs': completed_epochs,
+                               'selected_epoch': selected_epoch, 'max_epochs': config['epochs'],
+                               'reason': 'early_stopping' if policy.stopped else 'max_epochs'}
+        last_validation.clear()
+    if last_validation.get('epoch') != selected_epoch:
+        last_validation.update(zip(('metrics', 'predictions', 'windows'), validate()), epoch=selected_epoch)
     save_trainable(model, weights / 'final')
     artifact = weights / 'final' / 'trainable.safetensors'
     write_json(weights / 'final' / 'head.json', {
         'format': 'unsloth-mlx-laya-trainable-v1', 'base_model': str(model_dir), 'base_revision': config['model_revision'],
         'base_model_safetensors_sha256': report['provenance']['model']['model_safetensors_sha256'],
-        'trainable_sha256': sha256(artifact), 'epochs': config['epochs'], 'decision_config': model.decision_config,
+        'trainable_sha256': sha256(artifact), 'epochs': selected_epoch, 'completed_epochs': completed_epochs,
+        'decision_config': model.decision_config,
         'loader': 'FastDecisionModel.from_pretrained(base) then unsloth_zoo.mlx.decision.load_trainable(model, dir)'})
     del trainer, model
     restored, tokenizer = FastDecisionModel.from_pretrained(str(model_dir), local_files_only=True,
@@ -509,7 +624,7 @@ def run(config, run_id, out, log, probe=False, resume=False):
                          'encoder_unchanged': tensors_sha256(restored.encoder.parameters()) == encoder_sha}
     if diff > 1e-6 or not same or not report['restore']['encoder_unchanged']:
         raise RuntimeError(f"restore mismatch {report['restore']}")
-    report['validation'] = {'epoch': config['epochs'], **metrics}
+    report['validation'] = {'epoch': selected_epoch, **metrics}
     log(f"restore ok: {json.dumps(report['restore'])}")
 
     # Test is scored once per run: persisted at once, and a resumed run reuses it instead of scoring again.
@@ -523,8 +638,8 @@ def run(config, run_id, out, log, probe=False, resume=False):
         test, test_predictions, test_windows = evaluate_split(scorer, rows['test'], items['test'], cases['test'], gold['test'])
         write_json(out / 'test.json', {'artifact_sha256': report['restore']['artifact_sha256'], 'metrics': test,
                                        'cases': test_predictions, 'windows': test_windows})
-    report['test'] = {'epoch': config['epochs'], **test}
-    log(f"test (epoch {config['epochs']}, once): case_accuracy {test['case_accuracy']} macroF1 {test['decision_macro_f1']} "
+    report['test'] = {'epoch': selected_epoch, **test}
+    log(f"test (epoch {selected_epoch}, once): case_accuracy {test['case_accuracy']} macroF1 {test['decision_macro_f1']} "
         f"coverage {test['coverage']}")
     report['memory'] = {'mlx_peak_gb': mx.get_peak_memory() / 1e9}
     return report, {'validation_cases': predictions, 'validation_windows': windows,
@@ -570,23 +685,29 @@ def main(argv=None):
                                                      'updated': datetime.now(timezone.utc).isoformat(), **extra}, indent=2))
 
     status('running', command=sys.argv)
-    guard = MemoryGuard(config['memory_guard_gib'], lambda used: (
+    backend = config.get('backend', 'mlx')
+    if backend not in ('mlx', 'cuda'):
+        parser.error(f'Unknown training backend: {backend}')
+    run_backend, guard_class = run, MemoryGuard
+    if backend == 'cuda':
+        from jery.model.laya_cuda import run as run_backend, CudaMemoryGuard as guard_class
+    guard = guard_class(config['memory_guard_gib'], lambda used: (
         log(f'memory guard tripped at {used / 2 ** 30:.2f} GiB'),
         status('failed', error=f'memory guard {used / 2 ** 30:.2f} GiB > {config["memory_guard_gib"]} GiB')))
     guard.start()
     started = time.perf_counter()
     try:
-        report, details = run(config, options.run_id, out, log, probe=options.probe, resume=options.resume)
+        report, details = run_backend(config, options.run_id, out, log, probe=options.probe, resume=options.resume)
     except Exception as exc:
         log(traceback.format_exc())
         status('failed', error=f'{type(exc).__name__}: {exc}', seconds=time.perf_counter() - started)
         return 1
     report.update(wall_seconds=time.perf_counter() - started, command=sys.argv, guard_peak_gib=guard.peak / 2 ** 30)
     name = 'probe.json' if options.probe else 'report.json'
-    (out / name).write_text(json.dumps(report, indent=2, ensure_ascii=False))
     for key, data in details.items():
         with (out / f'{key}.jsonl').open('w') as handle:
             handle.writelines(json.dumps(r, ensure_ascii=False) + '\n' for r in data)
+    write_json(out / name, report)  # The supervisor treats this as the completed output marker.
     status('succeeded', seconds=report['wall_seconds'], report=str((out / name).relative_to(ROOT)))
     log(f"done in {report['wall_seconds']:.1f}s -> {out.relative_to(ROOT)}")
     return 0

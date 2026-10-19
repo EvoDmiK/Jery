@@ -1,6 +1,6 @@
 # Laya 전체 창 학습·평가 경로 (2026-10-17)
 
-`mcp-routing-v2`의 모든 사례(train 668 / validation 248 / test 246)를 원래 후보 C 전체의 8도구 창으로 나눈 root export로 Laya head-only 학습과 case 단위 평가를 수행하는 CLI다. 이 작업에서는 경로 구현, 단위 테스트, 추론 전용 smoke와 **8 step 속도 probe 1회**만 실행했다. 본 학습(3 child × 64 epoch)은 Codex의 supervisor가 순차 실행한다. 미검토 합성 데이터이므로 결과를 실제 사용 정확도로 해석하지 않는다.
+`mcp-routing-v2`의 모든 사례(train 668 / validation 248 / test 246)를 원래 후보 C 전체의 8도구 창으로 나눈 root export로 Laya head-only 학습과 case 단위 평가를 수행하는 CLI다. 이 작업에서는 경로 구현, 단위 테스트, 추론 전용 smoke, **8 step 속도 probe 1회**와 아래 tiny end-to-end 검증을 실행했다. 본 학습(3 child × 64 epoch)은 Codex의 supervisor가 순차 실행한다. 미검토 합성 데이터이므로 결과를 실제 사용 정확도로 해석하지 않는다.
 
 ## 합의된 계획 (coordinator 승인 `msg_02f8bf9a93fb`, `msg_59e5ed281a48`)
 
@@ -58,12 +58,12 @@ PYTHONPATH=src python3 -m unittest tests.model.test_laya_full tests.model.test_l
 # 8 step probe (1회 실행함)
 PYTHONPATH=src HF_HUB_OFFLINE=1 USE_TF=0 TOKENIZERS_PARALLELISM=false caffeinate -i \
   tmp/venv-decision/bin/python -m jery.model.laya_full --config configs/model/laya-full-20261017.json \
-  --assets-root <integration-root> --run-id probe-8step-s3407 --probe
+  --assets-root /Volumes/Dove-Nest-SSD/projects/Jery --run-id probe-8step-s3407 --probe
 
 # 본 학습 child (Codex supervisor가 순차 실행; GPU 동시 학습 금지)
 PYTHONPATH=src HF_HUB_OFFLINE=1 USE_TF=0 TOKENIZERS_PARALLELISM=false caffeinate -i \
   tmp/venv-decision/bin/python -m jery.model.laya_full --config configs/model/laya-full-20261017.json \
-  --assets-root <integration-root> --run-id lr1e-4-s3407 --override '{"head_learning_rate": 0.0001}'
+  --assets-root /Volumes/Dove-Nest-SSD/projects/Jery --run-id lr1e-4-s3407 --override '{"head_learning_rate": 0.0001}'
 # 중단 시 같은 인자 + --resume
 ```
 
@@ -127,3 +127,7 @@ fixture: `tmp/laya-tiny-20261017/export/`(무시 경로). 동결된 full export�
 - probe 산출물: `outputs/model/laya-full-20261017/probe-8step-s3407/`(실패 기록), `outputs/model/laya-full-20261017/probe-8step-s3407-try2/`(`probe.json`, `before_validation.json`, `token_budget.json`, `steps.jsonl`, `run.log`, `status.json`). probe는 가중치를 저장하지 않는다.
 - `configs/model/laya-full-20261017.json`, `configs/model/laya-full-20261017-children.json` (신규).
 - 공유 `jery.evaluation.metrics`와 root 파일은 변경하지 않았다. 새 의존성은 없다(검사 중 실수로 venv에 설치한 pyflakes는 즉시 제거했다).
+
+## 통합 검증
+
+`dev-codex` 통합 시 보고서는 예측 파일 작성 후 atomic replace로 확정하도록 보완했다. 재시작 시 마지막 미완성 JSONL 줄만 복구하며, 완성된 줄의 JSON 오류는 그대로 거부한다. 해당 복구 테스트를 포함해 root 모델 27개·평가 3개 테스트가 통과했다. 데이터 22개, 검토 37개, 통합 15개를 합해 104개 테스트가 통과했다. `graphify update .`도 실행했다.
