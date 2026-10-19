@@ -1,0 +1,14 @@
+# Ubuntu 24.04 / Python 3.12 / RTX 5070 Ti / driver 580.178.04.
+# Isolated CUDA environment; do not install requirements-decision.txt (Apple MLX) here.
+--extra-index-url https://download.pytorch.org/whl/cu128
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+unsloth==2026.10.6
+unsloth-zoo==2026.10.6
+transformers==5.17.0
+tokenizers==0.23.3
+laya==0.4.9
+xformers==0.0.35
+torchao==0.18.0
+hyperopt==0.2.7
+setuptools==80.9.0
