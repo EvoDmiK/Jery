@@ -105,6 +105,7 @@ def main():
     parser.add_argument('--state-dir', type=Path, default=ROOT / 'outputs/laya-full-20261017/tracking')
     parser.add_argument('--model-config', type=Path, default=ROOT / 'configs/model/laya-full-20261017.json')
     parser.add_argument('--tracking-uri', default=DEFAULT_TRACKING_URI)
+    parser.add_argument('--wait-for-run', help='Start only after this existing MLflow parent finishes successfully')
     parser.add_argument('--detach', action='store_true')
     options = parser.parse_args()
     folder = options.state_dir.resolve()
@@ -230,6 +231,28 @@ def main():
                 item['run_id'], item['artifact_uri'], 'details/epochs.json', history)
             write_json(state_path, state)
 
+    if options.wait_for_run:
+        if options.wait_for_run == parent:
+            raise ValueError('Cannot wait for the current parent itself')
+        state['status'] = 'waiting_for_upstream'
+        state['wait_for_run_id'] = options.wait_for_run
+        write_json(state_path, state)
+        tag(parent, 'jery.phase', 'waiting_for_upstream')
+        while not stopped:
+            upstream = api('mlflow/runs/get?run_id=' + options.wait_for_run)['run']['info']['status']
+            if upstream == 'FINISHED':
+                break
+            if upstream != 'RUNNING':
+                raise RuntimeError(f'Upstream run ended without success: {upstream}')
+            time.sleep(15)
+        if stopped:
+            state['status'] = 'interrupted'
+            write_json(state_path, state)
+            api('mlflow/runs/update', {'run_id': parent, 'status': 'KILLED', 'end_time': int(time.time()*1000)})
+            return
+        state['status'] = 'running'
+        write_json(state_path, state)
+        tag(parent, 'jery.phase', 'running')
     api('mlflow/runs/update', {'run_id': parent, 'status': 'RUNNING'})
     tag(parent, 'jery.phase', 'running')
     budget = plan['hyperopt']['max_evals'] if plan.get('hyperopt') else len(plan['head_learning_rates'])
@@ -260,6 +283,7 @@ def main():
                     remote = request(base, 'mlflow/runs/create', {'experiment_id': plan['experiment_id'], 'start_time': int(time.time()*1000),
                         'tags': [{'key': 'mlflow.runName', 'value': f"{plan.get('child_name_prefix', 'laya-full-64ep')}-lr{lr:g}"},
                                  {'key': 'mlflow.parentRunId', 'value': parent}, {'key': 'jery.role', 'value': 'child'},
+                                 {'key': 'jery.backend', 'value': config.get('backend', 'mlx')},
                                  {'key': 'jery.trial_id', 'value': trial_id}]})['run']
                     break
                 except Exception as error:
@@ -288,7 +312,9 @@ def main():
                 sources[str(path.relative_to(ROOT))] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}
         for name in ['src/jery/__init__.py', 'scripts/run_laya_full_experiment.py', 'scripts/run_local_training.py',
                      'scripts/run_laya_repeats.py', 'scripts/sync_laya_training_metrics.py',
-                     'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py', 'requirements-decision.txt']:
+                     'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py',
+                     'scripts/prepare_laya_cuda_experiment.py', 'scripts/check_laya_cuda_resume.py', 'requirements-decision.txt',
+                     'requirements-decision-cuda.txt']:
             path = ROOT / name
             sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}
         write_json(local / 'source.json', sources, overwrite=False)
@@ -375,9 +401,18 @@ def main():
             if path.is_file():
                 name = 'model/' + path.name
                 item['verified_artifacts'][name] = store_json(item['run_id'], item['artifact_uri'], name, path)
+        if report.get('last_trained'):
+            trained = ROOT / report['last_trained']['artifact']
+            if hashlib.sha256(trained.read_bytes()).hexdigest() != report['last_trained']['artifact_sha256']:
+                raise ValueError('Last trained head checksum mismatch')
+            for path in trained.parent.iterdir():
+                if path.is_file():
+                    name = 'model/last-trained/' + path.name
+                    item['verified_artifacts'][name] = store_json(item['run_id'], item['artifact_uri'], name, path)
         dependencies = local / 'model-dependencies.json'
         write_json(dependencies, {'base_artifact_uri': plan['base_artifact_uri'], 'head_sha256': report['restore']['artifact_sha256'],
-                                 'base_revision': report['provenance']['model']['revision'], 'format': 'unsloth-mlx-laya-trainable-v1'})
+                                 'base_revision': report['provenance']['model']['revision'],
+                                 'format': report['restore'].get('format', 'unsloth-mlx-laya-trainable-v1')})
         item['verified_artifacts']['model/dependencies.json'] = store_json(item['run_id'], item['artifact_uri'], 'model/dependencies.json', dependencies)
         saved = api('mlflow/runs/get?run_id=' + item['run_id'])['run']
         if {p['key'] for p in saved['data']['params']} != PARAMS or {m['key'] for m in saved['data']['metrics']} != METRICS:
@@ -407,8 +442,8 @@ def main():
     state.update(status='finished', selected_child_run_id=selected['run_id'])
     write_json(state_path, state)
     api('mlflow/runs/log-batch', {'run_id': parent, 'metrics': [
-        {'key': 'best_val_accuracy', 'value': selected['final_validation'], 'step': 64, 'timestamp': int(time.time()*1000)},
-        {'key': 'selected_test_accuracy', 'value': selected['final_test'], 'step': 64, 'timestamp': int(time.time()*1000)}]})
+        {'key': 'best_val_accuracy', 'value': selected['final_validation'], 'step': plan['epochs'], 'timestamp': int(time.time()*1000)},
+        {'key': 'selected_test_accuracy', 'value': selected['final_test'], 'step': plan['epochs'], 'timestamp': int(time.time()*1000)}]})
     summary = folder / 'summary.json'; write_json(summary, state)
     network_call(upload, base, state['parent_artifact_uri'], 'summary.json', summary)
     tag(parent, 'jery.phase', 'finished')

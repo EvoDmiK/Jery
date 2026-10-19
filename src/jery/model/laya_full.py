@@ -685,13 +685,19 @@ def main(argv=None):
                                                      'updated': datetime.now(timezone.utc).isoformat(), **extra}, indent=2))
 
     status('running', command=sys.argv)
-    guard = MemoryGuard(config['memory_guard_gib'], lambda used: (
+    backend = config.get('backend', 'mlx')
+    if backend not in ('mlx', 'cuda'):
+        parser.error(f'Unknown training backend: {backend}')
+    run_backend, guard_class = run, MemoryGuard
+    if backend == 'cuda':
+        from jery.model.laya_cuda import run as run_backend, CudaMemoryGuard as guard_class
+    guard = guard_class(config['memory_guard_gib'], lambda used: (
         log(f'memory guard tripped at {used / 2 ** 30:.2f} GiB'),
         status('failed', error=f'memory guard {used / 2 ** 30:.2f} GiB > {config["memory_guard_gib"]} GiB')))
     guard.start()
     started = time.perf_counter()
     try:
-        report, details = run(config, options.run_id, out, log, probe=options.probe, resume=options.resume)
+        report, details = run_backend(config, options.run_id, out, log, probe=options.probe, resume=options.resume)
     except Exception as exc:
         log(traceback.format_exc())
         status('failed', error=f'{type(exc).__name__}: {exc}', seconds=time.perf_counter() - started)
