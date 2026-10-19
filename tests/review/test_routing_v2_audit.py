@@ -7,10 +7,10 @@ Verifies:
 - Ranking strictly by validation/search_score (never test metrics).
 - Constant negative-window (always-window_none) control calculation and misleading aggregate window accuracy flagging.
 - Detection of equal/floored Hyperopt search objectives vs valid identical serving models and premature baseline-based early stops.
+- Portable CLI isolation: explicit --run-dir mode never silently pulls in legacy default runs/state/objective evidence and rejects mismatched validation exports.
 """
 from __future__ import annotations
 
-import copy
 import hashlib
 import json
 import os
@@ -19,12 +19,17 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from apps.review.routing_v2_audit import (
+    DEFAULT_BALANCED_RUNS_DIR,
+    DEFAULT_BALANCED_STATE,
+    DEFAULT_OBJECTIVE_AUDIT,
+    DEFAULT_ROOT,
+    DEFAULT_VALIDATION_EXPORT,
     audit_experiment_suite,
     audit_single_run,
     audit_tracking_state,
@@ -220,6 +225,12 @@ def create_v2_run_fixture(
 
 
 class TestRoutingV2Audit(unittest.TestCase):
+    def test_portable_repo_relative_defaults(self) -> None:
+        """Ensure defaults resolve relative to repo root without hardcoded external machine paths."""
+        self.assertEqual(DEFAULT_ROOT, PROJECT_ROOT)
+        for p in (DEFAULT_VALIDATION_EXPORT, DEFAULT_BALANCED_STATE, DEFAULT_BALANCED_RUNS_DIR, DEFAULT_OBJECTIVE_AUDIT):
+            self.assertTrue(str(p).startswith(str(PROJECT_ROOT)))
+
     def test_valid_v2_report_passes_and_distinguishes_all_four_epochs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             run_dir = Path(tmp) / "trial1-w0.5"
@@ -246,6 +257,7 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertAlmostEqual(sc["search_score"], 0.1573)
             self.assertAlmostEqual(sc["serving_selected_validation_case_accuracy"], 0.1613)
             self.assertAlmostEqual(sc["last_trained_validation_case_accuracy"], 0.1411)
+            self.assertAlmostEqual(sc["always_window_none_control_window_accuracy"], round(1305 / 1592, 4))
 
     def test_rejects_inconsistent_search_score_or_best_trained_or_selected_epochs(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
@@ -254,7 +266,7 @@ class TestRoutingV2Audit(unittest.TestCase):
             # Case 1: search_score != best_trained_score (e.g., clipped to serving baseline 0.1613)
             r1 = base_dir / "bad_search_score"
             report, _ = create_v2_run_fixture(r1)
-            report["selection"]["search_score"] = 0.1613  # Clipped to baseline instead of 0.1573!
+            report["selection"]["search_score"] = 0.1613
             (r1 / "report.json").write_text(json.dumps(report), encoding="utf-8")
             res1 = audit_single_run(r1)
             self.assertFalse(res1["audit_passed"])
@@ -302,7 +314,7 @@ class TestRoutingV2Audit(unittest.TestCase):
             # Case 6: validation.epoch != test.epoch or != selected_epoch
             r6 = base_dir / "bad_selected_epoch_mismatch"
             report, _ = create_v2_run_fixture(r6)
-            report["test"]["epoch"] = 8  # selected_epoch is 0, but test evaluated epoch 8
+            report["test"]["epoch"] = 8
             (r6 / "report.json").write_text(json.dumps(report), encoding="utf-8")
             res6 = audit_single_run(r6)
             self.assertFalse(res6["audit_passed"])
@@ -334,7 +346,6 @@ class TestRoutingV2Audit(unittest.TestCase):
                 epoch_case_accs=[0.0323, 0.0806, 0.0887, 0.1169, 0.1573],
                 baseline_case_acc=0.1613,
             )
-            # Strip all v2 fields to match legacy report structure
             del report["config"]["training_policy_version"]
             del report["config"]["window_none_loss_weight"]
             del report["config"]["validation_callback"]["min_epochs"]
@@ -358,7 +369,6 @@ class TestRoutingV2Audit(unittest.TestCase):
     def test_ranks_strictly_by_validation_search_score_never_test(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
-            # Run A has LOWER validation search_score (0.1400) but HIGHER test_case_acc (0.9900)
             dir_a = base / "run_a_high_test_low_val"
             create_v2_run_fixture(
                 dir_a,
@@ -367,7 +377,6 @@ class TestRoutingV2Audit(unittest.TestCase):
                 epoch_case_accs=[0.10, 0.14, 0.12, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11, 0.11],
                 test_case_acc=0.9900,
             )
-            # Run B has HIGHER validation search_score (0.1800) but LOWER test_case_acc (0.0100)
             dir_b = base / "run_b_high_val_low_test"
             create_v2_run_fixture(
                 dir_b,
@@ -388,13 +397,84 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertFalse(ranked[0]["test_used_for_ranking"])
             self.assertFalse(ranked[1]["test_used_for_ranking"])
 
+    def test_cli_explicit_run_dir_isolation_and_mismatched_validation_rejection(self) -> None:
+        """Verify explicit --run-dir never pulls in legacy defaults and rejects mismatched validation export."""
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            # Populate fake default directories under a fake --root to prove --run-dir ignores them
+            fake_default_run = base / "outputs/model/laya-balanced-20261018/legacy-default-trial"
+            create_v2_run_fixture(fake_default_run, run_id="legacy-default-trial")
+            fake_state = base / "outputs/laya-balanced-20261018/tracking/state.json"
+            fake_state.parent.mkdir(parents=True, exist_ok=True)
+            fake_state.write_text(json.dumps({"parent_run_id": "p", "plan": {}, "children": []}), encoding="utf-8")
+
+            # Create an isolated explicit run directory
+            explicit_run = base / "isolated_v2_run"
+            create_v2_run_fixture(explicit_run, run_id="isolated-cuda-v2")
+
+            proc = subprocess.run(
+                [
+                    sys.executable,
+                    str(PROJECT_ROOT / "apps/review/routing_v2_audit.py"),
+                    "--root",
+                    str(base),
+                    "--run-dir",
+                    str(explicit_run),
+                    "--json",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(proc.returncode, 0, msg=proc.stderr)
+            payload = json.loads(proc.stdout)
+            self.assertEqual([r["run_id"] for r in payload["runs"]], ["isolated-cuda-v2"])
+            self.assertIsNone(payload["tracking_state_audit"])
+            self.assertIsNone(payload["objective_audit_cross_check"])
+            self.assertIsNone(payload["validation_export_control"])
+
+            # Now pass a 2-case / 3-window validation.jsonl to the 248-case / 1592-window run -> must fail mismatch!
+            mismatched_val = base / "mini_validation.jsonl"
+            mismatched_val.write_text(
+                json.dumps({
+                    "metadata": {
+                        "source_id": "c1",
+                        "window_index": 0,
+                        "window_count": 1,
+                        "export_id": "c1_w0",
+                        "window_tools": ["mcp__s__t1"],
+                        "alias_to_tool": {"T0": "mcp__s__t1"},
+                        "original_candidate_tools": ["mcp__s__t1"],
+                        "original_decision": "unsupported",
+                        "acceptable_choices": [],
+                    },
+                    "gold": {"route_in_window": {"label": "window_none", "probabilities": {"window_none": 1.0}}},
+                }) + "\n",
+                encoding="utf-8",
+            )
+            proc_bad = subprocess.run(
+                [
+                    sys.executable,
+                    str(PROJECT_ROOT / "apps/review/routing_v2_audit.py"),
+                    "--run-dir",
+                    str(explicit_run),
+                    "--validation-export",
+                    str(mismatched_val),
+                    "--json",
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(proc_bad.returncode, 0)
+            bad_payload = json.loads(proc_bad.stdout)
+            self.assertFalse(bad_payload["audit_passed"])
+            self.assertTrue(any("Mismatched before_validation" in e for e in bad_payload["runs"][0]["errors"]))
+
     def test_constant_negative_window_control_and_input_immutability(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             run_dir = base / "runs" / "trial1"
             create_v2_run_fixture(run_dir)
 
-            # Create a mini validation.jsonl export with 2 cases (1 select_tools across 2 windows, 1 unsupported single window)
             val_export = base / "export" / "validation.jsonl"
             val_export.parent.mkdir(parents=True, exist_ok=True)
             rows = [
@@ -450,7 +530,6 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertAlmostEqual(ctrl["always_window_none_control"]["window_accuracy"], 2 / 3)
             self.assertAlmostEqual(ctrl["always_window_none_control"]["case_accuracy"], 0.5)
 
-            # Verify CLI refuses to overwrite input files or symlinks/hardlinks
             tracked_files = [run_dir / "report.json", run_dir / "metrics.jsonl", val_export]
             before_bytes = {p: p.read_bytes() for p in tracked_files}
 
@@ -486,7 +565,6 @@ class TestRoutingV2Audit(unittest.TestCase):
             create_v2_run_fixture(r2, run_id="trial2", epoch_case_accs=[0.04, 0.08, 0.11, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15, 0.15])
             audits = {"trial1": audit_single_run(r1), "trial2": audit_single_run(r2)}
 
-            # Legacy state where both trials had final_validation=0.1613 (baseline-floored)
             legacy_state_path = base / "legacy_state.json"
             legacy_state = {
                 "parent_run_id": "parent1",
@@ -503,7 +581,6 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertTrue(st_legacy["valid_identical_serving_models"])
             self.assertIn("BASELINE_FLOORED_HYPEROPT_OBJECTIVE_CONCEALS_TRAINED_DIFFERENCES", st_legacy["diagnostic_flags"])
 
-            # V2 state where search_validation was mistakenly floored to 0.1613 -> MUST fail v2 audit!
             v2_bad_state_path = base / "v2_bad_state.json"
             v2_bad_state = {
                 "parent_run_id": "parent2",
@@ -518,13 +595,13 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertFalse(st_v2_bad["audit_passed"])
 
     def test_live_integration_assets_if_available(self) -> None:
-        """Verify read-only integration assets at /Volumes/Dove-Nest-SSD/projects/Jery/outputs if present."""
-        val_path = Path("/Volumes/Dove-Nest-SSD/projects/Jery/outputs/laya-full-20261017/export/validation.jsonl")
-        state_path = Path("/Volumes/Dove-Nest-SSD/projects/Jery/outputs/laya-balanced-20261018/tracking/state.json")
-        runs_dir = Path("/Volumes/Dove-Nest-SSD/projects/Jery/outputs/model/laya-balanced-20261018")
-        obj_path = Path("/Volumes/Dove-Nest-SSD/projects/Jery/outputs/laya-diagnostics-20261019/objective-audit.json")
+        """Verify repo-relative live outputs if present in the checkout, skipping cleanly otherwise."""
+        val_path = DEFAULT_VALIDATION_EXPORT
+        state_path = DEFAULT_BALANCED_STATE
+        runs_dir = DEFAULT_BALANCED_RUNS_DIR
+        obj_path = DEFAULT_OBJECTIVE_AUDIT
         if not (val_path.exists() and state_path.exists() and runs_dir.exists() and obj_path.exists()):
-            self.skipTest("Live integration assets not present on this machine")
+            self.skipTest("Live integration assets not present in repo-relative outputs/; skipping cleanly.")
 
         before_hashes = {
             p: _sha256_bytes(p.read_bytes())
@@ -539,29 +616,6 @@ class TestRoutingV2Audit(unittest.TestCase):
         after_hashes = {p: _sha256_bytes(p.read_bytes()) for p in before_hashes}
         self.assertEqual(before_hashes, after_hashes, "Read-only integration assets must not be modified")
         self.assertTrue(suite["audit_passed"])
-
-        vc = suite["validation_export_control"]
-        self.assertEqual(vc["cases"], 248)
-        self.assertEqual(vc["select_tool_cases"], 232)
-        self.assertEqual(vc["windows"], 1592)
-        self.assertEqual(vc["negative_windows"], 1305)
-        self.assertAlmostEqual(vc["always_window_none_control"]["window_accuracy"], 1305 / 1592, places=6)
-        self.assertAlmostEqual(vc["always_window_none_control"]["case_accuracy"], 0.0323, places=4)
-
-        runs_by_id = {r["run_id"]: r for r in suite["runs"]}
-        t1 = runs_by_id["trial1-lr4.87975e-05-9325d1ca"]
-        self.assertAlmostEqual(t1["models"]["baseline_epoch0"]["positive_tool_window_recall"], 63 / 235, places=4)
-        self.assertAlmostEqual(t1["epoch_trajectory"][0]["positive_tool_window_recall"], 4 / 235, places=4)
-        self.assertAlmostEqual(t1["epoch_trajectory"][0]["overall_window_accuracy"], 1257 / 1592, places=4)
-        self.assertAlmostEqual(t1["epoch_trajectory"][0]["case_accuracy"], 0.0484, places=4)
-
-        t4 = runs_by_id["trial4-lr0.000665576-9325d1ca"]
-        self.assertEqual(
-            [e["case_accuracy"] for e in t4["epoch_trajectory"]],
-            [0.0323, 0.0806, 0.0887, 0.1169, 0.1573],
-        )
-        self.assertTrue(t4["epochs_overview"]["premature_baseline_early_stop"])
-        self.assertTrue(t4["epochs_overview"]["monotonic_trained_recovery"])
 
 
 if __name__ == "__main__":

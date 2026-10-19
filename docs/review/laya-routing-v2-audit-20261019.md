@@ -3,14 +3,14 @@
 - **작성 브랜치**: `dev-agy`
 - **감사 도구**: [`apps/review/routing_v2_audit.py`](../../apps/review/routing_v2_audit.py)
 - **단위 테스트**: [`tests/review/test_routing_v2_audit.py`](../../tests/review/test_routing_v2_audit.py)
-- **JSON 요약 산출물**: [`docs/review/laya_routing_v2_audit_summary.json`](./laya_routing_v2_audit_summary.json)
+- **로컬 산출물 경로 (Git 미추적)**: `outputs/laya-diagnostics-20261019/routing-v2-audit-summary.json` (`.gitignore`의 `/outputs/` 규칙에 따라 생성 실험 산출물은 Git에 커밋하지 않음)
 - **데이터 및 라벨 상태**: `mcp-routing-v2` (합성 탐색용 데이터셋, `needs_human_review`, `execution_verified: false` — 사람에 의해 검토된 정답이나 실제 실행 성공 성능으로 주장하지 않음)
 
 ---
 
 ## 1. 독립 검증 요약 (Independent Evidence Verification)
 
-읽기 전용 통합 자산(`/Volumes/Dove-Nest-SSD/projects/Jery/outputs`)을 수정 없이 검증한 결과, 관찰된 수치와 `outputs/laya-diagnostics-20261019/objective-audit.json`의 기록이 정확히 일치함을 독립적으로 확인했다.
+읽기 전용 통합 자산(`outputs/`)을 수정 없이 검증한 결과, 관찰된 수치와 `outputs/laya-diagnostics-20261019/objective-audit.json`의 기록이 정확히 일치함을 독립적으로 확인했다.
 
 ### 1.1 검증 분할 구조 및 상수 음성 창 대조군 (`always-window_none` Control)
 - **검증 익스포트**: `outputs/laya-full-20261017/export/validation.jsonl` (`sha256: aa2c7175a6fb1564af7e992faa8aa64dce45418a9f9e32308a17e075815baf1b`)
@@ -37,35 +37,38 @@
 
 ---
 
-## 2. `laya-routing-v2` 감사 계약 및 검증 규칙
+## 2. `laya-routing-v2` 감사 계약 및 격리 실행 규칙
 
-[`apps/review/routing_v2_audit.py`](../../apps/review/routing_v2_audit.py)는 다음 계약을 독립 검증한다:
+[`apps/review/routing_v2_audit.py`](../../apps/review/routing_v2_audit.py)는 저장소 상대경로(`DEFAULT_ROOT = Path(__file__).resolve().parents[2]`)를 기본값으로 사용하며, 다음 계약과 실행 격리를 보장한다:
 
-1. **네 가지 모델/에폭 상태의 명시적 분리**:
+1. **명시적 `--run-dir` 격리 (Legacy 오염 및 불일치 검증 입력 차단)**:
+   - `--run-dir` 또는 `--runs-dir`를 명시해 실행할 때는 기존의 기본 레거시 실행 디렉터리, `state.json`, `objective-audit.json`을 자동으로 섞지 않는다.
+   - 검증 익스포트(`--validation-export`)는 명시적으로 전달하거나 해당 실행의 `report.json`/`config.json`에 선언된 `export_dir`과 일치하는 경우에만 선택하며, 해시(`sha256`)나 윈도우/사례 수가 실행 기록과 다르면 즉시 불일치 오류로 거부한다.
+2. **네 가지 모델/에폭 상태의 명시적 분리**:
    - `baseline_epoch0`: 학습 전 `before_validation` 결과 (Epoch 0).
    - `best_trained_validation`: 실제 학습된 에폭(`epoch >= 1`) 중 최고 검증 사례 정확도를 기록한 모델 (`selection.best_trained_epoch`, `selection.best_trained_score`, `report.best_trained`).
    - `serving_selected`: 서빙용으로 최종 채택된 모델 (`selection.selected_epoch`, `selection.best_score`, `report.validation`). Baseline 유지 허용(`selected_epoch == 0` 시 `baseline_retained_for_serving = True` 명시).
    - `last_trained`: 마지막 완료 에폭 모델 (`selection.completed_epochs`, `report.last_trained`).
-2. **v2 필수 설정 및 선택 계약 검증**:
+3. **v2 필수 설정 및 선택 계약 검증**:
    - `config.training_policy_version == "laya-routing-v2"`
    - `config.window_none_loss_weight` $\in (0, 1]$ (진단 조건 `1.0`, `0.5`, `0.25` 여부 표시)
    - `config.validation_callback`: `min_epochs == 10`, `patience == 5`, `min_delta == 0.004`
    - `selection.search_score == selection.best_trained_score == max(metrics.jsonl validation.case_accuracy)`
    - `report.best_trained` 및 `report.last_trained` 디스크립터(`artifact`, `artifact_sha256`, `epoch`, `validation_case_accuracy`, `format`)와 `selection`·`metrics.jsonl` 간 정합성 대조.
-3. **과도한 도구 호출 방지 진단**:
-   - `window_none` 가중치를 낮출 때 모델이 모든 사례에서 도구를 호출하는 편향으로 흐르지 않도록 `unnecessary_call_rate` 및 `no_tool`/`clarify` 결정별 precision/recall/F1을 함께 추출·감시한다.
-4. **검증 전용 순위 산정 및 레거시 호환**:
+4. **과도한 도구 호출 방지 진단 및 검증 전용 순위 산정**:
+   - `unnecessary_call_rate` 및 `no_tool`/`clarify` 결정별 precision/recall/F1을 함께 감시한다.
    - 설정 간 순위는 오직 검증 분할의 `search_score`(레거시는 최고 학습 검증 정확도)로만 매기며, `test` 지표는 순위 산정에 절대 사용하지 않는다.
-   - 기존 보고서는 수정하거나 v2로 재해석하지 않고 `contract_mode: "legacy"`로 명시해 지원한다.
 
 ---
 
 ## 3. 재현 명령 (Reproduction Commands)
 
 ```sh
-# 1. 통합 자산 대상 독립 감사 실행 및 JSON 요약 생성
+# 1. 특정 v2 실행 디렉터리 단독 격리 감사 (레거시 기본값 미포함, 결과는 git-ignored outputs/ 에 저장)
 python3 apps/review/routing_v2_audit.py \
-  --output-json docs/review/laya_routing_v2_audit_summary.json
+  --run-dir outputs/model/laya-routing-v2-20261019/<run_id> \
+  --validation-export outputs/laya-full-20261017/export/validation.jsonl \
+  --output-json outputs/laya-diagnostics-20261019/routing-v2-audit-summary.json
 
 # 2. 전체 리뷰 감사 단위 테스트 실행
 python3 -m unittest discover -s tests/review -v

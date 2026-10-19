@@ -25,11 +25,11 @@ try:
 except ImportError:
     from apps.review.audit import validate_output_summary_path
 
-DEFAULT_ASSETS_ROOT = Path("/Volumes/Dove-Nest-SSD/projects/Jery")
-DEFAULT_VALIDATION_EXPORT = DEFAULT_ASSETS_ROOT / "outputs/laya-full-20261017/export/validation.jsonl"
-DEFAULT_BALANCED_STATE = DEFAULT_ASSETS_ROOT / "outputs/laya-balanced-20261018/tracking/state.json"
-DEFAULT_BALANCED_RUNS_DIR = DEFAULT_ASSETS_ROOT / "outputs/model/laya-balanced-20261018"
-DEFAULT_OBJECTIVE_AUDIT = DEFAULT_ASSETS_ROOT / "outputs/laya-diagnostics-20261019/objective-audit.json"
+DEFAULT_ROOT = Path(__file__).resolve().parents[2]
+DEFAULT_VALIDATION_EXPORT = DEFAULT_ROOT / "outputs/laya-full-20261017/export/validation.jsonl"
+DEFAULT_BALANCED_STATE = DEFAULT_ROOT / "outputs/laya-balanced-20261018/tracking/state.json"
+DEFAULT_BALANCED_RUNS_DIR = DEFAULT_ROOT / "outputs/model/laya-balanced-20261018"
+DEFAULT_OBJECTIVE_AUDIT = DEFAULT_ROOT / "outputs/laya-diagnostics-20261019/objective-audit.json"
 
 QUESTION = "route_in_window"
 NULLS = ("no_tool", "clarify", "window_none")
@@ -232,11 +232,71 @@ def _check_model_descriptor(desc: Any, name: str, errors: List[str]) -> Optional
     return desc
 
 
+def _infer_always_none_from_split_block(split_block: Optional[Dict[str, Any]]) -> Optional[float]:
+    if not isinstance(split_block, dict):
+        return None
+    w = split_block.get("window")
+    if not isinstance(w, dict):
+        return None
+    total_w = w.get("windows")
+    none_w = (w.get("by_gold_kind", {}) or {}).get("window_none", {}).get("windows")
+    if isinstance(total_w, int) and total_w > 0 and isinstance(none_w, int) and 0 <= none_w <= total_w:
+        return none_w / total_w
+    return None
+
+
+def resolve_validation_export_for_run(
+    run_dir: Path,
+    root_dir: Path = DEFAULT_ROOT,
+) -> Optional[Path]:
+    """Resolve the matching validation.jsonl path declared by a run's report.json or config.json."""
+    run_dir = Path(run_dir)
+    report_path = run_dir / "report.json"
+    config_path = run_dir / "config.json"
+
+    export_dir_str: Optional[str] = None
+    assets_root_str: Optional[str] = None
+
+    if report_path.exists():
+        try:
+            rep = json.loads(report_path.read_text(encoding="utf-8"))
+            export_dir_str = (rep.get("export") or {}).get("dir") or (rep.get("config") or {}).get("export_dir")
+            assets_root_str = (rep.get("config") or {}).get("assets_root")
+        except Exception:
+            pass
+    if not export_dir_str and config_path.exists():
+        try:
+            cfg = json.loads(config_path.read_text(encoding="utf-8"))
+            export_dir_str = cfg.get("export_dir")
+            assets_root_str = cfg.get("assets_root")
+        except Exception:
+            pass
+
+    if not export_dir_str:
+        return None
+
+    exp_path = Path(export_dir_str)
+    candidates: List[Path] = []
+    if exp_path.is_absolute():
+        candidates.append(exp_path / "validation.jsonl")
+    else:
+        if assets_root_str:
+            candidates.append(Path(assets_root_str) / exp_path / "validation.jsonl")
+        candidates.append(Path(root_dir) / exp_path / "validation.jsonl")
+        candidates.append(run_dir / exp_path / "validation.jsonl")
+
+    for cand in candidates:
+        if cand.exists() and cand.is_file():
+            return cand
+    return None
+
+
 def audit_single_run(
     run_dir: Path,
     report_path: Optional[Path] = None,
     metrics_path: Optional[Path] = None,
-    always_none_control_win_acc: float = 1305 / 1592,
+    always_none_control_win_acc: Optional[float] = None,
+    validation_control: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Audit a single training run directory (or explicit report/metrics paths)."""
     run_dir = Path(run_dir)
@@ -273,6 +333,40 @@ def audit_single_run(
         before_val = json.loads(before_val_path.read_text(encoding="utf-8"))
 
     selection = report.get("selection", {}) if (report and isinstance(report.get("selection"), dict)) else {}
+
+    # Check validation export alignment if validation_control is provided
+    if validation_control is not None:
+        val_sha = validation_control.get("validation_export_sha256")
+        val_windows = validation_control.get("windows")
+        val_cases = validation_control.get("cases")
+
+        if report is not None:
+            rep_val_sha = ((report.get("export") or {}).get("sha256") or {}).get("validation")
+            if rep_val_sha and val_sha and rep_val_sha != val_sha:
+                errors.append(
+                    f"Mismatched validation export sha256: report expects {rep_val_sha}, but provided validation.jsonl has {val_sha}"
+                )
+            rep_val_data = (report.get("data") or {}).get("validation")
+            if isinstance(rep_val_data, dict):
+                if isinstance(val_windows, int) and rep_val_data.get("windows") != val_windows:
+                    errors.append(
+                        f"Mismatched validation windows count: report.data.validation has {rep_val_data.get('windows')}, validation.jsonl has {val_windows}"
+                    )
+                if isinstance(val_cases, int) and rep_val_data.get("cases") != val_cases:
+                    errors.append(
+                        f"Mismatched validation cases count: report.data.validation has {rep_val_data.get('cases')}, validation.jsonl has {val_cases}"
+                    )
+        if before_val is not None:
+            bv_win = (before_val.get("window") or {}).get("windows")
+            bv_cases = (before_val.get("case") or {}).get("cases")
+            if isinstance(val_windows, int) and isinstance(bv_win, int) and bv_win != val_windows:
+                errors.append(
+                    f"Mismatched before_validation windows ({bv_win}) vs provided validation.jsonl ({val_windows})"
+                )
+            if isinstance(val_cases, int) and isinstance(bv_cases, int) and bv_cases != val_cases:
+                errors.append(
+                    f"Mismatched before_validation cases ({bv_cases}) vs provided validation.jsonl ({val_cases})"
+                )
 
     # Determine contract status: v2 vs legacy (never reinterpret legacy as v2)
     config_policy = config.get("training_policy_version")
@@ -360,6 +454,25 @@ def audit_single_run(
     serving_best_score = selection.get("best_score") if selection else None
     serving_val_diag = extract_split_diagnostics(report.get("validation")) if report else None
     serving_test_diag = extract_split_diagnostics(report.get("test")) if report else None
+
+    # Infer constant always-window_none control accuracy from validation export or run's own window gold counts
+    effective_always_none_acc = always_none_control_win_acc
+    if effective_always_none_acc is None and validation_control is not None:
+        effective_always_none_acc = float(validation_control["always_window_none_control"]["window_accuracy"])
+    if effective_always_none_acc is None:
+        effective_always_none_acc = (
+            _infer_always_none_from_split_block(before_val)
+            or (
+                _infer_always_none_from_split_block(report.get("validation"))
+                if report
+                else None
+            )
+            or (
+                _infer_always_none_from_split_block(epoch_records[0].get("validation"))
+                if epoch_records
+                else None
+            )
+        )
 
     # General consistency checks on report (both legacy and v2)
     if report is not None:
@@ -653,7 +766,9 @@ def audit_single_run(
             "serving_test_case_accuracy_observational_only": (
                 serving_test_diag["case_accuracy"] if serving_test_diag else None
             ),
-            "always_window_none_control_window_accuracy": round(always_none_control_win_acc, 4),
+            "always_window_none_control_window_accuracy": (
+                round(effective_always_none_acc, 4) if effective_always_none_acc is not None else None
+            ),
         },
         "models": {
             "baseline_epoch0": baseline_diag,
@@ -848,37 +963,61 @@ def audit_experiment_suite(
     validation_export_path: Optional[Path] = None,
     objective_audit_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
-    """Run a comprehensive read-only audit over a directory of runs, tracking state, and validation export."""
+    """Run a comprehensive read-only audit over specified runs, tracking state, and validation export."""
     discovered_dirs: List[Path] = []
     if run_dirs:
-        discovered_dirs.extend(Path(p) for p in run_dirs)
-    if runs_dir and Path(runs_dir).exists():
-        for child in sorted(Path(runs_dir).iterdir()):
+        for p in run_dirs:
+            d = Path(p)
+            if not d.exists():
+                raise FileNotFoundError(f"Specified run directory does not exist: {d}")
+            if d not in discovered_dirs:
+                discovered_dirs.append(d)
+    if runs_dir:
+        r_dir = Path(runs_dir)
+        if not r_dir.exists():
+            raise FileNotFoundError(f"Specified runs directory does not exist: {r_dir}")
+        for child in sorted(r_dir.iterdir()):
             if child.is_dir() and ((child / "report.json").exists() or (child / "metrics.jsonl").exists()):
                 if child not in discovered_dirs:
                     discovered_dirs.append(child)
 
+    if not discovered_dirs and state_path is None and validation_export_path is None:
+        raise ValueError("No runs, state.json, or validation export provided to audit")
+
     val_control: Optional[Dict[str, Any]] = None
-    always_none_win_acc = 1305 / 1592
-    if validation_export_path and Path(validation_export_path).exists():
-        val_control = compute_validation_export_control(Path(validation_export_path))
+    always_none_win_acc: Optional[float] = None
+    if validation_export_path is not None:
+        v_path = Path(validation_export_path)
+        if not v_path.exists():
+            raise FileNotFoundError(f"Specified validation export does not exist: {v_path}")
+        val_control = compute_validation_export_control(v_path)
         always_none_win_acc = float(val_control["always_window_none_control"]["window_accuracy"])
 
     run_audits: List[Dict[str, Any]] = []
     run_audits_by_id: Dict[str, Dict[str, Any]] = {}
     for d in discovered_dirs:
-        ra = audit_single_run(d, always_none_control_win_acc=always_none_win_acc)
+        ra = audit_single_run(
+            d,
+            always_none_control_win_acc=always_none_win_acc,
+            validation_control=val_control,
+        )
         run_audits.append(ra)
         run_audits_by_id[ra["run_id"]] = ra
         run_audits_by_id[d.name] = ra
 
     state_audit: Optional[Dict[str, Any]] = None
-    if state_path and Path(state_path).exists():
-        state_audit = audit_tracking_state(Path(state_path), run_audits_by_id=run_audits_by_id)
+    if state_path is not None:
+        s_path = Path(state_path)
+        if not s_path.exists():
+            raise FileNotFoundError(f"Specified state.json does not exist: {s_path}")
+        state_audit = audit_tracking_state(s_path, run_audits_by_id=run_audits_by_id)
 
     objective_audit_cross_check: Optional[Dict[str, Any]] = None
-    if objective_audit_path and Path(objective_audit_path).exists():
-        obj_doc = json.loads(Path(objective_audit_path).read_text(encoding="utf-8"))
+    if objective_audit_path is not None:
+        o_path = Path(objective_audit_path)
+        if not o_path.exists():
+            raise FileNotFoundError(f"Specified objective-audit.json does not exist: {o_path}")
+        obj_doc = json.loads(o_path.read_text(encoding="utf-8"))
         mismatches: List[str] = []
         if val_control:
             v_doc = obj_doc.get("validation", {})
@@ -888,11 +1027,11 @@ def audit_experiment_suite(
             ctrl_doc = obj_doc.get("always_window_none_control", {})
             if abs(float(ctrl_doc.get("window_accuracy", 0.0)) - val_control["always_window_none_control"]["window_accuracy"]) > 1e-9:
                 mismatches.append("always_window_none_control.window_accuracy mismatch")
-            if abs(float(ctrl_doc.get("case_accuracy", 0.0)) - float(val_control["always_window_none_control"]["case_accuracy"])) > 1e-6:
+            if abs(float(ctrl_doc.get("case_accuracy", 0.0)) - val_control["always_window_none_control"]["case_accuracy"]) > 1e-6:
                 mismatches.append("always_window_none_control.case_accuracy mismatch")
         objective_audit_cross_check = {
-            "objective_audit_path": str(objective_audit_path),
-            "objective_audit_sha256": compute_sha256(Path(objective_audit_path)),
+            "objective_audit_path": str(o_path),
+            "objective_audit_sha256": compute_sha256(o_path),
             "matches_independent_computation": len(mismatches) == 0,
             "mismatches": mismatches,
         }
@@ -1008,7 +1147,6 @@ def _protect_output_path(output_path: Path, protected_paths: Sequence[Optional[P
             continue
         if p_path.is_dir():
             validate_output_summary_path(output_path, p_path)
-            # Also check immediate subdirectories (e.g., child run directories)
             for sub in p_path.iterdir():
                 if sub.is_dir():
                     validate_output_summary_path(output_path, sub)
@@ -1026,22 +1164,62 @@ def _protect_output_path(output_path: Path, protected_paths: Sequence[Optional[P
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--runs-dir", type=Path, default=DEFAULT_BALANCED_RUNS_DIR, help="Directory containing child run folders")
+    parser.add_argument(
+        "--root",
+        type=Path,
+        default=DEFAULT_ROOT,
+        help="Repository/assets root for default relative path resolution (defaults to repo root)",
+    )
+    parser.add_argument("--runs-dir", type=Path, default=None, help="Directory containing child run folders")
     parser.add_argument("--run-dir", type=Path, action="append", dest="run_dirs", help="Specific run directory to audit (repeatable)")
-    parser.add_argument("--state-json", type=Path, default=DEFAULT_BALANCED_STATE, help="Path to supervisor state.json")
-    parser.add_argument("--validation-export", type=Path, default=DEFAULT_VALIDATION_EXPORT, help="Path to validation.jsonl export")
-    parser.add_argument("--objective-audit", type=Path, default=DEFAULT_OBJECTIVE_AUDIT, help="Path to objective-audit.json")
+    parser.add_argument("--state-json", type=Path, default=None, help="Path to supervisor state.json")
+    parser.add_argument("--validation-export", type=Path, default=None, help="Path to validation.jsonl export")
+    parser.add_argument("--objective-audit", type=Path, default=None, help="Path to objective-audit.json")
     parser.add_argument("--output-json", type=Path, help="Write full audit JSON report to path")
     parser.add_argument("--json", action="store_true", help="Print JSON output to stdout instead of console table")
     parser.add_argument("--quiet", action="store_true", help="Suppress stdout output")
     args = parser.parse_args(argv)
 
+    root = Path(args.root).resolve()
+
+    # Isolation rule: when --run-dir or --runs-dir is explicitly supplied, never silently attach
+    # legacy default runs/state/objective evidence or a mismatched default validation export.
+    explicit_mode = bool(args.run_dirs or args.runs_dir or args.state_json or args.validation_export or args.objective_audit)
+
+    runs_dir = args.runs_dir
+    run_dirs = args.run_dirs
+    state_json = args.state_json
+    val_export = args.validation_export
+    obj_audit = args.objective_audit
+
+    if not explicit_mode:
+        default_runs = root / "outputs/model/laya-balanced-20261018"
+        default_state = root / "outputs/laya-balanced-20261018/tracking/state.json"
+        default_val = root / "outputs/laya-full-20261017/export/validation.jsonl"
+        default_obj = root / "outputs/laya-diagnostics-20261019/objective-audit.json"
+        if default_runs.exists():
+            runs_dir = default_runs
+        if default_state.exists():
+            state_json = default_state
+        if default_val.exists():
+            val_export = default_val
+        if default_obj.exists():
+            obj_audit = default_obj
+    elif val_export is None and run_dirs:
+        # In explicit --run-dir mode, auto-select validation.jsonl ONLY if every specified run resolves
+        # to the exact same existing export path declared in its own report/config.
+        resolved = {resolve_validation_export_for_run(Path(d), root_dir=root) for d in run_dirs}
+        if len(resolved) == 1:
+            only = next(iter(resolved))
+            if only is not None and only.exists():
+                val_export = only
+
     protected: List[Optional[Path]] = [
-        args.runs_dir,
-        args.state_json,
-        args.validation_export,
-        args.objective_audit,
-        *(args.run_dirs or []),
+        runs_dir,
+        state_json,
+        val_export,
+        obj_audit,
+        *(run_dirs or []),
     ]
 
     if args.output_json:
@@ -1052,11 +1230,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     try:
         suite = audit_experiment_suite(
-            runs_dir=args.runs_dir,
-            run_dirs=args.run_dirs,
-            state_path=args.state_json,
-            validation_export_path=args.validation_export,
-            objective_audit_path=args.objective_audit,
+            runs_dir=runs_dir,
+            run_dirs=run_dirs,
+            state_path=state_json,
+            validation_export_path=val_export,
+            objective_audit_path=obj_audit,
         )
     except Exception as exc:
         sys.stderr.write(f"Audit execution error: {exc}\n")
