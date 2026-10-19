@@ -688,6 +688,8 @@ def main(argv=None):
     backend = config.get('backend', 'mlx')
     if backend not in ('mlx', 'cuda'):
         parser.error(f'Unknown training backend: {backend}')
+    if backend != 'cuda' and 'training_policy_version' in config:
+        parser.error('training_policy_version is implemented only for backend=cuda')
     run_backend, guard_class = run, MemoryGuard
     if backend == 'cuda':
         from jery.model.laya_cuda import run as run_backend, CudaMemoryGuard as guard_class
