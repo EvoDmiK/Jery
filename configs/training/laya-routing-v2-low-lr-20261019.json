@@ -1,0 +1,76 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-routing-v2-low-lr-hyperopt-20261019",
+  "dataset_version": "mcp-routing-v2",
+  "export_dir": "outputs/laya-full-20261017/export",
+  "epochs": 10,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank trained checkpoints by validation case accuracy; final serving head separately competes with baseline epoch 0",
+  "test_policy": "one final selected-serving-model test per predeclared child; never rank conditions using test",
+  "aggregation_policy": "exhaustive windows and label-blind winner tournament; no cross-window probability comparison; delegate counts wrong and coverage separately",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-v2-low-lr-10ep",
+  "previous_parent_run_id": "bc61fce284ae468e8b7022508f36e819",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 4,
+      "window_none": 4,
+      "no_tool": 1,
+      "clarify": 1
+    },
+    "method": "deterministic oversampling retaining every original train window"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 5,
+    "min_delta": 0.004,
+    "min_epochs": 10,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "Lower-initial-LR search after routing regression; weight=1 control retained so only initial LR varies",
+  "search_score": "best_trained_validation_case_accuracy",
+  "hyperopt": {
+    "algorithm": "tpe",
+    "max_evals": 5,
+    "startup_trials": 2,
+    "head_lr": [
+      1e-06,
+      1e-05
+    ],
+    "weight_decay": [
+      0.01
+    ],
+    "label_smoothing": [
+      0.0
+    ],
+    "objective": "1 - best_trained_validation_case_accuracy",
+    "test_used_for_search": false
+  },
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "comparison_reference": "completed weight=1 control at head_lr=4.879746787617291e-5; validation best trained 0.1089, baseline 0.1613",
+    "lr_scheduler": "linear",
+    "warmup_steps": 64
+  }
+}
