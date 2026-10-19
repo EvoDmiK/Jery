@@ -14,6 +14,15 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_prepared_policy_and_configuration_cannot_be_swapped(self):
+        config = {'backend': 'cuda', 'training_policy_version': tracking.POLICY_V2}
+        plan = {'training_policy_version': tracking.POLICY_V2}
+        tracking.validate_prepared_config(config, plan, dict(config))
+        with self.assertRaises(ValueError):
+            tracking.validate_prepared_config({'backend': 'mlx'}, plan, config)
+        with self.assertRaises(ValueError):
+            tracking.validate_prepared_config(config, {}, config)
+
     def test_v2_search_uses_trained_score_below_serving_baseline(self):
         plan = {'training_policy_version': tracking.POLICY_V2}
         self.assertEqual(tracking.comparison_score({'final_validation': .1613, 'search_validation': .08}, plan), .08)

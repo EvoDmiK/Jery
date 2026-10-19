@@ -92,7 +92,8 @@ def main():
             'experiment_id': plan['experiment_id'], 'start_time': int(time.time() * 1000),
             'tags': [{'key': 'mlflow.runName', 'value': plan['parent_name']},
                      {'key': 'jery.role', 'value': 'parent'}, {'key': 'jery.backend', 'value': 'cuda'},
-                     {'key': 'jery.purpose', 'value': 'readiness' if args.readiness else 'hyperopt'}]})['run']
+                     {'key': 'jery.purpose', 'value': 'controlled_ablation' if plan.get('trials') else
+                      'readiness' if args.readiness else 'hyperopt'}]})['run']
         state = {'parent_run_id': remote['info']['run_id'], 'parent_artifact_uri': remote['info']['artifact_uri'],
                  'status': 'prepared', 'children': [], 'plan': plan, 'tracking_uri': args.tracking_uri}
         write_json(state_path, state)

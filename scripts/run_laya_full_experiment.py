@@ -81,6 +81,11 @@ def comparison_score(child, plan):
     return value
 
 
+def validate_prepared_config(config, plan, prepared):
+    if config != prepared or config.get('training_policy_version') != plan.get('training_policy_version'):
+        raise ValueError('Model configuration differs from the prepared experiment')
+
+
 def trained_search_score(report, epochs):
     selection = report['selection']
     if selection.get('policy_version') != POLICY_V2:
@@ -162,6 +167,8 @@ def main():
     if set(plan['child_params']) != PARAMS or set(plan['child_metrics']) != METRICS:
         raise ValueError('Tracking allowlist differs from the declared plan')
     config = json.loads(options.model_config.read_text())
+    if plan.get('training_policy_version') == POLICY_V2:
+        validate_prepared_config(config, plan, json.loads((folder / 'configuration.json').read_text()))
     base, parent = options.tracking_uri, state['parent_run_id']
     expected_export = json.loads((ROOT / plan['export_dir'] / 'manifest.json').read_text())
     for split in ('train', 'validation', 'test'):
@@ -336,6 +343,8 @@ def main():
                     'status': 'initializing'}
             if search_trial:
                 item['hyperopt'] = search_trial
+            if fixed_trial:
+                item['condition'] = fixed_trial
             state['children'].append(item); write_json(state_path, state)
         params = {'head_lr': lr, 'epochs': plan['epochs'], 'seed': plan['seed'],
                   'effective_batch_size': plan['micro_batch'] * plan['grad_accum']}
@@ -396,6 +405,7 @@ def main():
                         item['verified_artifacts']['progress.json'] = store_json(item['run_id'], item['artifact_uri'], 'progress.json', local / 'progress.json')
                         parent_progress = {'status': state['status'], 'updated_at': progress['updated_at'],
                             'planned_learning_rates': plan.get('head_learning_rates', []), 'hyperopt': plan.get('hyperopt'),
+                            'planned_conditions': plan.get('trials'), 'training_policy_version': plan.get('training_policy_version'),
                             'children': [{k: c.get(k) for k in ('run_id', 'head_lr', 'status', 'epoch', 'runner_pid')}
                                          for c in state['children']]}
                         write_json(folder / 'progress.json', parent_progress)
@@ -505,9 +515,11 @@ def main():
     state.update(status='finished', selected_child_run_id=selected['run_id'])
     if plan.get('training_policy_version') == POLICY_V2:
         state['selected_search_score'] = comparison_score(selected, plan)
+        tag(parent, 'jery.training_outcome', 'trained_improvement' if any(c['selected_epoch'] > 0 for c in state['children'])
+            else 'all_baseline_retained')
     write_json(state_path, state)
     api('mlflow/runs/log-batch', {'run_id': parent, 'metrics': [
-        {'key': 'best_val_accuracy', 'value': selected['final_validation'], 'step': plan['epochs'], 'timestamp': int(time.time()*1000)},
+        {'key': 'best_val_accuracy', 'value': comparison_score(selected, plan), 'step': plan['epochs'], 'timestamp': int(time.time()*1000)},
         {'key': 'selected_test_accuracy', 'value': selected['final_test'], 'step': plan['epochs'], 'timestamp': int(time.time()*1000)}]})
     summary = folder / 'summary.json'; write_json(summary, state)
     network_call(upload, base, state['parent_artifact_uri'], 'summary.json', summary)
