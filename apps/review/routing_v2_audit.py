@@ -981,8 +981,8 @@ def audit_experiment_suite(
                 if child not in discovered_dirs:
                     discovered_dirs.append(child)
 
-    if not discovered_dirs and state_path is None and validation_export_path is None:
-        raise ValueError("No runs, state.json, or validation export provided to audit")
+    if not discovered_dirs:
+        raise ValueError("Zero training runs discovered to audit (refusing to report PASS on empty run set)")
 
     val_control: Optional[Dict[str, Any]] = None
     always_none_win_acc: Optional[float] = None
@@ -1037,7 +1037,7 @@ def audit_experiment_suite(
         }
 
     ranking = rank_runs_by_validation(run_audits)
-    all_runs_passed = all(r["audit_passed"] for r in run_audits)
+    all_runs_passed = bool(run_audits) and all(r["audit_passed"] for r in run_audits)
     state_passed = state_audit["audit_passed"] if state_audit else True
     cross_check_passed = (
         objective_audit_cross_check["matches_independent_computation"]

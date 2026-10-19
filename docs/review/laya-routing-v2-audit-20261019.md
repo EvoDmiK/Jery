@@ -35,6 +35,13 @@
 - **Trial 4 회복 중 조기 종료**: Epoch 1~5 동안 사례 정확도가 `3.23% -> 8.06% -> 8.87% -> 11.69% -> 15.73%`로 매 에폭 단조 회복(양성 도구 창 재현율도 `0.00% -> 4.68% -> 6.81% -> 10.21% -> 17.45%`로 상승)했으나, Epoch 0 baseline(`16.13%`) + `min_delta(0.004)`를 5에폭(`patience=5`) 내에 넘지 못했다는 이유로 Epoch 5에서 조기 종료되었다.
 - **Hyperopt 목적함수 바닥 고정(Flooring)**: 완료된 Trial 1~4의 실제 최고 학습 검증 성능(`best_trained_score`)은 각각 `7.66%`, `11.29%`, `14.92%`, `15.73%`로 뚜렷이 달랐으나, 서빙 모델이 모두 Epoch 0 baseline(`16.13%`)으로 복원되면서 Hyperopt에 전달된 손실(`1 - final_validation`)이 네 시행 모두 `0.8387`로 동일하게 고정되었다.
 
+### 1.3 CUDA `laya-routing-v2` 10-Epoch 스모크 실행 독립 감사 (`weighted-10ep`)
+- **대상 경로**: `outputs/laya-routing-v2-20261019/smoke-run` 및 대응 검증 익스포트 `outputs/laya-routing-v2-20261019/smoke-export/validation.jsonl` (공학 경로 검증용 소규모 스모크; 성능 주장 아님)
+- **격리 감사 결과 (`PASS`)**:
+  - `contract_mode`: `"laya-routing-v2"`, `window_none_loss_weight`: `0.25`, `completed_epochs`: `10` (30 optimizer steps)
+  - 에폭 구분: `baseline_epoch = 0` (`0.25`), `best_trained_epoch = 1` (`0.25`), `serving_selected_epoch = 0` (`0.25`, `baseline_retained_for_serving = True`), `last_trained_epoch = 10` (`0.25`)
+  - `selection.search_score` (`0.25`) == `selection.best_trained_score` (`0.25`) == `metrics.jsonl` 최고 검증 정확도 (`0.25`), `report.best_trained` 및 `report.last_trained` 디스크립터 해시·에폭·점수 정합성 확인 완료.
+
 ---
 
 ## 2. `laya-routing-v2` 감사 계약 및 격리 실행 규칙

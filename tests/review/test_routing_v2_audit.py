@@ -469,6 +469,23 @@ class TestRoutingV2Audit(unittest.TestCase):
             self.assertFalse(bad_payload["audit_passed"])
             self.assertTrue(any("Mismatched before_validation" in e for e in bad_payload["runs"][0]["errors"]))
 
+            # Zero discovered runs (empty --runs-dir or empty --root) must fail, never PASS
+            empty_runs_dir = base / "empty_runs"
+            empty_runs_dir.mkdir(parents=True, exist_ok=True)
+            for zero_args in (
+                ["--runs-dir", str(empty_runs_dir)],
+                ["--validation-export", str(mismatched_val)],
+                ["--run-dir", str(base / "nonexistent_run")],
+                ["--run-dir", str(explicit_run), "--state-json", str(base / "missing_state.json")],
+                ["--run-dir", str(explicit_run), "--validation-export", str(base / "missing_val.jsonl")],
+            ):
+                proc_zero = subprocess.run(
+                    [sys.executable, str(PROJECT_ROOT / "apps/review/routing_v2_audit.py"), *zero_args],
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertNotEqual(proc_zero.returncode, 0, msg=f"Expected failure for {zero_args}")
+
     def test_constant_negative_window_control_and_input_immutability(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
