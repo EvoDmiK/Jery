@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -13,6 +14,41 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_v2_search_uses_trained_score_below_serving_baseline(self):
+        plan = {'training_policy_version': tracking.POLICY_V2}
+        self.assertEqual(tracking.comparison_score({'final_validation': .1613, 'search_validation': .08}, plan), .08)
+        with self.assertRaises(KeyError):
+            tracking.comparison_score({'final_validation': .1613}, plan)
+        report = {'selection': {'policy_version': tracking.POLICY_V2, 'completed_epochs': 10,
+                               'selected_epoch': 0, 'best_score': .1613, 'best_trained_epoch': 7,
+                               'best_trained_score': .14, 'search_score': .14},
+                  'validation': {'epoch': 0, 'case_accuracy': .1613}, 'test': {'epoch': 0},
+                  'before_validation': {'case_accuracy': .1613},
+                  'best_trained': {'epoch': 7, 'validation_case_accuracy': .14}}
+        self.assertEqual(tracking.trained_search_score(report, 10), .14)
+        report['selection']['search_score'] = .1613
+        with self.assertRaises(ValueError): tracking.trained_search_score(report, 10)
+        report['selection']['search_score'] = .14
+        report['selection']['search_score'] = float('nan')
+        with self.assertRaises(ValueError): tracking.trained_search_score(report, 10)
+        report['selection']['search_score'] = .14
+        report['best_trained']['epoch'] = 0
+        with self.assertRaises(ValueError): tracking.trained_search_score(report, 10)
+
+    @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
+    def test_v2_hyperopt_replay_is_not_floored_at_the_initial_model(self):
+        from hyperopt import tpe
+        plan = {'seed': 3407, 'training_policy_version': tracking.POLICY_V2,
+                'hyperopt': {'head_lr': [1e-5, 1e-3], 'weight_decay': [0., .01],
+                             'label_smoothing': [0., .05], 'startup_trials': 2}}
+        trial = tracking.hyperopt_candidate(plan, [])
+        children = [{'status': 'finished', 'final_validation': .1613, 'search_validation': .08, 'hyperopt': trial}]
+        with mock.patch.object(tpe, 'suggest', wraps=tpe.suggest) as suggest:
+            next_trial = tracking.hyperopt_candidate(plan, children)
+            replay = suggest.call_args.args[2].trials
+            self.assertAlmostEqual(replay[0]['result']['loss'], .92)
+        self.assertEqual(next_trial['objective'], '1 - best_trained_validation_case_accuracy')
+
     def test_recovery_preserves_original_source_and_configuration(self):
         with tempfile.TemporaryDirectory() as directory:
             for name in ('source.json', 'configuration.json'):

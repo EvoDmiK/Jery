@@ -24,6 +24,7 @@ DEFAULT_TRACKING_URI = 'https://mlflow.dove-nest.com'
 PARAMS = {'head_lr', 'epochs', 'seed', 'effective_batch_size'}
 METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
            'test_accuracy', 'test_macro_f1', 'test_coverage'}
+POLICY_V2 = 'laya-routing-v2'
 
 
 def write_json(path, data, *, overwrite=True):
@@ -71,6 +72,39 @@ def final_epoch_bounds(report, max_epochs, best_validation=False):
     return selected, completed
 
 
+def comparison_score(child, plan):
+    """Never floor a v2 search result at the serving baseline."""
+    key = 'search_validation' if plan.get('training_policy_version') == POLICY_V2 else 'final_validation'
+    value = child[key]
+    if not isinstance(value, (int, float)) or not math.isfinite(value) or not 0 <= value <= 1:
+        raise ValueError(f'Invalid {key}')
+    return value
+
+
+def trained_search_score(report, epochs):
+    selection = report['selection']
+    if selection.get('policy_version') != POLICY_V2:
+        raise ValueError('Expected the v2 selection contract')
+    best = selection['best_trained_epoch']
+    score = selection['best_trained_score']
+    if not isinstance(best, int) or not 1 <= best <= selection['completed_epochs']:
+        raise ValueError('Search must select a trained epoch')
+    final_epoch_bounds(report, epochs, True)
+    policy = {'training_policy_version': POLICY_V2}
+    value = comparison_score({'search_validation': score}, policy)
+    searched = comparison_score({'search_validation': selection['search_score']}, policy)
+    if abs(searched - value) > 1e-9:
+        raise ValueError('Search score differs from the trained checkpoint')
+    descriptor = report['best_trained']
+    described = comparison_score({'search_validation': descriptor['validation_case_accuracy']}, policy)
+    if descriptor['epoch'] != best or abs(described - value) > 1e-9:
+        raise ValueError('Best trained artifact does not match its selection record')
+    baseline = report['before_validation']['case_accuracy']
+    if selection['selected_epoch'] != (best if value > baseline else 0):
+        raise ValueError('Serving selection does not match the baseline protection policy')
+    return value
+
+
 def hyperopt_candidate(plan, children):
     """Hyperopt ask/tell: only finished validation results enter TPE; persist the actual trial document as JSON."""
     import numpy as np
@@ -85,7 +119,7 @@ def hyperopt_candidate(plan, children):
         if child['status'] != 'finished':
             continue
         document = json.loads(json.dumps(child['hyperopt']['document']))
-        document.update(state=JOB_STATE_DONE, result={'status': STATUS_OK, 'loss': 1 - child['final_validation']})
+        document.update(state=JOB_STATE_DONE, result={'status': STATUS_OK, 'loss': 1 - comparison_score(child, plan)})
         trials.insert_trial_docs([document])
     trials.refresh()
     tid = trials.new_trial_ids(1)[0]
@@ -96,7 +130,9 @@ def hyperopt_candidate(plan, children):
     # Hyperopt uses NumPy scalars; its trial dates are None until the objective is scheduled.
     document = json.loads(json.dumps(documents[0], default=lambda x: x.item() if isinstance(x, np.generic) else str(x)))
     return {'parameters': {k: float(v) for k, v in parameters.items()}, 'document': document,
-            'algorithm': 'hyperopt.tpe.suggest', 'objective': '1 - best_validation_case_accuracy'}
+            'algorithm': 'hyperopt.tpe.suggest',
+            'objective': '1 - best_trained_validation_case_accuracy' if plan.get('training_policy_version') == POLICY_V2
+                         else '1 - best_validation_case_accuracy'}
 
 
 def main():
@@ -255,7 +291,8 @@ def main():
         tag(parent, 'jery.phase', 'running')
     api('mlflow/runs/update', {'run_id': parent, 'status': 'RUNNING'})
     tag(parent, 'jery.phase', 'running')
-    budget = plan['hyperopt']['max_evals'] if plan.get('hyperopt') else len(plan['head_learning_rates'])
+    budget = (plan['hyperopt']['max_evals'] if plan.get('hyperopt') else
+              len(plan['trials']) if plan.get('trials') else len(plan['head_learning_rates']))
     for index in range(1, budget + 1):
         prior = [c for c in state['children'] if c['index'] == index]
         if prior and prior[-1]['status'] == 'finished':
@@ -263,7 +300,10 @@ def main():
         if stopped:
             break
         search_trial = (prior[-1]['hyperopt'] if prior else hyperopt_candidate(plan, state['children'])) if plan.get('hyperopt') else None
-        sampled = search_trial['parameters'] if search_trial else {'head_learning_rate': plan['head_learning_rates'][index - 1]}
+        fixed_trial = plan['trials'][index - 1] if plan.get('trials') else None
+        sampled = (search_trial['parameters'] if search_trial else
+                   {k: v for k, v in fixed_trial.items() if k != 'trial_id'} if fixed_trial else
+                   {'head_learning_rate': plan['head_learning_rates'][index - 1]})
         lr = sampled['head_learning_rate']
         overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
                      'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
@@ -281,7 +321,8 @@ def main():
                     break
                 try:
                     remote = request(base, 'mlflow/runs/create', {'experiment_id': plan['experiment_id'], 'start_time': int(time.time()*1000),
-                        'tags': [{'key': 'mlflow.runName', 'value': f"{plan.get('child_name_prefix', 'laya-full-64ep')}-lr{lr:g}"},
+                        'tags': [{'key': 'mlflow.runName', 'value': f"{plan.get('child_name_prefix', 'laya-full-64ep')}-" +
+                                  (fixed_trial['trial_id'] if fixed_trial else f'lr{lr:g}')},
                                  {'key': 'mlflow.parentRunId', 'value': parent}, {'key': 'jery.role', 'value': 'child'},
                                  {'key': 'jery.backend', 'value': config.get('backend', 'mlx')},
                                  {'key': 'jery.trial_id', 'value': trial_id}]})['run']
@@ -298,6 +339,9 @@ def main():
             state['children'].append(item); write_json(state_path, state)
         params = {'head_lr': lr, 'epochs': plan['epochs'], 'seed': plan['seed'],
                   'effective_batch_size': plan['micro_batch'] * plan['grad_accum']}
+        if plan.get('training_policy_version') == POLICY_V2:
+            tag(item['run_id'], 'jery.training_policy', POLICY_V2)
+            tag(item['run_id'], 'jery.window_none_loss_weight', sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0)))
         api('mlflow/runs/update', {'run_id': item['run_id'], 'status': 'RUNNING'})
         api('mlflow/runs/log-batch', {'run_id': item['run_id'], 'params': [{'key': k, 'value': str(v)} for k,v in params.items()]})
         local = folder / item['local_id']; local.mkdir(parents=True, exist_ok=True)
@@ -379,6 +423,17 @@ def main():
         report = json.loads((out / 'report.json').read_text())
         final = report['validation']; test = report['test']
         selected_epoch, completed_epochs = final_epoch_bounds(report, plan['epochs'], bool(config.get('validation_callback')))
+        search_score = (trained_search_score(report, plan['epochs'])
+                        if plan.get('training_policy_version') == POLICY_V2 else final['case_accuracy'])
+        if plan.get('training_policy_version') == POLICY_V2:
+            epoch_rows = json_lines(out / 'metrics.jsonl')
+            if abs(max(r['validation']['case_accuracy'] for r in epoch_rows) - search_score) > 1e-9:
+                raise ValueError('Search score differs from the actual trained epoch history')
+            for key, value in {'jery.selected_epoch': selected_epoch,
+                               'jery.best_trained_epoch': report['selection']['best_trained_epoch'],
+                               'jery.best_trained_score': search_score,
+                               'jery.selection_outcome': 'baseline_retained' if selected_epoch == 0 else 'trained_selected'}.items():
+                tag(item['run_id'], key, value)
         if not report['updates']['encoder_unchanged'] or not report['restore']['same_validation_case_predictions']:
             raise ValueError('Frozen encoder/restore verification failed')
         api('mlflow/runs/log-batch', {'run_id': item['run_id'], 'metrics': [
@@ -409,6 +464,14 @@ def main():
                 if path.is_file():
                     name = 'model/last-trained/' + path.name
                     item['verified_artifacts'][name] = store_json(item['run_id'], item['artifact_uri'], name, path)
+        if report.get('best_trained'):
+            trained = ROOT / report['best_trained']['artifact']
+            if hashlib.sha256(trained.read_bytes()).hexdigest() != report['best_trained']['artifact_sha256']:
+                raise ValueError('Best trained head checksum mismatch')
+            for path in trained.parent.iterdir():
+                if path.is_file():
+                    name = 'model/best-trained/' + path.name
+                    item['verified_artifacts'][name] = store_json(item['run_id'], item['artifact_uri'], name, path)
         dependencies = local / 'model-dependencies.json'
         write_json(dependencies, {'base_artifact_uri': plan['base_artifact_uri'], 'head_sha256': report['restore']['artifact_sha256'],
                                  'base_revision': report['provenance']['model']['revision'],
@@ -424,13 +487,13 @@ def main():
                 raise ValueError('Incomplete epoch curve: ' + key)
         api('mlflow/runs/update', {'run_id': item['run_id'], 'status': 'FINISHED', 'end_time': int(time.time()*1000)})
         item.update(status='finished', final_validation=final['case_accuracy'], final_test=test['case_accuracy'],
-                    selected_epoch=selected_epoch, completed_epochs=completed_epochs)
+                    selected_epoch=selected_epoch, completed_epochs=completed_epochs, search_validation=search_score)
         write_json(state_path, state)
         if plan.get('hyperopt'):
             trials_path = folder / 'hyperopt-trials.json'
             write_json(trials_path, {'search': plan['hyperopt'], 'trials': [
                 {'index': c['index'], **c['hyperopt'], 'status': c['status'],
-                 'objective_loss': 1 - c['final_validation'] if c['status'] == 'finished' else None}
+                 'objective_loss': 1 - comparison_score(c, plan) if c['status'] == 'finished' else None}
                 for c in state['children']]})
             store_json(parent, state['parent_artifact_uri'], 'hyperopt-trials.json', trials_path)
         print('FINISHED', item['local_id'], flush=True)
@@ -438,8 +501,10 @@ def main():
         state['status'] = 'interrupted'; write_json(state_path, state)
         api('mlflow/runs/update', {'run_id': parent, 'status': 'KILLED', 'end_time': int(time.time()*1000)})
         return
-    selected = max(state['children'], key=lambda c: (c['final_validation'], -c['head_lr']))
+    selected = max(state['children'], key=lambda c: (comparison_score(c, plan), -c['head_lr']))
     state.update(status='finished', selected_child_run_id=selected['run_id'])
+    if plan.get('training_policy_version') == POLICY_V2:
+        state['selected_search_score'] = comparison_score(selected, plan)
     write_json(state_path, state)
     api('mlflow/runs/log-batch', {'run_id': parent, 'metrics': [
         {'key': 'best_val_accuracy', 'value': selected['final_validation'], 'step': plan['epochs'], 'timestamp': int(time.time()*1000)},
