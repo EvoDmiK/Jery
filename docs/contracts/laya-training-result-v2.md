@@ -39,4 +39,6 @@ Hyperopt v2 목적함수는 `1 - search_score`다. 실행기의 `child.search_va
 
 기존 Child params 4개와 metrics 7개를 유지한다. loss 가중치는 run 이름·태그·설정 JSON에 표시한다. `jery.selected_epoch`, `jery.best_trained_epoch`, `jery.best_trained_score`, `jery.selection_outcome` 태그로 baseline 복원을 구분한다. 상세 지표는 JSON artifact에 저장한다.
 
+2026-10-19 사용자 요청으로 추가한 공동 Hyperopt 탐색 plan은 `child_params`에 `window_none_loss_weight`를 명시해 필수 params를 5개로 확장한다. 기존 params 4개 plan은 그대로 지원한다. 새 plan에서는 LR과 함께 탐색한 가중치를 실제 Child param으로 기록하며, metrics 7개는 유지한다. 그 외 설정·진단은 JSON artifact다.
+
 모델 artifact는 `model/`(serving), `model/best-trained/`, `model/last-trained/`로 구분한다. 원본 가중치·export·로그는 Git에 넣지 않는다. 완료된 checkpoint에서 후처리를 재개할 때 optimizer step을 추가하거나 test를 다시 평가하지 않는다.

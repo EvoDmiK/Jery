@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 import time
 
-from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, PARAMS, METRICS, POLICY_V2, write_json
+from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, METRICS, POLICY_V2, child_param_keys, write_json
 from run_laya_repeats import upload
 from sync_laya_training_metrics import request
 
@@ -16,7 +16,8 @@ def validate_explicit_plan(plan, config):
         raise ValueError('CUDA backend required')
     if plan.get('training_policy_version') != config.get('training_policy_version'):
         raise ValueError('Plan/model policy versions differ')
-    if set(plan['child_params']) != PARAMS or set(plan['child_metrics']) != METRICS:
+    child_param_keys(plan)
+    if set(plan['child_metrics']) != METRICS:
         raise ValueError('Tracking allowlist changed')
     for key in ('seed', 'micro_batch', 'grad_accum'):
         if plan[key] != config[key]:
@@ -25,6 +26,19 @@ def validate_explicit_plan(plan, config):
         raise ValueError('Invalid epoch budget')
     if sum(bool(plan.get(k)) for k in ('trials', 'hyperopt', 'head_learning_rates')) != 1:
         raise ValueError('Exactly one trial schedule is required')
+    if plan.get('hyperopt'):
+        search = plan['hyperopt']
+        lower, upper = search['head_lr']
+        if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v > 0
+                   for v in (lower, upper)) or lower >= upper:
+            raise ValueError('Invalid learning-rate search range')
+        weights = search.get('window_none_loss_weight')
+        if weights is not None and (plan.get('training_policy_version') != POLICY_V2 or not isinstance(weights, list)
+                or not weights or not all(isinstance(v, (int, float)) and not isinstance(v, bool)
+                                         and math.isfinite(v) and 0 < v <= 1 for v in weights)):
+            raise ValueError('Invalid window_none weight search choices')
+        if weights is not None and 'window_none_loss_weight' not in plan['child_params']:
+            raise ValueError('Searched window_none weight must be tracked as a child parameter')
     if plan.get('training_policy_version') == POLICY_V2:
         if plan['validation_callback'] != config['validation_callback']:
             raise ValueError('Plan/model callback policies differ')

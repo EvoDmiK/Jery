@@ -27,6 +27,20 @@ class CudaExperimentPlanTest(unittest.TestCase):
         self.assertEqual(self.plan['epochs'], 10)
         self.assertEqual(self.plan['micro_batch'] * self.plan['grad_accum'], 4)
 
+    def test_joint_search_validates_lower_lr_and_weight_choices(self):
+        plan = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())
+        prepare.validate_explicit_plan(plan, self.config)
+        for weights in ([], [0], [1.1], [float('nan')], [True]):
+            bad = copy.deepcopy(plan)
+            bad['hyperopt']['window_none_loss_weight'] = weights
+            with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, self.config)
+        bad = copy.deepcopy(plan)
+        bad['hyperopt']['head_lr'] = [1e-5, 1e-6]
+        with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, self.config)
+        bad = copy.deepcopy(plan)
+        bad['child_params'].remove('window_none_loss_weight')
+        with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, self.config)
+
     def test_rejects_mixed_search_or_invalid_weights_and_budget(self):
         for kind in ('mixed', 'weight', 'duplicate', 'short_budget', 'version'):
             with self.subTest(kind=kind):

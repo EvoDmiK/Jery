@@ -27,6 +27,14 @@ METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
 POLICY_V2 = 'laya-routing-v2'
 
 
+def child_param_keys(plan):
+    keys = set(plan['child_params'])
+    if keys == PARAMS or (plan.get('training_policy_version') == POLICY_V2
+                         and keys == PARAMS | {'window_none_loss_weight'}):
+        return keys
+    raise ValueError('Unexpected child tracking parameters')
+
+
 def write_json(path, data, *, overwrite=True):
     if not overwrite and path.exists():
         return
@@ -119,6 +127,8 @@ def hyperopt_candidate(plan, children):
     space = {'head_learning_rate': hp.loguniform('head_learning_rate', math.log(search['head_lr'][0]), math.log(search['head_lr'][1])),
              'weight_decay': hp.choice('weight_decay', search['weight_decay']),
              'label_smoothing': hp.choice('label_smoothing', search['label_smoothing'])}
+    if 'window_none_loss_weight' in search:
+        space['window_none_loss_weight'] = hp.choice('window_none_loss_weight', search['window_none_loss_weight'])
     trials = Trials()
     for child in children:
         if child['status'] != 'finished':
@@ -164,7 +174,8 @@ def main():
     state_path = folder / 'state.json'
     state = json.loads(state_path.read_text())
     plan = state['plan']
-    if set(plan['child_params']) != PARAMS or set(plan['child_metrics']) != METRICS:
+    expected_params = child_param_keys(plan)
+    if set(plan['child_metrics']) != METRICS:
         raise ValueError('Tracking allowlist differs from the declared plan')
     config = json.loads(options.model_config.read_text())
     if plan.get('training_policy_version') == POLICY_V2:
@@ -348,6 +359,8 @@ def main():
             state['children'].append(item); write_json(state_path, state)
         params = {'head_lr': lr, 'epochs': plan['epochs'], 'seed': plan['seed'],
                   'effective_batch_size': plan['micro_batch'] * plan['grad_accum']}
+        if 'window_none_loss_weight' in expected_params:
+            params['window_none_loss_weight'] = sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
         if plan.get('training_policy_version') == POLICY_V2:
             tag(item['run_id'], 'jery.training_policy', POLICY_V2)
             tag(item['run_id'], 'jery.window_none_loss_weight', sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0)))
@@ -488,7 +501,7 @@ def main():
                                  'format': report['restore'].get('format', 'unsloth-mlx-laya-trainable-v1')})
         item['verified_artifacts']['model/dependencies.json'] = store_json(item['run_id'], item['artifact_uri'], 'model/dependencies.json', dependencies)
         saved = api('mlflow/runs/get?run_id=' + item['run_id'])['run']
-        if {p['key'] for p in saved['data']['params']} != PARAMS or {m['key'] for m in saved['data']['metrics']} != METRICS:
+        if {p['key'] for p in saved['data']['params']} != expected_params or {m['key'] for m in saved['data']['metrics']} != METRICS:
             raise ValueError('Nonessential MLflow keys were logged, or required keys are missing')
         for key in ['train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage']:
             query = urllib.parse.urlencode({'run_id': item['run_id'], 'metric_key': key})

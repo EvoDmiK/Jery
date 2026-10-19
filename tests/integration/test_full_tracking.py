@@ -14,6 +14,22 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
+    def test_joint_search_tracks_weight_and_replays_only_trained_validation(self):
+        plan = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())
+        self.assertEqual(tracking.child_param_keys(plan), tracking.PARAMS | {'window_none_loss_weight'})
+        first = tracking.hyperopt_candidate(plan, [])
+        self.assertIn(first['parameters']['window_none_loss_weight'], [.25, .5, 1.])
+        self.assertTrue(1e-6 <= first['parameters']['head_learning_rate'] <= 1e-5)
+        child = {'status': 'finished', 'hyperopt': first, 'search_validation': .08, 'final_validation': .1613}
+        second = tracking.hyperopt_candidate(plan, [child])
+        child['final_test'] = 1.
+        self.assertEqual(second, tracking.hyperopt_candidate(plan, [child]))
+        legacy = {**plan, 'training_policy_version': 'legacy'}
+        with self.assertRaises(ValueError): tracking.child_param_keys(legacy)
+        with self.assertRaises(ValueError):
+            tracking.child_param_keys({**plan, 'child_params': [*plan['child_params'], 'private_detail']})
+
     def test_prepared_policy_and_configuration_cannot_be_swapped(self):
         config = {'backend': 'cuda', 'training_policy_version': tracking.POLICY_V2}
         plan = {'training_policy_version': tracking.POLICY_V2}
