@@ -49,7 +49,7 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 [Linux RTX 5070 Ti 실행 검증](docs/model/laya-cuda-probe-20261019.md)에서는 별도 CUDA 환경에서 같은 Laya 라우팅 head를 32스텝씩 학습하고 저장·재로드를 확인했다. 전체 Hyperopt 학습은 기존 Mac에서 유지하며 CUDA로 이전하지 않았다.
 
-[전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증하고, 다음 CUDA Hyperopt 5회는 기존 Mac 실험이 성공적으로 끝난 후 시작하도록 분리한다.
+[전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증했고, 사용자 요청으로 CUDA Hyperopt 5회를 기존 Mac 실험과 동시에 실행한다. 두 실험은 별도 Parent로 기록한다.
 
 ## 초기 데이터셋
 

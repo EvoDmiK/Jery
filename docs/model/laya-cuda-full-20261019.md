@@ -1,4 +1,4 @@
-# Laya 전체 CUDA 학습과 Mac 이후 실행
+# Laya 전체 CUDA 학습과 Mac 동시 실행
 
 Linux RTX 5070 Ti에서 기존 full-data 학습 계약을 적용한다. `laya_full` CLI가 config의 `backend`로 MLX/CUDA를 고른다. CUDA 구현은 `src/jery/model/laya_cuda.py`, 설정은 `configs/model/laya-cuda-20261019.json`이다.
 
@@ -6,7 +6,7 @@ Linux RTX 5070 Ti에서 기존 full-data 학습 계약을 적용한다. `laya_fu
 
 - Mac Parent `9325d1ca84944fe281f94b519c59f305`의 진행 중 trial·설정·파일을 유지한다.
 - 서버 검증 Parent: [8512d92300244b98a92ed07f0f64f4c2](https://mlflow.dove-nest.com/#/experiments/47/runs/8512d92300244b98a92ed07f0f64f4c2). 고정 학습률 1e-4, 한 에폭의 별도 Child로 준비 상태를 확인한다.
-- 다음 CUDA Hyperopt Parent: [29552487a8a94b10ad942d9bbc331953](https://mlflow.dove-nest.com/#/experiments/47/runs/29552487a8a94b10ad942d9bbc331953). 서버 검증 통과 후 supervisor를 시작하되, 기존 Mac Parent가 `FINISHED`가 될 때까지 GPU 학습은 대기한다. Mac이 `FAILED` 또는 `KILLED`로 끝나면 자동 시작하지 않고 오류를 기록한다.
+- CUDA Hyperopt Parent: [29552487a8a94b10ad942d9bbc331953](https://mlflow.dove-nest.com/#/experiments/47/runs/29552487a8a94b10ad942d9bbc331953). 처음에는 Mac 완료를 기다리도록 등록했으나, 사용자의 "CUDA도 바로 돌려줘" 지시에 따라 대기 supervisor만 종료하고 같은 Parent를 즉시 실행했다. Mac 학습은 유지한다. 대기 해제 기록은 Parent의 `control/immediate-start-override.json`에 보관했다.
 - Hyperopt TPE 5회, 최대 64에폭/trial, 학습 데이터로만 40/40/10/10 oversampling, validation case accuracy로 선택, baseline epoch 0 포함, patience 5·min_delta 0.004를 유지한다.
 - 각 Child에서 선택된 head의 test는 마지막에 한 번만 평가한다. 테스트 점수로 검색하거나 backend를 선택하지 않는다. 한 에폭 검증의 목적은 실행·시간·저장 확인이다.
 - MLflow params 4개와 metrics 7개만 기록한다. 나머지는 JSON artifact, head는 safetensors로 보관한다. CUDA head 형식은 `unsloth-torch-laya-routing-v1`이며 MLX optimizer checkpoint와 호환된다고 가정하지 않는다.
@@ -31,16 +31,17 @@ TORCHINDUCTOR_COMPILE_THREADS=4 "$PY" scripts/run_laya_full_experiment.py \
   --python "$PY" --model-config configs/model/laya-cuda-20261019.json \
   --state-dir outputs/laya-cuda-20261019/readiness --detach
 
-# 준비 검증이 완료된 뒤 실행한다. Mac Parent 완료 전에는 CUDA Child를 시작하지 않는다.
+# 준비 검증 완료 후 Mac과 독립적으로 즉시 실행한다.
 "$PY" scripts/prepare_laya_cuda_experiment.py \
   --state-dir outputs/laya-cuda-20261019/hyperopt
 TORCHINDUCTOR_COMPILE_THREADS=4 "$PY" scripts/run_laya_full_experiment.py \
   --python "$PY" --model-config configs/model/laya-cuda-20261019.json \
-  --state-dir outputs/laya-cuda-20261019/hyperopt \
-  --wait-for-run 9325d1ca84944fe281f94b519c59f305 --detach
+  --state-dir outputs/laya-cuda-20261019/hyperopt --detach
 ```
 
 `outputs/laya-cuda-20261019/{readiness,hyperopt}/state.json`과 `supervisor.log`에서 대기·학습·완료·오류를 확인한다. 각 Child의 모든 step은 `outputs/model/laya-cuda-20261019/<local_id>/steps.jsonl`, 에폭 결과는 `metrics.jsonl`에 남긴다. baseline을 포함한 최적 head를 복원해 새 모델 인스턴스에 재로드하고, 전체 validation의 확률·선택과 encoder 해시를 비교한 뒤 test를 평가한다.
+
+`--wait-for-run <MLflow run ID>`는 선택적으로 사용할 수 있다. 이 옵션을 주면 해당 run의 성공 완료를 기다리고 실패·중단 시 자동 시작하지 않는다. 현재 CUDA 실행에는 이 옵션을 사용하지 않는다.
 
 중단된 CUDA Child는 같은 supervisor 명령으로 재개한다. 최신 native CUDA checkpoint의 모델·optimizer·scheduler·RNG를 HF Trainer로 복원한다. checkpoint 이후의 불완전 JSON 기록은 복구하고, checkpoint보다 뒤의 step·epoch 기록은 재실행한다. 이미 완성된 `report.json`이 있으면 재학습하지 않고 업로드를 재시도한다.
 
