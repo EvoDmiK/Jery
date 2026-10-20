@@ -58,13 +58,20 @@ def compact_epoch(record):
     if not isinstance(epoch, int) or epoch < 1:
         raise ValueError('Expected an integer completed epoch')
     validation = record['validation']
-    values = {'val_accuracy': validation['case_accuracy'], 'val_macro_f1': validation['decision_macro_f1'],
+    values = {'val_accuracy': validation['case_accuracy'], 'val_macro_f1': comparison_macro_f1(validation),
               'val_coverage': validation['coverage']}
     if record['train_loss'] is not None:
         values['train_loss'] = record['train_loss']
     if not all(math.isfinite(v) for v in values.values()):
         raise ValueError('Nonfinite epoch metric')
     return values
+
+
+def comparison_macro_f1(result):
+    scope = result.get('macro_f1_scope')
+    if scope not in (None, 'decisions', 'tools'):
+        raise ValueError('Unknown macro F1 scope')
+    return result['tool_macro_f1'] if scope == 'tools' else result['decision_macro_f1']
 
 
 def final_epoch_bounds(report, max_epochs, best_validation=False):
@@ -116,6 +123,16 @@ def trained_search_score(report, epochs):
     if selection['selected_epoch'] != (best if value > baseline else 0):
         raise ValueError('Serving selection does not match the baseline protection policy')
     return value
+
+
+def trial_settings(plan, config, sampled):
+    overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
+                 'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
+    params = {'head_lr': overrides['head_learning_rate'], 'epochs': overrides['epochs'],
+              'seed': overrides['seed'], 'effective_batch_size': overrides['micro_batch'] * overrides['grad_accum']}
+    if 'window_none_loss_weight' in child_param_keys(plan):
+        params['window_none_loss_weight'] = overrides.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
+    return overrides, params
 
 
 def hyperopt_candidate(plan, children):
@@ -323,8 +340,7 @@ def main():
                    {k: v for k, v in fixed_trial.items() if k != 'trial_id'} if fixed_trial else
                    {'head_learning_rate': plan['head_learning_rates'][index - 1]})
         lr = sampled['head_learning_rate']
-        overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
-                     'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
+        overrides, params = trial_settings(plan, config, sampled)
         item = prior[-1] if prior else None
         if item is None:
             trial_id = parent + ':' + str(index)
@@ -357,10 +373,6 @@ def main():
             if fixed_trial:
                 item['condition'] = fixed_trial
             state['children'].append(item); write_json(state_path, state)
-        params = {'head_lr': lr, 'epochs': plan['epochs'], 'seed': plan['seed'],
-                  'effective_batch_size': plan['micro_batch'] * plan['grad_accum']}
-        if 'window_none_loss_weight' in expected_params:
-            params['window_none_loss_weight'] = sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
         if plan.get('training_policy_version') == POLICY_V2:
             tag(item['run_id'], 'jery.training_policy', POLICY_V2)
             tag(item['run_id'], 'jery.window_none_loss_weight', sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0)))
@@ -380,6 +392,8 @@ def main():
                      'scripts/run_laya_repeats.py', 'scripts/sync_laya_training_metrics.py',
                      'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py',
                      'scripts/prepare_laya_cuda_experiment.py', 'scripts/check_laya_cuda_resume.py', 'requirements-decision.txt',
+                     'scripts/build_laya_ten_tools.py', 'scripts/audit_laya_export_format.py',
+                     'scripts/build_ten_tool_contrast.py', 'scripts/audit_ten_tool_errors.py',
                      'requirements-decision-cuda.txt']:
             path = ROOT / name
             sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}
@@ -461,7 +475,7 @@ def main():
             raise ValueError('Frozen encoder/restore verification failed')
         api('mlflow/runs/log-batch', {'run_id': item['run_id'], 'metrics': [
             {'key': 'test_accuracy', 'value': test['case_accuracy'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
-            {'key': 'test_macro_f1', 'value': test['decision_macro_f1'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
+            {'key': 'test_macro_f1', 'value': comparison_macro_f1(test), 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
             {'key': 'test_coverage', 'value': test['coverage'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)}]})
         snapshot(item, out)
         for runner in sorted(local.glob('runner-*')):

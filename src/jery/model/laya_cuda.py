@@ -11,12 +11,13 @@ import statistics
 import subprocess
 import time
 
-from jery.model.laya_full import (ROOT, SPLITS, QUESTION, JsonLines, Scorer, ValidationPolicy,
+from jery.model.laya_full import (ROOT, SPLITS, QUESTION, NULLS, WINDOW, JsonLines, Scorer, ValidationPolicy,
                                   balanced_indices, case_gold, evaluate_split, group_cases,
                                   repair_json_lines, write_json)
-from jery.model.laya_pilot import MemoryGuard, load_export, sha256
+from jery.model.laya_pilot import TEN_TOOL_SCOPE, MemoryGuard, load_export, sha256
 
 POLICY_V2 = 'laya-routing-v2'
+TEN_TOOLS = 'ten_tool_choice'
 
 
 class CudaMemoryGuard(MemoryGuard):
@@ -87,6 +88,49 @@ def policy_settings(config):
     if not 0 <= smoothing < 1:
         raise ValueError('label_smoothing must be in [0, 1)')
     return {'window_none_loss_weight': float(weight), 'min_epochs': callback.get('min_epochs', 0)}
+
+
+def task_settings(config):
+    """None keeps the legacy routing task (windows of <= 8, decision metrics); ten_tool_choice is opt-in."""
+    task = config.get('evaluation_task')
+    if task is None:
+        if 'max_window_tools' in config:
+            raise ValueError('max_window_tools requires evaluation_task')
+        return None
+    if task != TEN_TOOLS or config.get('max_window_tools') != 10:
+        raise ValueError(f'Unknown evaluation_task {task!r} or max_window_tools other than 10')
+    return task
+
+
+def check_ten_tool_rows(rows, export):
+    """The decision-export-v2 fixed ten-tool contract: one window per source with exactly ten tool options and
+    no null options, an original select_tools decision with one acceptable tool, and gold on that tool alone."""
+    if (export.get('export_scope'), export.get('evaluation_task')) != (TEN_TOOL_SCOPE, TEN_TOOLS):
+        raise ValueError(f'{TEN_TOOLS} requires a {TEN_TOOL_SCOPE} decision-export-v2 export')
+    for split, split_rows in rows.items():
+        sources = Counter(row['metadata']['source_id'] for row in split_rows)
+        if any(n != 1 for n in sources.values()):
+            raise ValueError(f'{split}: {TEN_TOOLS} needs exactly one window per source_id')
+        for row in split_rows:
+            meta, options = row['metadata'], list(row['questions'][QUESTION]['criteria'])
+            aliases, gold = meta['alias_to_tool'], row['gold'][QUESTION]
+            acceptable = list({c['tool']: None for c in meta['acceptable_choices']})  # Action alternatives of one tool.
+            if (meta['window_count'] != 1 or len(options) != 10 or set(NULLS) & set(options)
+                    or options != list(aliases) or len(set(meta['window_tools'])) != 10
+                    or meta['original_decision'] != 'select_tools' or len(acceptable) != 1
+                    or gold['label'] not in aliases or aliases[gold['label']] != acceptable[0]
+                    or {k for k, v in gold.get('probabilities', {gold['label']: 1}).items() if v > 0} != {gold['label']}):
+                raise ValueError(f"{split} {meta['export_id']}: violates the {TEN_TOOLS} contract")
+
+
+def train_fit(history):
+    """Memorization diagnostic from per-epoch train evaluation; never used to select a checkpoint."""
+    scored = [(h['epoch'], h['train_evaluation']['case_accuracy']) for h in history if 'train_evaluation' in h]
+    if not scored:
+        return None
+    best = max(scored, key=lambda e: e[1])  # Earliest epoch on ties.
+    return {'last_trained_epoch': scored[-1][0], 'last_trained_accuracy': scored[-1][1],
+            'best_accuracy': best[1], 'best_epoch': best[0], 'used_for_selection': False}
 
 
 class RoutingPolicy:
@@ -235,7 +279,7 @@ def run(config, run_id, out, log, probe=False, resume=False):
 
     if probe:
         raise ValueError('Use scripts/probe_laya_cuda.py for short CUDA probes')
-    settings = policy_settings(config)
+    settings, task = policy_settings(config), task_settings(config)
     fraction = config['cuda_memory_fraction']
     if not torch.cuda.is_available() or not 0 < fraction <= 0.35:
         raise ValueError('CUDA and memory fraction in (0, 0.35] required')
@@ -248,7 +292,11 @@ def run(config, run_id, out, log, probe=False, resume=False):
     if model_sha != config['base_model_sha256']:
         raise ValueError('Base model checksum differs')
     rows, export = load_export(Path(config['export_dir']), SPLITS)
-    cases = {s: group_cases(rows[s]) for s in SPLITS}
+    if task:
+        check_ten_tool_rows(rows, export)
+    elif 'export_scope' in export:
+        raise ValueError('A decision-export-v2 export requires evaluation_task')
+    cases = {s: group_cases(rows[s], config.get('max_window_tools', WINDOW)) for s in SPLITS}
     gold = {s: case_gold(rows[s]) for s in SPLITS}
     report = {'run_id': run_id, 'config': config, 'backend': 'cuda', 'export': export,
               'provenance': {'model': {'revision': config['model_revision'], 'model_safetensors_sha256': model_sha},
@@ -307,8 +355,8 @@ def run(config, run_id, out, log, probe=False, resume=False):
         save_file({n: p.detach().cpu().contiguous() for n, p in model.named_parameters() if p.requires_grad},
                   str(destination / 'trainable.safetensors'))
 
-    def validate():
-        return evaluate_split(scorer, rows['validation'], items['validation'], cases['validation'], gold['validation'])
+    def validate(split='validation'):
+        return evaluate_split(scorer, rows[split], items[split], cases[split], gold[split], task)
 
     if resume:
         report['before_validation'] = json.loads((out / 'before_validation.json').read_text())
@@ -349,12 +397,16 @@ def run(config, run_id, out, log, probe=False, resume=False):
             train_seconds = sum(step_times)
             validation, predictions, windows = validate()
             epoch = round(state.epoch)
+            # Every unique train source, not the oversampled stream; reported only, never selects a head.
+            train_evaluation = validate('train')[0] if config.get('evaluate_train_each_epoch') else None
             if policy.observe(epoch, validation['case_accuracy']):
                 save_head(weights / f'best-epoch-{epoch}')
             record = {'epoch': epoch, 'steps': state.global_step,
                       'train_loss': statistics.fmean(epoch_losses) if epoch_losses else None,
                       'train_seconds': train_seconds, 'validation': validation, 'callback': policy.snapshot(),
                       'time': datetime.now(timezone.utc).isoformat()}
+            if train_evaluation:
+                record['train_evaluation'] = train_evaluation
             metrics_log.write(record)
             history.append(record)
             epoch_losses.clear()
@@ -451,10 +503,12 @@ def run(config, run_id, out, log, probe=False, resume=False):
             raise RuntimeError('Existing test was scored with another artifact')
         test, test_predictions, test_windows = saved['metrics'], saved['cases'], saved['windows']
     else:
-        test, test_predictions, test_windows = evaluate_split(scorer, rows['test'], items['test'], cases['test'], gold['test'])
+        test, test_predictions, test_windows = validate('test')
         write_json(out / 'test.json', {'artifact_sha256': sha256(artifact), 'metrics': test,
                                        'cases': test_predictions, 'windows': test_windows})
     report['test'] = {'epoch': selected, **test}
+    if config.get('evaluate_train_each_epoch'):
+        report['train_fit'] = train_fit(history)
     report['timing'] = {'end_to_end_seconds': time.perf_counter() - started,
                         'training_call_seconds_including_validation_and_checkpoints': report['train']['wall_seconds'],
                         'optimizer_seconds': sum(step_times),

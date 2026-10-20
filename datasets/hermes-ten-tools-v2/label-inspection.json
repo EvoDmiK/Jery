@@ -1,0 +1,76 @@
+{
+  "reviewer": "codex AI catalog-grounded inspection",
+  "human_review_status": "needs_human_review",
+  "execution_verified": false,
+  "scope": "Validation error cases only; no test prediction inspection; not proof of unique or executed correctness",
+  "label_changes": 0,
+  "criteria_omissions": [
+    "vault.rename/move",
+    "edit.frontmatter patch",
+    "bases.view",
+    "history source crosscheck",
+    "portfolio asset/cash/cost/PnL detail"
+  ],
+  "cases": [
+    {
+      "source_id": "obsidian_vault.edit.4.base.full.2",
+      "wrong_runs": 7,
+      "catalog_inspection": "edit.patch covers frontmatter status. Preference is direct property patch; generic file update could require reading/replacing whole content.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "obsidian_vault.vault.4.base.full.2",
+      "wrong_runs": 4,
+      "catalog_inspection": "vault.action=rename exists in the pinned schema; original short criteria omitted rename.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "obsidian_vault.bases.4.base.full.1",
+      "wrong_runs": 10,
+      "catalog_inspection": "bases.action=view supports .base viewName; dataview DQL is not a Bases view operation. Original short criteria omitted view retrieval.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "swallow_trader.swallow_check_stock.4.base.full.1",
+      "wrong_runs": 10,
+      "catalog_inspection": "get_stock_price explicitly returns the queried single-stock holding information. Original outside-catalog check_stock alternative remains in source metadata; no label change.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "swallow_trader.swallow_get_stock_price.4.base.full.1",
+      "wrong_runs": 9,
+      "catalog_inspection": "Present quote maps to get_stock_price; price history returns daily close series.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "clarify.4.context_resolved.full.1",
+      "wrong_runs": 2,
+      "catalog_inspection": "Pre-call context supplies both note paths and graph.action=path supports link paths; context must be used.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "obsidian_vault.edit.4.base.full.1",
+      "wrong_runs": 9,
+      "catalog_inspection": "edit.action=patch with targetType=frontmatter supports property updates. Original short criteria omitted frontmatter.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "swallow_trader.swallow_get_portfolio.4.base.full.1",
+      "wrong_runs": 9,
+      "catalog_inspection": "Account-wide valuation profit/loss is included in get_portfolio, rather than one-stock quote/history.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "swallow_trader.swallow_get_price_history.4.base.full.1",
+      "wrong_runs": 10,
+      "catalog_inspection": "Historical daily closes and source=naver are supported by get_price_history; current quote tool is not equivalent.",
+      "proposed_label_change": false
+    },
+    {
+      "source_id": "swallow_trader.swallow_get_portfolio.4.base.full.2",
+      "wrong_runs": 10,
+      "catalog_inspection": "Portfolio schema/description covers account-wide unrealized profit/loss; order executes trades and cannot substitute.",
+      "proposed_label_change": false
+    }
+  ]
+}

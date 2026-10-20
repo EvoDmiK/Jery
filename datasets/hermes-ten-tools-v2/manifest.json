@@ -1,0 +1,137 @@
+{
+  "dataset_version": "hermes-ten-tools-v2",
+  "catalog_version": "hermes-ten-tools-2289142ab57a",
+  "source_sha256": {
+    "tools.json": "8522bfa1826d1d8a73020d26cf9428d956d458e28b4969d5eb177827e09d5aed",
+    "criteria.json": "2289142ab57a7b2f156cf19eeaca0b8d064f90c03d28bb6c19723045b162438d",
+    "authored.jsonl": "a9650b720f1faa7f57fb61343e69a88222486e1bffb35dc6f0878c5b5c86954f",
+    "export-manifest.json": "da43f842c3e1c12c64a42fa0bea9d3bd619d2a2cbd5a1a0bb9082bba2354ee64",
+    "train.jsonl": "8dbe90fc2541b572bcd6f428f5d19533764c9216ce20c56efb62b8fa6aa288c9",
+    "validation.jsonl": "9d70f66d63e25cbf963dcec2f225e18d179609348558eafcc3c325b0d38411c9",
+    "test.jsonl": "158a0baa6125758bb7fbddf7a98efa35e579e76edb42012ac3b1142a79092e7f"
+  },
+  "profiles": {
+    "description_control": {
+      "train": {
+        "rows": 60,
+        "source_rows": 60,
+        "scenario_groups": 35,
+        "sha256": "47dd615d021432930d187e16a187a95aef15f68f7874679e8563ecdefbe8b708",
+        "tool_counts": {
+          "mcp__obsidian_vault__vault": 6,
+          "mcp__obsidian_vault__dataview": 6,
+          "mcp__swallow_trader__swallow_get_price_history": 6,
+          "mcp__obsidian_vault__bases": 6,
+          "mcp__swallow_trader__swallow_get_stock_price": 6,
+          "mcp__swallow_trader__swallow_backtest": 6,
+          "mcp__obsidian_vault__graph": 6,
+          "mcp__swallow_trader__swallow_order": 6,
+          "mcp__swallow_trader__swallow_get_portfolio": 6,
+          "mcp__obsidian_vault__edit": 6
+        }
+      },
+      "validation": {
+        "rows": 20,
+        "source_rows": 20,
+        "scenario_groups": 12,
+        "sha256": "ca67646a3fa4f6daae0d5a41c9874c1eb68eec733b580591c649e66c4c5b973e",
+        "tool_counts": {
+          "mcp__obsidian_vault__edit": 2,
+          "mcp__swallow_trader__swallow_order": 2,
+          "mcp__obsidian_vault__vault": 2,
+          "mcp__obsidian_vault__bases": 2,
+          "mcp__swallow_trader__swallow_get_stock_price": 2,
+          "mcp__swallow_trader__swallow_backtest": 2,
+          "mcp__obsidian_vault__dataview": 2,
+          "mcp__swallow_trader__swallow_get_price_history": 2,
+          "mcp__obsidian_vault__graph": 2,
+          "mcp__swallow_trader__swallow_get_portfolio": 2
+        }
+      },
+      "test": {
+        "rows": 20,
+        "source_rows": 20,
+        "scenario_groups": 12,
+        "sha256": "81cc75468526e6eab792c563316872b3c9616acb6f9e7526410f93e861c09091",
+        "tool_counts": {
+          "mcp__obsidian_vault__dataview": 2,
+          "mcp__obsidian_vault__bases": 2,
+          "mcp__swallow_trader__swallow_order": 2,
+          "mcp__obsidian_vault__graph": 2,
+          "mcp__swallow_trader__swallow_get_price_history": 2,
+          "mcp__swallow_trader__swallow_backtest": 2,
+          "mcp__obsidian_vault__vault": 2,
+          "mcp__obsidian_vault__edit": 2,
+          "mcp__swallow_trader__swallow_get_stock_price": 2,
+          "mcp__swallow_trader__swallow_get_portfolio": 2
+        }
+      }
+    },
+    "augmented": {
+      "train": {
+        "rows": 240,
+        "source_rows": 240,
+        "scenario_groups": 95,
+        "sha256": "8e35abfc7f04af076cc921456db0560e050cbee6bd542800d27b4296066af42a",
+        "tool_counts": {
+          "mcp__obsidian_vault__vault": 24,
+          "mcp__obsidian_vault__dataview": 24,
+          "mcp__swallow_trader__swallow_get_price_history": 24,
+          "mcp__obsidian_vault__bases": 24,
+          "mcp__swallow_trader__swallow_get_stock_price": 24,
+          "mcp__swallow_trader__swallow_backtest": 24,
+          "mcp__obsidian_vault__graph": 24,
+          "mcp__swallow_trader__swallow_order": 24,
+          "mcp__swallow_trader__swallow_get_portfolio": 24,
+          "mcp__obsidian_vault__edit": 24
+        }
+      },
+      "validation": {
+        "rows": 20,
+        "source_rows": 20,
+        "scenario_groups": 12,
+        "sha256": "ca67646a3fa4f6daae0d5a41c9874c1eb68eec733b580591c649e66c4c5b973e",
+        "tool_counts": {
+          "mcp__obsidian_vault__edit": 2,
+          "mcp__swallow_trader__swallow_order": 2,
+          "mcp__obsidian_vault__vault": 2,
+          "mcp__obsidian_vault__bases": 2,
+          "mcp__swallow_trader__swallow_get_stock_price": 2,
+          "mcp__swallow_trader__swallow_backtest": 2,
+          "mcp__obsidian_vault__dataview": 2,
+          "mcp__swallow_trader__swallow_get_price_history": 2,
+          "mcp__obsidian_vault__graph": 2,
+          "mcp__swallow_trader__swallow_get_portfolio": 2
+        }
+      },
+      "test": {
+        "rows": 20,
+        "source_rows": 20,
+        "scenario_groups": 12,
+        "sha256": "81cc75468526e6eab792c563316872b3c9616acb6f9e7526410f93e861c09091",
+        "tool_counts": {
+          "mcp__obsidian_vault__dataview": 2,
+          "mcp__obsidian_vault__bases": 2,
+          "mcp__swallow_trader__swallow_order": 2,
+          "mcp__obsidian_vault__graph": 2,
+          "mcp__swallow_trader__swallow_get_price_history": 2,
+          "mcp__swallow_trader__swallow_backtest": 2,
+          "mcp__obsidian_vault__vault": 2,
+          "mcp__obsidian_vault__edit": 2,
+          "mcp__swallow_trader__swallow_get_stock_price": 2,
+          "mcp__swallow_trader__swallow_get_portfolio": 2
+        }
+      }
+    }
+  },
+  "sha256": {
+    "tools.json": "11c0253a5de892afaec5836b847cfb70bc76c4caf23e96b8b41a414183123847"
+  },
+  "review_status": "needs_human_review",
+  "limitations": [
+    "Synthetic AI-authored/AI-inspected, not human-reviewed or executed",
+    "Original validation/test cases observed previously: regression only",
+    "Validation/test states, labels and aliases preserved; criteria changed explicitly",
+    "Paraphrase and context siblings stay in train; no independent real-use evaluation"
+  ]
+}
