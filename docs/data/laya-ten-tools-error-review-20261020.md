@@ -45,3 +45,11 @@ Native 사전검사에서 초안 설명의 일부가 head의 옵션당 24token �
 회사 서버에서 보강 Parent `5f64008a2b974b7f87fab5088bafcf8a` / Child `5ee0cebebfbd465898abdd4b5f300a56`, 설명만 보완 Parent `f7faeae2708945d6b62f59e54a6f56ae` / Child `6145fe8c826a4fcea9f23fc525535aec`를 실행했다. 보강군 epoch3·180step, 대조군 epoch9·135step까지 유한 loss/gradient와 CUDA 실행을 확인했다. 감사 input·결과·라벨 대조·criteria·합성 원문·notebook·native readiness를 각 Parent의 data-quality/readiness artifact에 업로드하고 SHA-256 read-back으로 검증한다.
 
 두 GPU 학습은 완료됐다. 보강군은 6에폭·360step에서 조기 종료, initial validation 60% → best trained/serving validation 65%(epoch3)였다. 설명만 보완한 대조군은 22에폭·330step에서 조기 종료, initial/best trained validation 60%로 serving은 초기 head를 유지했다. 두 모델 모두 frozen encoder 유지와 저장 head 재로딩 후 validation 예측 일치를 확인했다. 보강군과 대조군 차이는 검증 20개 중 1개이며 이전 과제의 최고 validation 65%를 넘지 못했다. 동일 자료를 반복 관찰했으므로 독립적 개선으로 주장하지 않는다. Test는 이 진단 결론이나 추가 튜닝에 사용하지 않았다. 두 Parent의 모델 artifact 업로드·최종화는 supervisor가 진행한다.
+
+## MLflow 관계 정정
+
+사용자 지시에 따라 두 개의 단일-Child Parent를 **한 Parent 아래 두 Child**로 통합했다. Canonical Parent는 `5f64008a2b974b7f87fab5088bafcf8a`(이름 `laya-ten-tools-data-quality-comparison-20261020`)이며 `description-only-train60` Child `6145fe8c826a4fcea9f23fc525535aec`, `augmented-train240` Child `5ee0cebebfbd465898abdd4b5f300a56`가 직접 속한다. 모두 FINISHED다. 위의 두 Parent 실행 명령·ID는 통합 전 이력이다.
+
+재학습하지 않고 mlflow.parentRunId만 재연결했다. 두 Child의 파라미터·지표가 이전과 동일함을 API로 확인했으며 모델 artifact 경로는 유지했다. 빈 중복 Parent `f7faeae2708945d6b62f59e54a6f56ae`는 MLflow soft-delete로 보관해 metadata와 artifact를 보존한다. 원본 설정·plan·데이터·summary는 통합 Parent의 `conditions/{description_control,augmented}/`에 SHA-256 read-back 검증 후 복사했다. Child의 `comparison-lineage.json`은 새 데이터 경로와 기존 경로를 함께 기록한다.
+
+통합 Parent의 `summary.json`, `comparison-plan.json`을 현재 관계의 기준으로 사용한다. 통합 전후 API snapshot은 `comparison/before.json`, `comparison/after.json`, 마이그레이션 코드·영수증은 `comparison/summary.json`에 보존한다. 이전 단일 조건 tracking 디렉터리를 재개해 통합 Parent를 덮어쓰지 않는다. 이후 같은 비교 실험의 조건은 한 Parent의 직접 Child로 기록한다.
