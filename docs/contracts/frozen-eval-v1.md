@@ -10,7 +10,7 @@
 
 - `cases.jsonl`: id, scenario_id, split=evaluation, request, context, candidate_tools(고정10), tool_catalog_version, decision, acceptable_choices, source, review_status, execution_verified. 모델에는 request/context와 카탈로그 명세만 넣는다.
 - `tools.json`: 고정 catalog `hermes-ten-tools-2289142ab57a`와 바이트 동일한 명세.
-- `ai-proposals.json`: `{case_id: [{proposer, disposition, decision, acceptable_choices, confidence, rationale}]}`. AI의 제안·보류·제외를 사람 정답과 분리한다.
+- `ai-proposals.json`: `{case_id: [{proposer, disposition, decision, acceptable_choices, confidence, rationale}]}`. AI의 제안·보류·제외를 사람 정답과 분리한다. confidence는 비어 있지 않은 문자열이며 숫자 원본은 confidence_score로 함께 보존할 수 있다. action이 없는 도구에서는 action 필드를 생략한다.
 - `leak-audit.json`: 조사 범위와 corpus fingerprint를 기록한 누수·출처 검사. 원문을 출력하지 않는다.
 - `manifest.json`: schema_version=frozen-eval-v1, status=candidate|frozen, catalog_version, candidate_order_seed, sha256(상대 파일명→해시), leak_audit(status와 file), 출처·검토 종류별 건수, 목표와 부족분.
 
