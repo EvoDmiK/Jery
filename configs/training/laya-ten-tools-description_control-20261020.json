@@ -1,0 +1,81 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-description_control-20261020",
+  "dataset_version": "hermes-ten-tools-v2",
+  "export_dir": "outputs/laya-ten-tools-contrast-20261020/description_control",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank best trained tool-choice validation accuracy; serving baseline protected",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-ten-tools-description_control",
+  "previous_parent_run_id": "a29741cab715401ea4ae3fa25cbe3ea4",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 16,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "Catalog criteria v2 description_control; same held-out case states/labels, max 480 optimizer steps, validation-informed regression only",
+  "search_score": "best_trained_validation_case_accuracy",
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "window_none_loss_weight_active": false,
+    "warmup_steps": 10,
+    "lr_scheduler": "linear",
+    "head_learning_rate": 0.0003538647078409709,
+    "weight_decay": 0.05,
+    "label_smoothing": 0.05
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v2",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "ten_tool_data_quality_control",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  },
+  "tracking_notes": {
+    "searched_parameters": "No search; fixed prior validation-selected head LR, weight_decay0.05 and smoothing0.05",
+    "validation_display": "Child val metrics show last epoch; selected checkpoint validation is in report.json, selected epoch tag and parent best_val_accuracy",
+    "comparison": "Same max optimizer steps 480, linear scheduler and warmup 10; epoch evaluation frequency differs (15 vs 60 steps); early stopping may finish sooner. No causal attribution from one seed.",
+    "seed_scope": "Fixed seed3407 and batch4; no new hyperparameter search"
+  },
+  "head_learning_rates": [
+    0.0003538647078409709
+  ]
+}

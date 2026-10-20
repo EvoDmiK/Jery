@@ -27,6 +27,16 @@ class CudaExperimentPlanTest(unittest.TestCase):
         self.assertEqual(self.plan['epochs'], 10)
         self.assertEqual(self.plan['micro_batch'] * self.plan['grad_accum'], 4)
 
+    def test_fixed_trial_batch_and_seed_overrides_are_strict(self):
+        self.plan['trials'][0].update(seed=3408, micro_batch=8, grad_accum=2)
+        prepare.validate_explicit_plan(self.plan, self.config)
+        for key, value in [('seed', -1), ('seed', True), ('micro_batch', 0),
+                           ('micro_batch', 4.5), ('grad_accum', False)]:
+            with self.subTest(key=key, value=value):
+                plan = copy.deepcopy(self.plan)
+                plan['trials'][0][key] = value
+                with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, self.config)
+
     def test_joint_search_validates_lower_lr_and_weight_choices(self):
         plan = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())
         prepare.validate_explicit_plan(plan, self.config)
@@ -40,6 +50,13 @@ class CudaExperimentPlanTest(unittest.TestCase):
         bad = copy.deepcopy(plan)
         bad['child_params'].remove('window_none_loss_weight')
         with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, self.config)
+
+    def test_ten_tool_plan_and_model_task_must_match(self):
+        plan = json.loads((ROOT / 'configs/training/laya-ten-tools-memorization-20261020.json').read_text())
+        config = json.loads((ROOT / 'configs/model/laya-ten-tools-20261020.json').read_text())
+        prepare.validate_explicit_plan(plan, config)
+        plan.pop('evaluation_task')
+        with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, config)
 
     def test_rejects_mixed_search_or_invalid_weights_and_budget(self):
         for kind in ('mixed', 'weight', 'duplicate', 'short_budget', 'version'):

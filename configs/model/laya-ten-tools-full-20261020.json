@@ -30,7 +30,7 @@
     "monitor": "validation.case_accuracy",
     "patience": 5,
     "min_delta": 0.004,
-    "min_epochs": 10,
+    "min_epochs": 32,
     "include_baseline": true
   },
   "backend": "cuda",

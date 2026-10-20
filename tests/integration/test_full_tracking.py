@@ -14,6 +14,28 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_trial_overrides_drive_both_training_and_mlflow_parameters(self):
+        plan = {'epochs': 32, 'seed': 3407, 'micro_batch': 4, 'grad_accum': 1,
+                'export_dir': 'unchanged-split', 'child_params': sorted(tracking.PARAMS)}
+        sampled = {'head_learning_rate': .0003, 'seed': 3411, 'micro_batch': 8, 'grad_accum': 2}
+        overrides, params = tracking.trial_settings(plan, {}, sampled)
+        self.assertEqual((overrides['seed'], params['seed']), (3411, 3411))
+        self.assertEqual(params['effective_batch_size'], overrides['micro_batch'] * overrides['grad_accum'])
+        self.assertEqual(params['effective_batch_size'], 16)
+        self.assertEqual(overrides['export_dir'], 'unchanged-split')
+        overrides, params = tracking.trial_settings(plan, {}, {'head_learning_rate': .0003})
+        self.assertEqual((params['seed'], params['effective_batch_size']), (3407, 4))
+        self.assertEqual(set(params), tracking.PARAMS)
+
+    def test_ten_tool_f1_is_explicit_without_reinterpreting_legacy_metrics(self):
+        result = {'decision_macro_f1': .25, 'tool_macro_f1': .8, 'macro_f1_scope': 'tools'}
+        self.assertEqual(tracking.comparison_macro_f1(result), .8)
+        self.assertEqual(tracking.comparison_macro_f1({'decision_macro_f1': .25}), .25)
+        with self.assertRaises(KeyError):
+            tracking.comparison_macro_f1({'decision_macro_f1': .25, 'macro_f1_scope': 'tools'})
+        with self.assertRaises(ValueError):
+            tracking.comparison_macro_f1({'decision_macro_f1': .25, 'macro_f1_scope': 'unknown'})
+
     @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
     def test_joint_search_tracks_weight_and_replays_only_trained_validation(self):
         plan = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())

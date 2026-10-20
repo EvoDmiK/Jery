@@ -16,6 +16,8 @@ def validate_explicit_plan(plan, config):
         raise ValueError('CUDA backend required')
     if plan.get('training_policy_version') != config.get('training_policy_version'):
         raise ValueError('Plan/model policy versions differ')
+    if plan.get('evaluation_task') != config.get('evaluation_task'):
+        raise ValueError('Plan/model evaluation tasks differ')
     child_param_keys(plan)
     if set(plan['child_metrics']) != METRICS:
         raise ValueError('Tracking allowlist changed')
@@ -49,8 +51,12 @@ def validate_explicit_plan(plan, config):
             raise ValueError('Fixed and searched trials cannot be mixed')
         names = set()
         for trial in plan['trials']:
-            if set(trial) != {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}:
+            required = {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}
+            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum'}:
                 raise ValueError('Unexpected fixed-trial fields')
+            for key in ('seed', 'micro_batch', 'grad_accum'):
+                if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key == 'seed' else 1)):
+                    raise ValueError('Invalid fixed-trial ' + key)
             if not isinstance(trial['trial_id'], str) or not trial['trial_id'] or trial['trial_id'] in names:
                 raise ValueError('Unique nonempty fixed trial IDs required')
             names.add(trial['trial_id'])
@@ -88,6 +94,12 @@ def main():
         plan.update(epochs=1, head_learning_rates=[config['head_learning_rate']],
                     purpose='one full epoch, validation, checkpoint, persisted-head reload and final test; speed readiness only')
     manifest = json.loads((ROOT / plan['export_dir'] / 'manifest.json').read_text())
+    source_dir = ROOT / plan.get('source_dataset_dir', 'datasets/mcp-routing-v2')
+    source_catalog = json.loads((source_dir / 'tools.json').read_text())
+    source_manifest = json.loads((source_dir / 'manifest.json').read_text())
+    if (hashlib.sha256((source_dir / 'tools.json').read_bytes()).hexdigest() != source_manifest['sha256']['tools.json']
+            or source_catalog['catalog_version'] != manifest['catalog_version']):
+        raise ValueError('Export/source catalog mismatch')
     for split in ('train', 'validation', 'test'):
         source = ROOT / plan['export_dir'] / (split + '.jsonl')
         if hashlib.sha256(source.read_bytes()).hexdigest() != manifest['splits'][split]['sha256']:
@@ -106,8 +118,8 @@ def main():
             'experiment_id': plan['experiment_id'], 'start_time': int(time.time() * 1000),
             'tags': [{'key': 'mlflow.runName', 'value': plan['parent_name']},
                      {'key': 'jery.role', 'value': 'parent'}, {'key': 'jery.backend', 'value': 'cuda'},
-                     {'key': 'jery.purpose', 'value': 'controlled_ablation' if plan.get('trials') else
-                      'readiness' if args.readiness else 'hyperopt'}]})['run']
+                     {'key': 'jery.purpose', 'value': plan.get('experiment_stage') or (
+                      'controlled_ablation' if plan.get('trials') else 'readiness' if args.readiness else 'hyperopt')}]})['run']
         state = {'parent_run_id': remote['info']['run_id'], 'parent_artifact_uri': remote['info']['artifact_uri'],
                  'status': 'prepared', 'children': [], 'plan': plan, 'tracking_uri': args.tracking_uri}
         write_json(state_path, state)
@@ -124,9 +136,16 @@ def main():
         write_json(target, [json.loads(line) for line in path.read_text().splitlines()])
         proofs['data/' + target.name] = upload(args.tracking_uri, state['parent_artifact_uri'], 'data/' + target.name, target)
     for name, path in [('data/export-manifest.json', ROOT / plan['export_dir'] / 'manifest.json'),
-                        ('data/source-manifest.json', ROOT / 'datasets/mcp-routing-v2/manifest.json'),
-                        ('data/tool-catalog.json', ROOT / 'datasets/mcp-routing-v2/tools.json')]:
+                        ('data/source-manifest.json', source_dir / 'manifest.json'),
+                        ('data/tool-catalog.json', source_dir / 'tools.json')]:
         proofs[name] = upload(args.tracking_uri, state['parent_artifact_uri'], name, path)
+    if plan.get('evaluation_task') == 'ten_tool_choice':
+        definitions = folder / 'metric-definitions.json'
+        write_json(definitions, {'task': 'ten_tool_choice', 'val_macro_f1': 'unweighted macro F1 over ten tool IDs',
+                    'test_macro_f1': 'same tool macro F1 for selected serving head',
+                    'train_fit': 'epoch train_evaluation and report.train_fit; diagnostic only, never search objective',
+                    'window_none_loss_weight': 'inactive: this task has no null choices or targets'})
+        proofs[definitions.name] = upload(args.tracking_uri, state['parent_artifact_uri'], definitions.name, definitions)
     write_json(state_path, state)
     print(json.dumps({'parent_run_id': state['parent_run_id'], 'state_dir': str(folder), 'status': state['status']}))
 

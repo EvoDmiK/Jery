@@ -1,0 +1,756 @@
+{
+  "catalog_version": "hermes-ten-tools-b4648cc19a90",
+  "source_catalog_version": "hermes-mcp-57e701d87790",
+  "tools": [
+    {
+      "id": "mcp__obsidian_vault__vault",
+      "server": "obsidian_vault",
+      "name": "vault",
+      "description": "📁 File operations - list, read, create, update, delete, search, fragments, move, rename, copy, split, combine, concatenate. Search supports: operators (file:, path:, content:, tag:), OR/AND, \"quoted phrases\", /regex/. Options: ranked=true for TF-IDF relevance scoring, searchStrategy (filename|content|combined|auto), includeSnippets for contextual extracts. Search matches words, not meaning — it will miss notes that cover a topic in different vocabulary, and its scores are term frequency, so a low-scoring hit is NOT necessarily unimportant (do not prune on score). Prefer a couple of BROAD scans over many narrow ones, then follow links from the hits with `graph.neighbors` to reach what search cannot rank.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The specific action to perform",
+            "enum": [
+              "list",
+              "read",
+              "create",
+              "update",
+              "delete",
+              "search",
+              "fragments",
+              "move",
+              "rename",
+              "copy",
+              "split",
+              "combine",
+              "concatenate"
+            ]
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "Return raw JSON instead of formatted markdown (use when you need complete metadata or structured data for processing)",
+            "default": false
+          },
+          "path": {
+            "type": "string",
+            "description": "File path relative to vault root"
+          },
+          "directory": {
+            "type": "string",
+            "description": "Directory path for list operations"
+          },
+          "query": {
+            "type": "string",
+            "description": "Search query - supports operators (file:, path:, content:, tag:), OR/AND, \"quoted phrases\", /regex/"
+          },
+          "ranked": {
+            "type": "boolean",
+            "description": "Use TF-IDF relevance scoring (default: auto-detected based on query type)"
+          },
+          "searchStrategy": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "filename",
+              "content",
+              "combined"
+            ],
+            "description": "Search strategy: auto (detect from query), filename (names only), content (full-text), combined (both)"
+          },
+          "includeSnippets": {
+            "type": "boolean",
+            "description": "Extract contextual snippets around matches (default: true)"
+          },
+          "snippetLength": {
+            "type": "number",
+            "description": "Maximum snippet length in characters (default: 300)"
+          },
+          "page": {
+            "type": "number",
+            "description": "Page number for paginated results (list/search; also large-file read — see returnFullFile)"
+          },
+          "pageSize": {
+            "type": "number",
+            "description": "Number of results per page"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "auto",
+              "adaptive",
+              "proximity",
+              "structure",
+              "semantic"
+            ],
+            "description": "Fragment retrieval strategy (default: auto). None of these are embedding/vector search — all match words, not meaning. auto: pick per query. adaptive: term-frequency ranked passages. proximity: passages where the query terms appear close together. structure: passages cut on the document's own structure (headings, paragraphs) with surrounding context kept. \"semantic\" is a deprecated alias of \"structure\" — it never meant vector similarity, and is retained only for compatibility."
+          },
+          "maxFragments": {
+            "type": "number",
+            "description": "Maximum number of fragments to return (default: 5)"
+          },
+          "returnFullFile": {
+            "type": "boolean",
+            "description": "read: force the ENTIRE file verbatim regardless of size (explicit large-context override). Default read already returns the whole file verbatim when it fits the size budget; large files return a verbatim page 1 with absolute line bookends (use page=N to continue, or query/strategy/maxFragments for fragments)."
+          },
+          "includeContent": {
+            "type": "boolean",
+            "description": "Include file content in search results (slower but more thorough)"
+          },
+          "destination": {
+            "type": "string",
+            "description": "Destination path for move/copy/combine operations. For combine: omit to return the combined content inline without writing a file"
+          },
+          "newName": {
+            "type": "string",
+            "description": "New filename for rename operation (without path). If the extension is omitted, the source file's extension is preserved (renaming \"note.md\" to \"renamed\" yields \"renamed.md\")"
+          },
+          "overwrite": {
+            "type": "boolean",
+            "description": "Whether to overwrite if destination exists (default: false)"
+          },
+          "splitBy": {
+            "type": "string",
+            "enum": [
+              "heading",
+              "delimiter",
+              "lines",
+              "size"
+            ],
+            "description": "Split strategy: heading (by markdown headings), delimiter (by custom string), lines (by line count), size (by character count)"
+          },
+          "delimiter": {
+            "type": "string",
+            "description": "Delimiter string/regex for delimiter strategy (default: \"---\")"
+          },
+          "level": {
+            "type": "number",
+            "description": "Heading level for heading strategy (1-6)"
+          },
+          "linesPerFile": {
+            "type": "number",
+            "description": "Number of lines per file for lines strategy (default: 100)"
+          },
+          "maxSize": {
+            "type": "number",
+            "description": "Max characters per file for size strategy (default: 10000)"
+          },
+          "outputPattern": {
+            "type": "string",
+            "description": "Naming pattern for output files (default: \"{filename}-{index}{ext}\")"
+          },
+          "outputDirectory": {
+            "type": "string",
+            "description": "Directory for output files (defaults to source directory)"
+          },
+          "paths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Array of file paths to combine"
+          },
+          "separator": {
+            "type": "string",
+            "description": "Content separator between files (default: \"\\n\\n---\\n\\n\")"
+          },
+          "includeFilenames": {
+            "type": "boolean",
+            "description": "Include source filenames as headers (default: false)"
+          },
+          "sortBy": {
+            "type": "string",
+            "enum": [
+              "name",
+              "modified",
+              "created",
+              "size"
+            ],
+            "description": "Sort files before combining"
+          },
+          "sortOrder": {
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "description": "Sort order (default: \"asc\")"
+          },
+          "path1": {
+            "type": "string",
+            "description": "First file path for concatenation"
+          },
+          "path2": {
+            "type": "string",
+            "description": "Second file path for concatenation"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "append",
+              "prepend",
+              "new"
+            ],
+            "description": "Concatenation mode: append to path1, prepend to path1, or create new file"
+          },
+          "content": {
+            "type": "string",
+            "description": "Text content to write (markdown supported)"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__obsidian_vault__edit",
+      "server": "obsidian_vault",
+      "name": "edit",
+      "description": "✏️ Edit files - window: find/replace with fuzzy matching, append: add to end, patch: modify headings/blocks/frontmatter, at_line: insert at line number, from_buffer: reuse previous window content",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The specific action to perform",
+            "enum": [
+              "window",
+              "append",
+              "patch",
+              "at_line",
+              "from_buffer"
+            ]
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "Return raw JSON instead of formatted markdown (use when you need complete metadata or structured data for processing)",
+            "default": false
+          },
+          "path": {
+            "type": "string",
+            "description": "File path relative to vault root"
+          },
+          "content": {
+            "type": "string",
+            "description": "Text content to write (markdown supported)"
+          },
+          "oldText": {
+            "type": "string",
+            "description": "Text to search for (supports fuzzy matching)"
+          },
+          "newText": {
+            "type": "string",
+            "description": "Text to replace with"
+          },
+          "fuzzyThreshold": {
+            "type": "number",
+            "description": "Similarity threshold for fuzzy matching (0-1)",
+            "default": 0.7
+          },
+          "lineNumber": {
+            "type": "number",
+            "description": "Line number for at_line action"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "before",
+              "after",
+              "replace"
+            ],
+            "description": "Insert mode for at_line action"
+          },
+          "operation": {
+            "type": "string",
+            "enum": [
+              "append",
+              "prepend",
+              "replace"
+            ],
+            "description": "Patch operation: append (add after), prepend (add before), or replace"
+          },
+          "targetType": {
+            "type": "string",
+            "enum": [
+              "heading",
+              "block",
+              "frontmatter"
+            ],
+            "description": "Structure to target: heading (use :: for nesting), block (by ID), or frontmatter (field name)"
+          },
+          "target": {
+            "type": "string",
+            "description": "Target identifier (e.g., \"Section::Subsection\", \"blockId\", \"status\")"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__obsidian_vault__graph",
+      "server": "obsidian_vault",
+      "name": "graph",
+      "description": "🕸️ Graph navigation — follow the vault's own links. Use this to EXPAND from a note you already found rather than running another search: search ranks by term frequency, so it cannot reach a note that covers the topic in different words, but a link to it usually exists. BLIND SPOT (the mirror of search's): traversal only reaches what someone actually linked. A note can be genuinely relevant and simply unlinked — no amount of traversal will find it. So the two are complements, not substitutes: scan broadly with `vault.search` to catch the unlinked, then follow links from the hits to catch the differently-worded. Trust neither alone. Actions — neighbors: immediate links of a note (start here); traverse: multi-hop exploration; search-traverse: scan-and-follow in one call, but it returns SNIPPETS per node and prunes on scoreThreshold, so use it to discover WHICH notes matter, then read them — do not treat its snippets as the whole argument; path: how two notes connect; backlinks/forwardlinks: directional links (backlinks are how you find what depends on a note — its own text does not know); statistics: link counts (call with no sourcePath for vault-wide density); tag-analysis/shared-tags: tag structure.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The specific action to perform",
+            "enum": [
+              "traverse",
+              "neighbors",
+              "path",
+              "statistics",
+              "backlinks",
+              "forwardlinks",
+              "search-traverse",
+              "advanced-traverse",
+              "tag-traverse",
+              "tag-analysis",
+              "shared-tags"
+            ]
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "Return raw JSON instead of formatted markdown (use when you need complete metadata or structured data for processing)",
+            "default": false
+          },
+          "sourcePath": {
+            "type": "string",
+            "description": "Starting file path for graph operations"
+          },
+          "targetPath": {
+            "type": "string",
+            "description": "Target file path (for path finding operations)"
+          },
+          "maxDepth": {
+            "type": "number",
+            "description": "Maximum depth for traversal (default: 3)"
+          },
+          "maxNodes": {
+            "type": "number",
+            "description": "Maximum number of nodes to return (default: 50)"
+          },
+          "includeUnresolved": {
+            "type": "boolean",
+            "description": "Include unresolved links in the results"
+          },
+          "followBacklinks": {
+            "type": "boolean",
+            "description": "Follow backlinks during traversal (default: true)"
+          },
+          "followForwardLinks": {
+            "type": "boolean",
+            "description": "Follow forward links during traversal (default: true)"
+          },
+          "followTags": {
+            "type": "boolean",
+            "description": "Follow tag connections during traversal"
+          },
+          "fileFilter": {
+            "type": "string",
+            "description": "Regex pattern to filter file names"
+          },
+          "tagFilter": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Only include files with these tags"
+          },
+          "folderFilter": {
+            "type": "string",
+            "description": "Only include files in this folder"
+          },
+          "startPath": {
+            "type": "string",
+            "description": "Starting document path for search traversal"
+          },
+          "searchQuery": {
+            "type": "string",
+            "description": "Search query to apply at each node (for search-traverse)"
+          },
+          "searchQueries": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Multiple search queries (for advanced-traverse)"
+          },
+          "maxSnippetsPerNode": {
+            "type": "number",
+            "description": "Maximum snippets to extract per node (default: 2)"
+          },
+          "scoreThreshold": {
+            "type": "number",
+            "description": "Minimum score threshold for including nodes (0-1, default: 0.5)"
+          },
+          "strategy": {
+            "type": "string",
+            "enum": [
+              "breadth-first",
+              "best-first",
+              "beam-search"
+            ],
+            "description": "Traversal strategy (for advanced-traverse)"
+          },
+          "beamWidth": {
+            "type": "number",
+            "description": "Beam width for beam-search strategy"
+          },
+          "includeOrphans": {
+            "type": "boolean",
+            "description": "Include orphaned notes in traversal"
+          },
+          "filePattern": {
+            "type": "string",
+            "description": "Filter traversal to files matching this pattern"
+          },
+          "tagWeight": {
+            "type": "number",
+            "description": "Weight factor for tag connections (0-1, default: 0.8)"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__obsidian_vault__dataview",
+      "server": "obsidian_vault",
+      "name": "dataview",
+      "description": "📊 Dataview operations - query: execute DQL queries (LIST FROM \"folder\", TABLE field FROM #tag WHERE condition), list: get pages with metadata and frontmatter, metadata: extract complete page metadata, validate: check DQL syntax, status: plugin availability. Supports LIST, TABLE, TASK, CALENDAR queries with WHERE filters, sorting, grouping.",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The specific action to perform",
+            "enum": [
+              "query",
+              "list",
+              "metadata",
+              "validate",
+              "status"
+            ]
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "Return raw JSON instead of formatted markdown (use when you need complete metadata or structured data for processing)",
+            "default": false
+          },
+          "query": {
+            "type": "string",
+            "description": "DQL query string. Examples: \"LIST FROM #project WHERE status = \\\"active\\\"\", \"TABLE file.size, rating FROM \\\"Notes\\\" WHERE rating > 3 SORT file.mtime DESC\", \"TASK FROM #todo WHERE !completed\", \"CALENDAR file.ctime FROM \\\"Daily Notes\\\"\""
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "dql"
+            ],
+            "description": "Query format (currently only DQL supported)",
+            "default": "dql"
+          },
+          "source": {
+            "type": "string",
+            "description": "Source filter for pages. Examples: \"folder/path\" (folder), \"#tag\" (tag), \"[[Note Name]]\" (backlinks), \"\" (all pages)"
+          },
+          "path": {
+            "type": "string",
+            "description": "File path relative to vault root"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__obsidian_vault__bases",
+      "server": "obsidian_vault",
+      "name": "bases",
+      "description": "🗃️ Bases operations - list: show all .base files, read: get YAML config, create: new base with views/filters/formulas, query: execute filters on vault notes, view: get table/card view data, evaluate: test formulas, export: CSV/JSON/Markdown. Bases use YAML format with expression-based filters like status == \"active\" and file.hasTag(\"project\")",
+      "input_schema": {
+        "type": "object",
+        "properties": {
+          "action": {
+            "type": "string",
+            "description": "The specific action to perform",
+            "enum": [
+              "list",
+              "read",
+              "create",
+              "query",
+              "view",
+              "export"
+            ]
+          },
+          "raw": {
+            "type": "boolean",
+            "description": "Return raw JSON instead of formatted markdown (use when you need complete metadata or structured data for processing)",
+            "default": false
+          },
+          "path": {
+            "type": "string",
+            "description": "Path to the .base file"
+          },
+          "config": {
+            "type": "object",
+            "description": "Base configuration object with name, source, properties, and views"
+          },
+          "viewName": {
+            "type": "string",
+            "description": "Name of the view to retrieve"
+          },
+          "filters": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Array of filter objects with property, operator, and value"
+          },
+          "sort": {
+            "type": "object",
+            "description": "Sort options with property and order (asc/desc)"
+          },
+          "pagination": {
+            "type": "object",
+            "description": "Pagination options with page and pageSize"
+          },
+          "includeContent": {
+            "type": "boolean",
+            "description": "Include note content in results"
+          },
+          "properties": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Specific properties to include in results"
+          },
+          "basePath": {
+            "type": "string",
+            "description": "Path to the base for template generation"
+          },
+          "template": {
+            "type": "object",
+            "description": "Template configuration with name, folder, properties, and contentTemplate"
+          },
+          "format": {
+            "type": "string",
+            "enum": [
+              "csv",
+              "json",
+              "markdown"
+            ],
+            "description": "Export format"
+          },
+          "dateFormat": {
+            "type": "string",
+            "description": "Date format for export (e.g., YYYY-MM-DD)"
+          }
+        },
+        "required": [
+          "action"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_stock_price",
+      "server": "swallow_trader",
+      "name": "swallow_get_stock_price",
+      "description": "실시간 주가 조회: 종목명(예: '삼성전자', 'SK하이닉스', '현대차', '카카오') 또는 6자리 종목코드('005930')를 입력받아 실시간 현재가, 전일대비 등락폭, 등락률, 장운영 상태 및 내 모의투자 보유 현황을 조회합니다.",
+      "input_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "조회할 종목명 또는 종목코드 (예: '삼성전자', '005930', '현대차')"
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_price_history",
+      "server": "swallow_trader",
+      "name": "swallow_get_price_history",
+      "description": "종목의 일자별 종가 이력을 토스증권/네이버 금융 소스별로 조회하고, 두 소스 간 종가 차이를 교차검증합니다. 종목명 또는 6자리 코드를 입력받습니다.",
+      "input_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "종목명 또는 종목코드 (예: '삼성전자', '005930')"
+          },
+          "days": {
+            "default": 30,
+            "description": "조회 기간(일, 기본 30)",
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 365
+          },
+          "source": {
+            "default": "all",
+            "description": "데이터 소스 (기본 all = 토스/네이버 교차검증)",
+            "type": "string",
+            "enum": [
+              "toss",
+              "naver",
+              "all"
+            ]
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_portfolio",
+      "server": "swallow_trader",
+      "name": "swallow_get_portfolio",
+      "description": "Swallow 가상 모의투자 계좌의 총 자산, 예수금 잔고, 보유 종목 목록, 평균단가 및 실시간 평가손익 현황을 조회합니다.",
+      "input_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {}
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_order",
+      "server": "swallow_trader",
+      "name": "swallow_order",
+      "description": "Swallow 가상 모의투자 계좌에서 수동으로 특정 종목을 가상 매수 또는 매도 주문합니다.",
+      "input_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "ticker": {
+            "type": "string",
+            "description": "6자리 주식 종목코드 (예: '005930')"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "종목명 (예: '삼성전자')"
+          },
+          "price": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "주문 단가 (원, 예: 82000)"
+          },
+          "tradeType": {
+            "type": "string",
+            "enum": [
+              "BUY",
+              "SELL"
+            ],
+            "description": "주문 종류: 'BUY' (매수) 또는 'SELL' (매도)"
+          },
+          "reason": {
+            "default": "AI 에이전트 수동 주문 지시",
+            "description": "매매 사유",
+            "type": "string"
+          },
+          "newsTitle": {
+            "description": "주문 근거가 된 뉴스 기사 제목 (선택)",
+            "type": "string"
+          },
+          "newsUrl": {
+            "description": "뉴스 기사 링크 URL (선택)",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ticker",
+          "companyName",
+          "price",
+          "tradeType"
+        ]
+      },
+      "kind": "tool"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_backtest",
+      "server": "swallow_trader",
+      "name": "swallow_backtest",
+      "description": "국내 주식 종목에 대해 과거 일봉 데이터를 바탕으로 퀀트 전략(기본: RSI 과매도 반등) 백테스트를 실행하고, 수익률·MDD·승률 분석 및 MLflow(Exp 39: swallow-quant-backtest)에 자동 로깅합니다.",
+      "input_schema": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "properties": {
+          "query": {
+            "type": "string",
+            "description": "종목명 또는 6자리 종목코드 (예: '삼성전자', '005930', 'SK하이닉스')"
+          },
+          "strategy": {
+            "default": "RSI",
+            "description": "퀀트 전략 종류 (기본: 'RSI')",
+            "type": "string",
+            "enum": [
+              "RSI"
+            ]
+          },
+          "days": {
+            "default": 500,
+            "description": "과거 분석 일봉 수 (30~1000거래일, 기본: 500)",
+            "type": "integer",
+            "minimum": 30,
+            "maximum": 1000
+          },
+          "buyThreshold": {
+            "default": 30,
+            "description": "RSI 과매도 매수 기준 (기본: 30)",
+            "type": "number"
+          },
+          "sellThreshold": {
+            "default": 70,
+            "description": "RSI 과매수 청산 기준 (기본: 70)",
+            "type": "number"
+          },
+          "takeProfit": {
+            "default": 5,
+            "description": "익절 목표 수익률 (%, 기본: 5.0)",
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "stopLoss": {
+            "default": 3,
+            "description": "손절 제한 손실률 (%, 기본: 3.0)",
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "initialCapital": {
+            "default": 10000000,
+            "description": "초기 가상 투자금 (원 단위, 기본: 10,000,000)",
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "required": [
+          "query"
+        ]
+      },
+      "kind": "tool"
+    }
+  ]
+}

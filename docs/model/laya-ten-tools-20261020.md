@@ -45,8 +45,8 @@ patience는 발동하지 않으며, 64 에폭을 마친 checkpoint의 재개는 
 진행 순서: `memorization` profile(train 20 = 도구당 2개, validation/test 각 20)로 train fit ≥ 95%를
 먼저 확인하고, 통과한 뒤에만 `full` profile(train 60, 동일 validation/test 20)로 넘어간다.
 `full` profile은 `configs/model/laya-ten-tools-full-20261020.json`을 쓴다. 진단 구성과 같고
-`export_dir=outputs/laya-ten-tools-20261020/full`, callback `min_epochs=10`(최대 64 에폭)만 다르다.
-root 실행 plan의 `validation_callback`은 이 값과 같아야 하고 plan `epochs`는 10~64여야 한다.
+`export_dir=outputs/laya-ten-tools-20261020/full`, callback `min_epochs=32`(최대 64 에폭, 통합 시 root 값)만 다르다.
+root 실행 plan의 `validation_callback`은 이 값과 같아야 하고 plan `epochs`는 32~64여야 한다.
 두 구성은 `models_dir`/`outputs_dir`를 공유하며 run ID로 구분한다.
 두 root export는 모두 이 계약 검사·`group_cases(…, 10)`·`balanced_indices`를 통과함을 확인했다(학습 미실행).
 

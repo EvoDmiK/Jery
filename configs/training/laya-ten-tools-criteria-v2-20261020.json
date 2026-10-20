@@ -1,0 +1,51 @@
+{
+  "dataset_version": "hermes-ten-tools-v2",
+  "source_dataset_version": "mcp-routing-v2",
+  "export_version": "decision-export-v2",
+  "export_scope": "fixed_ten_tools_select_only",
+  "evaluation_task": "ten_tool_choice",
+  "seed": 3407,
+  "tools": [
+    {
+      "id": "mcp__obsidian_vault__vault",
+      "description": "메모 생성·검색·읽기·목록·이름변경·이동"
+    },
+    {
+      "id": "mcp__obsidian_vault__edit",
+      "description": "메모 본문·줄·제목·frontmatter 수정·추가"
+    },
+    {
+      "id": "mcp__obsidian_vault__graph",
+      "description": "메모 링크·백링크·경로·태그 관계"
+    },
+    {
+      "id": "mcp__obsidian_vault__dataview",
+      "description": "Dataview DQL 조회·문법검사·속성·상태"
+    },
+    {
+      "id": "mcp__obsidian_vault__bases",
+      "description": ".base 설정·필터·뷰 조회·내보내기"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_stock_price",
+      "description": "한 종목 현재가·등락·장상태·내 보유현황"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_price_history",
+      "description": "과거 일별종가·기간·소스비교"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_portfolio",
+      "description": "계좌 전체 자산·잔고·평균단가·평가손익"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_order",
+      "description": "모의계좌 종목 매수·매도 주문"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_backtest",
+      "description": "과거 RSI 전략 수익률·MDD·승률 검증"
+    }
+  ],
+  "representation_version": "catalog-grounded-criteria-v2.1-native-budget"
+}
