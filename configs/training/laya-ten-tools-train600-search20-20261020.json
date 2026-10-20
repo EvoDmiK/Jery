@@ -1,0 +1,170 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-train600-search20-20261020",
+  "dataset_version": "hermes-ten-tools-v3",
+  "export_dir": "outputs/laya-ten-tools-training-v3-final-20261020/augmented",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank best trained tool-choice validation accuracy; serving baseline protected",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-ten-tools-train600-search20",
+  "previous_parent_run_id": "88a5250cd54048d8a9593bab7e59d753",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 8,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "20 exploratory TPE trials on all600 rows; search range informed by prior validation and historical test outcomes; adapt and select using validation accuracy only",
+  "search_score": "best_trained_validation_case_accuracy",
+  "hyperopt": {
+    "algorithm": "tpe",
+    "max_evals": 20,
+    "startup_trials": 6,
+    "head_lr": [
+      8e-05,
+      0.0005
+    ],
+    "weight_decay": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "label_smoothing": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "objective": "1 - best_trained_validation_case_accuracy",
+    "test_used_for_search": false
+  },
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "window_none_loss_weight_active": false,
+    "warmup_steps": 10,
+    "lr_scheduler": "linear"
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v3",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "ten_tool_train600_anchor_informed_hyperopt20",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  },
+  "tracking_notes": {
+    "searched_parameters": "Hyperopt TPE head_lr, weight_decay, label_smoothing; seed3407 and effective batch4 fixed.",
+    "validation_display": "Child val metrics show last epoch; chosen head epoch/validation are in report.json and parent summary.",
+    "comparison": "Exploratory test-informed range design. Historical successful-test anchors used train60 and older candidate descriptions; current trials use train600/v2.1. Do not interpret repeated test results as an unbiased final generalization estimate."
+  },
+  "range_design_used_historical_test": true,
+  "reference_runs": [
+    {
+      "run_id": "90655e03d74f4ae5b77510eaf40e8033",
+      "role": "validation_f1_anchor",
+      "head_lr": 0.00019706901574866268,
+      "weight_decay": 0.05,
+      "label_smoothing": 0.05,
+      "epochs": 16,
+      "warmup_steps": 10,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "callback": {
+        "monitor": "validation.case_accuracy",
+        "patience": 3,
+        "min_delta": 0.004,
+        "min_epochs": 4,
+        "include_baseline": true
+      },
+      "selected_epoch": 11,
+      "displayed_last_val_macro_f1": 0.8567,
+      "selected_val_macro_f1": 0.9,
+      "test_accuracy": 0.6,
+      "test_macro_f1": 0.54,
+      "export_dir": "/home/persona-ai/git/Jery-cuda/outputs/laya-ten-tools-training-v3-final-20261020/augmented"
+    },
+    {
+      "run_id": "1932f9d70c53484dbda1e41edacf1528",
+      "role": "seed3407_both_test_metrics_strictly_above_0.7",
+      "head_lr": 0.00035840220884888243,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.05,
+      "epochs": 32,
+      "warmup_steps": 10,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "callback": {
+        "monitor": "validation.case_accuracy",
+        "patience": 6,
+        "min_delta": 0.004,
+        "min_epochs": 16,
+        "include_baseline": true
+      },
+      "selected_epoch": 7,
+      "displayed_last_val_macro_f1": 0.5,
+      "selected_val_macro_f1": 0.5133,
+      "test_accuracy": 0.75,
+      "test_macro_f1": 0.7067,
+      "export_dir": "/home/persona-ai/git/Jery-cuda/outputs/laya-ten-tools-20261020/full"
+    },
+    {
+      "run_id": "e62b5a7e334740e898fe3f4c4f5a284e",
+      "role": "seed3407_both_test_metrics_strictly_above_0.7",
+      "head_lr": 0.00010059324102155978,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.0,
+      "epochs": 64,
+      "warmup_steps": 0,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "callback": {
+        "monitor": "validation.case_accuracy",
+        "patience": 5,
+        "min_delta": 0.004,
+        "min_epochs": 32,
+        "include_baseline": true
+      },
+      "selected_epoch": 26,
+      "displayed_last_val_macro_f1": 0.4933,
+      "selected_val_macro_f1": 0.5467,
+      "test_accuracy": 0.75,
+      "test_macro_f1": 0.73,
+      "export_dir": "/home/persona-ai/git/Jery-cuda/outputs/laya-ten-tools-20261020/full"
+    }
+  ]
+}
