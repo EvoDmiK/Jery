@@ -31,3 +31,5 @@ TORCHINDUCTOR_COMPILE_THREADS=4 /home/persona-ai/envs/jery-cuda/bin/python scrip
 ```
 
 설정 계약 검사, 기존 데이터 검증(130개), CUDA 실험 계획 통합 테스트 4개를 통과했다. 제품 코드는 변경하지 않았다.
+
+실제 Parent `75c5cfd07701439d88f29f0cf1158a46` / 첫 Child `6d703329748e4cdeb29108a652471c6f`로 실행했다. 첫 조건은 head_lr 0.00016114922909327275, weight_decay 0.05, label_smoothing 0.05다. epoch 9·optimizer step 135까지 실제 CUDA 학습과 유한 loss/gradient를 확인했다. CUDA 모델 테스트도 15개 통과했다(PYTHONPATH=src 설정). 이전 native readiness·독립 감사·암기 gate를 새 Parent에 업로드하고 SHA-256 read-back을 확인했다.
