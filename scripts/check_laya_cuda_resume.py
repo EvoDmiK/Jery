@@ -3,7 +3,8 @@ import argparse
 import json
 from pathlib import Path
 
-from jery.model.laya_cuda import load_cuda_model
+from jery.model.laya_cuda import (LossWeightCollator, check_soft_targets, load_cuda_model, policy_settings,
+                                  weighted_trainer, window_none_weights)
 from jery.model.laya_full import balanced_indices, write_json
 from jery.model.laya_pilot import load_export, sha256
 
@@ -19,7 +20,7 @@ def main():
     import torch
     from transformers import TrainingArguments, TrainerCallback
     from unsloth import FastDecisionModel, DecisionTrainer
-    from unsloth.models.decision import _logits
+    from unsloth.models.decision import DecisionDataCollator, _logits
     config = json.loads(args.config.read_text())
     torch.cuda.set_per_process_memory_fraction(config['cuda_memory_fraction'])
     if sha256(Path(config['model_dir']) / 'model.safetensors') != config['base_model_sha256']:
@@ -34,6 +35,16 @@ def main():
     if built['skipped'] or len(items) != len(rows['train']):
         raise ValueError('Skipped training windows')
     indices, _ = balanced_indices(rows['train'], config['train_bucket_ratios'], config['seed'])
+    train_items = [items[i] for i in indices]
+    trainer_class, trainer_extra = DecisionTrainer, {}
+    settings = policy_settings(config)
+    weighting = None
+    if settings:
+        check_soft_targets(train_items)
+        weights, weighting = window_none_weights(rows['train'], indices, settings['window_none_loss_weight'])
+        train_items = [{**item, 'loss_weight': w} for item, w in zip(train_items, weights)]
+        trainer_class = weighted_trainer(DecisionTrainer, weighting['train_mean_weight'])
+        trainer_extra = {'data_collator': LossWeightCollator(DecisionDataCollator(tokenizer.pad_token_id))}
     _logits(model, items[:4], tokenizer.pad_token_id, batch_size=4)
     observed = {}
 
@@ -49,9 +60,9 @@ def main():
         lr_scheduler_type=config['lr_scheduler'], weight_decay=config['weight_decay'],
         max_grad_norm=config['max_grad_norm'], seed=config['seed'], optim='adamw_torch',
         save_strategy='no', report_to=[], disable_tqdm=True, logging_steps=1)
-    trainer = DecisionTrainer(model=model, tokenizer=tokenizer, args=training_args,
-                              train_dataset=[items[i] for i in indices], head_learning_rate=config['head_learning_rate'],
-                              label_smoothing=config.get('label_smoothing', 0), callbacks=[Witness()])
+    trainer = trainer_class(model=model, tokenizer=tokenizer, args=training_args,
+                            train_dataset=train_items, head_learning_rate=config['head_learning_rate'],
+                            label_smoothing=config.get('label_smoothing', 0), callbacks=[Witness()], **trainer_extra)
     trainer.train(resume_from_checkpoint=str(args.checkpoint))
     observed['end_step'] = trainer.state.global_step
     observed['optimizer_steps_after'] = sorted({int(s['step']) for s in trainer.optimizer.state.values() if 'step' in s})
@@ -61,7 +72,8 @@ def main():
             or not observed['source_checkpoint_unchanged']):
         raise AssertionError(observed)
     observed.update(status='succeeded', scope='checkpoint restore compatibility; one extra step at saved LR, no accuracy claim',
-                    source_checkpoint=str(args.checkpoint), checkpoint_sha256=original_hashes)
+                    source_checkpoint=str(args.checkpoint), checkpoint_sha256=original_hashes,
+                    training_policy_version=config.get('training_policy_version'), loss_weighting=weighting)
     write_json(args.output / 'report.json', observed)
     print(json.dumps(observed))
 
