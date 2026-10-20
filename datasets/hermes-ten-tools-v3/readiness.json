@@ -1,0 +1,82 @@
+{
+  "status": "ready_for_training_ai_reviewed_not_human_reviewed",
+  "dataset_version": "hermes-ten-tools-v3",
+  "train_rows": 600,
+  "new_train_rows": 360,
+  "per_tool_train_rows": 60,
+  "validation_rows": 20,
+  "test_rows": 20,
+  "source_scenarios": 260,
+  "train_scenarios": 355,
+  "new_context_rows": 54,
+  "heldout_bytes_preserved": true,
+  "old_train_prefix_preserved": true,
+  "deterministic_rebuild": true,
+  "normalized_input_duplicates": 0,
+  "split_group_overlap": 0,
+  "new_vs_heldout_near_duplicate_flags": [],
+  "near_duplicate_jaccard_threshold": 0.55,
+  "source_sha256": "6ba3b6dea0030860e2ad0c3e549492629e39394efceac4ec062b724bb2dd623a",
+  "tests_passed": 169,
+  "training_executed": false,
+  "human_reviewed": false,
+  "ai_cross_review_status": "360_accepted_by_claude_and_codex",
+  "native_audit_status": "passed",
+  "native_audit_splits": {
+    "train": {
+      "windows": 600,
+      "native_builder": {
+        "total": 600,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 358,
+      "original_decisions": {
+        "select_tools": 600
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    },
+    "validation": {
+      "windows": 20,
+      "native_builder": {
+        "total": 20,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 269,
+      "original_decisions": {
+        "select_tools": 20
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    },
+    "test": {
+      "windows": 20,
+      "native_builder": {
+        "total": 20,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 272,
+      "original_decisions": {
+        "select_tools": 20
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    }
+  },
+  "final_export_sha256": {
+    "train": "72b1fa7feff8d3e920b5b6c7db8f8072ac8cf7e1c90a60743de76d19c333eeb6",
+    "validation": "ca67646a3fa4f6daae0d5a41c9874c1eb68eec733b580591c649e66c4c5b973e",
+    "test": "81cc75468526e6eab792c563316872b3c9616acb6f9e7526410f93e861c09091"
+  },
+  "agy_counterpart_review": "not_completed_quota_limit; replaced_by_codex",
+  "codex_editorial_fixes": 3
+}

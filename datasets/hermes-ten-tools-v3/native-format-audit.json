@@ -1,0 +1,75 @@
+{
+  "scope": "native schema, target mapping and tokenization; not data-quality or pretraining-corpus equivalence",
+  "export": {
+    "manifest_sha256": "bcf260e260d0f519686811044cadbd0b123ca8a909210b4de2de743e2cd59dcb",
+    "sha256": {
+      "train": "72b1fa7feff8d3e920b5b6c7db8f8072ac8cf7e1c90a60743de76d19c333eeb6",
+      "validation": "ca67646a3fa4f6daae0d5a41c9874c1eb68eec733b580591c649e66c4c5b973e",
+      "test": "81cc75468526e6eab792c563316872b3c9616acb6f9e7526410f93e861c09091"
+    },
+    "export_version": "decision-export-v2",
+    "export_scope": "fixed_ten_tools_select_only",
+    "evaluation_task": "ten_tool_choice"
+  },
+  "native_limits": {
+    "max_len": 1024,
+    "head_max_len": 256
+  },
+  "packages": {
+    "unsloth": "2026.10.6",
+    "laya": "0.4.9",
+    "transformers": "5.17.0"
+  },
+  "builder_source_sha256": "1b4a9d45965e4cfa93995d634d2104637f2c559595f06b104cc1e94075a45b67",
+  "splits": {
+    "train": {
+      "windows": 600,
+      "native_builder": {
+        "total": 600,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 358,
+      "original_decisions": {
+        "select_tools": 600
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    },
+    "validation": {
+      "windows": 20,
+      "native_builder": {
+        "total": 20,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 269,
+      "original_decisions": {
+        "select_tools": 20
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    },
+    "test": {
+      "windows": 20,
+      "native_builder": {
+        "total": 20,
+        "skipped": 0,
+        "reason": null,
+        "truncated": 0
+      },
+      "max_sequence_tokens": 272,
+      "original_decisions": {
+        "select_tools": 20
+      },
+      "feature_mismatches": 0,
+      "target_mismatches": 0,
+      "truncated_or_colliding_inputs": 0
+    }
+  },
+  "status": "passed"
+}

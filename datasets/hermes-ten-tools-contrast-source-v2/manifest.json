@@ -1,0 +1,42 @@
+{
+  "dataset_version": "hermes-ten-tools-contrast-source-v2",
+  "catalog_version": "hermes-ten-tools-2289142ab57a",
+  "split": "train",
+  "rows": 360,
+  "scenarios": 260,
+  "per_tool_rows": 36,
+  "context_rows": 54,
+  "review_status": "needs_human_review",
+  "execution_verified": false,
+  "ai_quality_status": "reviewed_with_editorial_fixes",
+  "reviewers": {
+    "claude": 180,
+    "codex": 180
+  },
+  "source_snapshots": {
+    "claude": {
+      "branch": "dev-claude",
+      "source_commit": "2e787a9",
+      "source_sha256": "fb557f56b94ba781cd4ade7f6167df7f1898f2d0234b1e0e0e6fb13e2edaa043",
+      "subsequent_codex_wording_fixes": 3
+    },
+    "antigravity": {
+      "branch": "dev-agy",
+      "initial_author_commit": "6031f74",
+      "accepted_revision_sha256": "8d44816f8543f354e4be27c074d0700d156a0e02428fc18299de0ac7cd24e715",
+      "accepted_revision_committed_on_author_branch": false,
+      "note": "quota exhaustion after source fixes; root preserved revised source and integrates it in dev-codex"
+    }
+  },
+  "claude_review_commit": "df59f8e",
+  "agy_counterpart_review": "not_completed_quota_exhausted; replaced_by_codex",
+  "sha256": {
+    "cases.jsonl": "6ba3b6dea0030860e2ad0c3e549492629e39394efceac4ec062b724bb2dd623a",
+    "reviews.json": "f655444a7f3ee6105e5bc22c87101b9c572a8b533dbf8dbe1b9b48e72449316a"
+  },
+  "limitations": [
+    "Synthetic AI-authored and AI-reviewed; no human_reviewed labels or execution verification",
+    "Pre-call complete select_tools cases among fixed10 only; action/null-decision prediction not trained",
+    "Neutral dialogue templates and contrast cues remain; not independent real-use accuracy"
+  ]
+}

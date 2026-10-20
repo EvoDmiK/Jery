@@ -51,6 +51,8 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 [전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증했고, 사용자 요청으로 CUDA Hyperopt 5회를 기존 Mac 실험과 동시에 실행한다. 두 실험은 별도 Parent로 기록한다.
 
+[고정 10개 도구 학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md)는 기존 train 240개에 AI 작성·검토한 합성 360개를 더한 600개(도구당 60개)다. 검증·평가 각 20개와 기존 train prefix를 바이트 단위로 보존했다. 전체 테스트 169개와 Laya native 입력 검증을 통과했으며 이번 보강 데이터로 추가 학습은 실행하지 않았다. 상세 검토·재현·한계는 [통합 보고서](docs/data/ten-tool-training-augmentation-20261020.md)를 따른다.
+
 ## 초기 데이터셋
 
 [Hermes routing v1](datasets/hermes-routing-v1/README.md)은 Hermes `hybrid-v2`의 로컬 MCP 스키마 캐시에서 추출한 도구 명세를 바탕으로 작성한 한국어 합성 데이터셋이다.
