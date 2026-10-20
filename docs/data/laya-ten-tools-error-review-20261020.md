@@ -39,3 +39,7 @@ PYTHONPATH=src python3 -m unittest discover -s tests/data -p test_ten_tool_contr
 검증: 학습용 Python에서 전체 151개 테스트 통과(44.998초), 기본 v1 데이터 검증 통과. 동반 notebook의 코드 셀 4개는 Python으로 순서 실행해 출력을 저장했다. Jupyter kernel 검증은 nbformat/nbclient/ipykernel 미설치로 실행하지 않았으며 notebook에 별도 재현 명령과 한계를 적었다. 새 export는 회사 서버에서 native builder/tokenizer 검사 후 실행한다.
 
 Native 사전검사에서 초안 설명의 일부가 head의 옵션당 24token 한도를 넘어 6개 옵션이 잘리는 것을 발견해 학습을 차단했다. 초기 초안은 `outputs/laya-ten-tools-contrast-20261020-native-draft/`로 보존하고, 핵심 기능을 유지한 짧은 설명으로 representation_version을 v2.1-native-budget으로 바꿨다. Catalog version도 명세 해시에 따라 바뀐다. v1 원본과 라벨 의미는 그대로이며 새 설명의 native 재검사를 통과하기 전 학습하지 않는다.
+
+최종 catalog `hermes-ten-tools-2289142ab57a`의 native 재검사에서 두 profile 모두 skip·target 매핑 불일치·특징 불일치·잘림 0건을 확인했다(최대 전체 길이 289token). 첫 draft의 설명만 native 검사에서 실패했고 모델 학습은 시작하지 않았다.
+
+회사 서버에서 보강 Parent `5f64008a2b974b7f87fab5088bafcf8a` / Child `5ee0cebebfbd465898abdd4b5f300a56`, 설명만 보완 Parent `f7faeae2708945d6b62f59e54a6f56ae` / Child `6145fe8c826a4fcea9f23fc525535aec`를 실행했다. 보강군 epoch3·180step, 대조군 epoch9·135step까지 유한 loss/gradient와 CUDA 실행을 확인했다. 감사 input·결과·라벨 대조·criteria·합성 원문·notebook·native readiness를 각 Parent의 data-quality/readiness artifact에 업로드하고 SHA-256 read-back으로 검증한다.
