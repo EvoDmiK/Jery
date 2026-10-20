@@ -393,6 +393,7 @@ def main():
                      'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py',
                      'scripts/prepare_laya_cuda_experiment.py', 'scripts/check_laya_cuda_resume.py', 'requirements-decision.txt',
                      'scripts/build_laya_ten_tools.py', 'scripts/audit_laya_export_format.py',
+                     'scripts/build_ten_tool_contrast.py', 'scripts/audit_ten_tool_errors.py',
                      'requirements-decision-cuda.txt']:
             path = ROOT / name
             sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}

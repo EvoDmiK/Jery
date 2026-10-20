@@ -1,0 +1,51 @@
+{
+  "dataset_version": "hermes-ten-tools-v2",
+  "source_dataset_version": "mcp-routing-v2",
+  "export_version": "decision-export-v2",
+  "export_scope": "fixed_ten_tools_select_only",
+  "evaluation_task": "ten_tool_choice",
+  "seed": 3407,
+  "tools": [
+    {
+      "id": "mcp__obsidian_vault__vault",
+      "description": "메모 파일 생성·검색·읽기·목록·이름 변경·이동"
+    },
+    {
+      "id": "mcp__obsidian_vault__edit",
+      "description": "기존 메모 본문 일부·줄·제목·frontmatter 속성 수정·추가"
+    },
+    {
+      "id": "mcp__obsidian_vault__graph",
+      "description": "메모 링크·백링크·연결 경로·이웃 노트·공통 태그 탐색"
+    },
+    {
+      "id": "mcp__obsidian_vault__dataview",
+      "description": "Dataview DQL 실행·문법 검사·페이지 메타데이터·플러그인 상태 조회"
+    },
+    {
+      "id": "mcp__obsidian_vault__bases",
+      "description": "Obsidian .base YAML 설정·필터·뷰의 행 조회·내보내기"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_stock_price",
+      "description": "한 종목의 현재가·등락률·장 상태·내 보유 여부와 현황 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_price_history",
+      "description": "종목 과거 일별 종가 시계열·기간 조회·토스/네이버 종가 교차검증"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_portfolio",
+      "description": "모의계좌 전체 총자산·예수금·보유목록·평균단가·평가손익 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_order",
+      "description": "모의계좌에서 지정 종목의 매수·매도 주문 실행"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_backtest",
+      "description": "과거 일봉으로 RSI 전략 수익률·MDD·승률 백테스트"
+    }
+  ],
+  "representation_version": "catalog-grounded-criteria-v2"
+}
