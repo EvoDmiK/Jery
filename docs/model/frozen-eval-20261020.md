@@ -75,3 +75,23 @@ PYTHONPATH=src python3 -m unittest tests/evaluation/test_frozen.py
   head 경로는 root가 MLflow artifact에서 지정하고 SHA-256을 결과에 기록한다.
 - 누수 검사는 정확·정규화 일치만 본다. 근접 의미 중복은 root의 leak audit에 의존한다.
 - 약 100개 단일 실행이므로 두 head 차이는 신뢰구간 없이 해석하지 않는다. MLflow Parent/Child 기록은 root가 맡는다.
+
+## 현황: candidates-v3 gate-only 점검 (2026-10-20)
+
+root의 비공개 sanitized 후보 14개(`candidates-v3`, cases sha `580fc829…09d3`)를 데이터로만 읽고 Claude 독립 라벨 제안을
+git 밖 `outputs/frozen-eval-20261020/claude-proposals.json`(0600)에 저장했다. AGY 제안과 모델 예측은 보지 않았다.
+원문은 문서·Git에 남기지 않는다.
+
+| Claude 제안 | 건수 | 사유 |
+|---|---:|---|
+| label | 1 | `swallow_get_portfolio` 1 (나머지 9개 도구 0) |
+| needs_context | 8 | 이전 턴을 가리키는 후속 요청(context가 비어 있음) |
+| exclude | 3 | 조언·설정 질문 1, 첫 단계가 10개 밖 스킬인 다단계 2 |
+| unsupported | 2 | 관심종목·모니터링, 모의계좌 초기화(카탈로그 밖 동작) |
+
+candidate 상태 wrapper(`status=candidate`, leak audit 미완료)에서 gate-only를 실제로 실행했다. 해시·카탈로그·후보 10개·
+`mcp__` 노출·중복·기존 학습 export(`laya-ten-tools-20261020/full`, `laya-ten-tools-contrast-20261020/augmented`)와의 겹침 검사는
+14개 모두 통과했다. 라벨 단계에서 human 14/14 미해결, provisional-ai(proposer 2명 이상) 14/14 미해결, 진단용 1명 기준
+13/14 미해결로 거부됐다. 채점 시도는 `status=frozen`·manifest 해시 승인 부재로 거부됐다.
+**real100은 없고(목표 100 대비 사용 가능 1, 도구별 부족 9~10) 벤치마크와 모델 예측은 수행하지 않았다.**
+수집기 개선점(신원 목록·대소문자·문맥 누락·같은 세션 쌍·이전 입력 비교 키)은 root에 전달했다.
