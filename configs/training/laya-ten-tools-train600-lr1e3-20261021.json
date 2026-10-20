@@ -1,0 +1,178 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-train600-lr1e3-20261021",
+  "dataset_version": "hermes-ten-tools-v3",
+  "export_dir": "outputs/laya-ten-tools-training-v3-final-20261020/augmented",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank best trained tool-choice validation accuracy; serving baseline protected",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-ten-tools-train600-lr1e3",
+  "previous_parent_run_id": "6e2c92b081534cc8a8e3b1271e3c0e9c",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 8,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "User-requested next20 fresh-base TPE trials expanding LR upper bound to1e-3; start after current refine20 finishes successfully",
+  "search_score": "best_trained_validation_case_accuracy",
+  "hyperopt": {
+    "algorithm": "tpe",
+    "max_evals": 20,
+    "startup_trials": 6,
+    "head_lr": [
+      0.00014,
+      0.001
+    ],
+    "weight_decay": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "label_smoothing": [
+      0.0,
+      0.1
+    ],
+    "objective": "1 - best_trained_validation_case_accuracy",
+    "test_used_for_search": false
+  },
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "window_none_loss_weight_active": false,
+    "warmup_steps": 10,
+    "lr_scheduler": "linear"
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v3",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "ten_tool_train600_lr_upper_1e3",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  },
+  "tracking_notes": {
+    "searched_parameters": "TPE20/startup6: LR loguniform1.4e-4..1e-3; WD[0,0.05,0.1]; smoothing[0,0.1]; only LR upper bound differs from preceding refine20.",
+    "validation_display": "Child val metrics show last epoch; chosen head epoch/validation are in report.json and parent summary.",
+    "comparison": "Exploratory test-informed refinement from completed previous20 on the same train600, validation20, test20 and v2.1 inputs. TPE loss/checkpoint selection use validation accuracy only. Repeated test is not an independent final generalization estimate."
+  },
+  "range_design_used_historical_test": true,
+  "reference_runs": [
+    {
+      "run_id": "87e3fbaf6f3848b898e02a3ecf089551",
+      "head_lr": 0.0001503248604273792,
+      "weight_decay": 0.05,
+      "label_smoothing": 0.0,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.7933,
+      "selected_val_macro_f1": 0.84,
+      "test_macro_f1": 0.7433,
+      "selected_epoch": 16
+    },
+    {
+      "run_id": "62b290a1f0b64728838865fd265ad30d",
+      "head_lr": 0.00015075287542684683,
+      "weight_decay": 0.05,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.7733,
+      "selected_val_macro_f1": 0.76,
+      "test_macro_f1": 0.7033,
+      "selected_epoch": 11
+    },
+    {
+      "run_id": "a921dc11102849a6becf9d59eed28738",
+      "head_lr": 0.0002223984100861598,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8,
+      "selected_val_macro_f1": 0.8933,
+      "test_macro_f1": 0.7933,
+      "selected_epoch": 16
+    },
+    {
+      "run_id": "39fe7d47d62d4e25bdcd21c9e6124e86",
+      "head_lr": 0.00030688185181688786,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.0,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8433,
+      "selected_val_macro_f1": 0.8933,
+      "test_macro_f1": 0.72,
+      "selected_epoch": 13
+    },
+    {
+      "run_id": "2df2593adf2a4605978ba58c03fb313d",
+      "head_lr": 0.0003878263599767341,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8433,
+      "selected_val_macro_f1": 0.9467,
+      "test_macro_f1": 0.7933,
+      "selected_epoch": 9
+    },
+    {
+      "run_id": "c79ecdc6091a46b98e938d5817d2743b",
+      "head_lr": 0.00040638972417911305,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.78,
+      "selected_val_macro_f1": 0.9467,
+      "test_macro_f1": 0.74,
+      "selected_epoch": 10
+    }
+  ],
+  "reference_filter": {
+    "parent_run_id": "dca0889273a641eaae6e4a92bfa9efc9",
+    "status": "FINISHED",
+    "displayed_last_val_macro_f1_gte": 0.75,
+    "selected_serving_test_macro_f1_gte": 0.7,
+    "qualifying_count": 6,
+    "also_checked_selected_checkpoint_val_macro_f1_gte": 0.75
+  },
+  "launch_after_parent_run_id": "6e2c92b081534cc8a8e3b1271e3c0e9c"
+}
