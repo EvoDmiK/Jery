@@ -60,3 +60,45 @@ python3 scripts/build_ten_tool_contrast.py --base outputs/laya-ten-tools-2026102
 ## 한계
 
 모든 사례는 `needs_human_review`다. 다른 작성자의 AI 교차 검토를 거쳐도 `human_reviewed`가 되지 않는다. `vault` concatenate와 `edit` append, `edit` window와 `vault` update처럼 경계가 미묘한 사례는 `source.rationale`에 판단 근거를 적었으니 사람 검토에서 확인해야 한다.
+
+## AGY180 교차 검토와 빌더 cad7a3d 점검 (Claude, AI 검토)
+
+사람 검토가 아니다. AGY 사례는 모두 `needs_human_review`로 남고 실행 검증도 하지 않았다. validation/test 문장은 작성이나 판정에 쓰지 않았다.
+
+### 빌더 `cad7a3d` (`scripts/build_ten_tool_contrast.py`, `tests/data/test_ten_tool_contrast.py`)
+
+임시 detached worktree에서 읽기만 했다. 브랜치 병합이나 스크립트 수정은 하지 않았다.
+
+- 기존 테스트 5개는 모두 통과했다(`python3 -m unittest tests.data.test_ten_tool_contrast`).
+- 실제 v2 augmented export(train 240)에 Claude180과 AGY180을 넣어 확장 모드로 빌드했다. 결과는 다음과 같다.
+  - train 600행, 도구당 60개
+  - validation/test는 바이트 동일
+  - train 앞부분 240행은 바이트 그대로 유지
+  - 새 행마다 gold alias→tool, `acceptable_choices` tool/action, state, scenario_id, `needs_human_review`/`execution_verified=false`가 원문과 같음
+  - 원본 export 파일은 바뀌지 않음
+- 음성 가드 17개는 모두 출력 경로를 만들기 전에 거부했다: held-out 복사, 기존 train 정규화 복사, 기존 source_id 재사용, 신규 ID 중복, held-out scenario_id, enum 밖 action(`evaluate`), Swallow action 비null, `human_reviewed` 승격, `execution_verified=true`, 비합성 출처, 도구 ID 누출, `tool` 역할 맥락, 빈 요청, 불균형, 모르는 도구, train이 아닌 split, base criteria 변조.
+- 정확성 결함은 찾지 못했다. 참고할 점은 세 가지다.
+  - 확장 모드의 `description_control` profile은 base(v2 augmented 240)를 그대로 복사하므로 이름과 내용이 다르다.
+  - 도구 ID 누출 검사는 `mcp__…` 전체 ID만 찾는다.
+  - 필드가 빠지면 ValueError 대신 KeyError가 난다. 다만 쓰기 전에 실패한다.
+
+### AGY180 판정
+
+- 입력: `outputs/laya-ten-tools-training-v3-20261020/agy-author-snapshot.jsonl`, sha256 `beb6750f02063e9688a3e6133eb198fa7c832fb2424f9cbc843fd33f7f61b49e`
+- 결과 파일: `configs/model/training-v3-agy-review.json`(사례별 `{id, reviewer, status, expected_tool, expected_action, rationale}`)
+- 180개를 모두 봤다. accept 152, revise 28, exclude 0이다. 도구·action 라벨이 틀린 사례는 없었다.
+
+revise 사유:
+
+| 사유 | 건수 |
+|---|---|
+| assistant가 정답 동작을 예/아니오 확인으로 말함 | 11 |
+| 종목·숫자만 바꾼 같은 문장 틀 또는 같은 의미의 다른 scenario | 11 |
+| 요청에 action 이름이 괄호로 들어감 | 3 |
+| `from_buffer`를 맥락 없이 사용 | 1 |
+| assistant 맥락이 실행 결과처럼 파일 존재를 단정 | 1 |
+| 경로 앞 공백 | 1 |
+
+정확한 ID와 수정안은 결과 JSON과 루트 메시지에 있다. 그 밖에 AGY 요청의 경향으로 "Swallow" 접두어 37건, "옵시디언" 23건, "~말고" 대조어 34건이 있다. 표면 단서에 기댈 위험이 있으니 사람 검토 때 함께 볼 것을 권한다.
+
+자체 점검: 이 검토 기준으로 보면 내 원문 `train-v3.claude.swallow_get_stock_price.09.0`도 assistant가 "주가를 확인해 드릴까요?"라고 확인하는 패턴이다. 루트 요청이 없어 원문은 바꾸지 않았다.
