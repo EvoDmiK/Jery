@@ -25,3 +25,7 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 기존 runner의 wait-for-run은 upstream MLflow Parent가 FINISHED일 때만 다음 학습을 시작한다. RUNNING이면15초 간격으로 대기하고 FAILED/KILLED면 후속 학습을 시작하지 않고 오류를 남긴다. 대기 중 새 Child/GPU 학습은 없다. 중복 supervisor를 실행하지 않는다.
 
 데이터 검증 PASS(130 examples/10tools/65 isolated scenarios), CUDA 계획 통합 테스트5개 PASS, 새 plan 계약/LR 상한 및 나머지 조건 보존 검증 PASS. 실행기 변경·추가 의존성 없다. 대기 등록과 학습 시작·완료는 다른 상태이며 실제 상태는 서버 state/MLflow를 따른다.
+
+## 등록 상태
+
+[다음 Parent 6261a1bdca194867a835cbfb2216493f](https://mlflow.dove-nest.com/#/experiments/47/runs/6261a1bdca194867a835cbfb2216493f)를 생성하고 데이터·설정 Artifact SHA read-back을 검증했다. 실행 코드/설정 기준73c3db9를 서버에 fast-forward 반영했다. Detached runner에 --wait-for-run으로 기존 refine20 Parent를 지정했다.
