@@ -1,0 +1,62 @@
+{
+  "dataset_version": "hermes-ten-tools-v1",
+  "source_dataset_version": "mcp-routing-v2",
+  "export_version": "decision-export-v2",
+  "export_scope": "fixed_ten_tools_select_only",
+  "evaluation_task": "ten_tool_choice",
+  "seed": 3407,
+  "profiles": {
+    "memorization": {
+      "train": 2,
+      "validation": 2,
+      "test": 2
+    },
+    "full": {
+      "train": 6,
+      "validation": 2,
+      "test": 2
+    }
+  },
+  "tools": [
+    {
+      "id": "mcp__obsidian_vault__vault",
+      "description": "메모 파일 생성·검색·목록·읽기"
+    },
+    {
+      "id": "mcp__obsidian_vault__edit",
+      "description": "메모 본문 찾아 바꾸기·추가"
+    },
+    {
+      "id": "mcp__obsidian_vault__graph",
+      "description": "메모 링크·백링크 관계 탐색"
+    },
+    {
+      "id": "mcp__obsidian_vault__dataview",
+      "description": "Dataview DQL 실행·문법 검사"
+    },
+    {
+      "id": "mcp__obsidian_vault__bases",
+      "description": "Bases 표·YAML 설정 파일 관리"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_stock_price",
+      "description": "종목 현재가·개별 보유현황 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_price_history",
+      "description": "종목의 과거 일별 종가 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_portfolio",
+      "description": "모의투자 계좌 전체 자산·보유목록 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_order",
+      "description": "모의투자 종목 매수·매도 주문"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_backtest",
+      "description": "종목의 과거 투자전략 백테스트"
+    }
+  ]
+}

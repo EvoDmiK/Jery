@@ -58,13 +58,20 @@ def compact_epoch(record):
     if not isinstance(epoch, int) or epoch < 1:
         raise ValueError('Expected an integer completed epoch')
     validation = record['validation']
-    values = {'val_accuracy': validation['case_accuracy'], 'val_macro_f1': validation['decision_macro_f1'],
+    values = {'val_accuracy': validation['case_accuracy'], 'val_macro_f1': comparison_macro_f1(validation),
               'val_coverage': validation['coverage']}
     if record['train_loss'] is not None:
         values['train_loss'] = record['train_loss']
     if not all(math.isfinite(v) for v in values.values()):
         raise ValueError('Nonfinite epoch metric')
     return values
+
+
+def comparison_macro_f1(result):
+    scope = result.get('macro_f1_scope')
+    if scope not in (None, 'decisions', 'tools'):
+        raise ValueError('Unknown macro F1 scope')
+    return result['tool_macro_f1'] if scope == 'tools' else result['decision_macro_f1']
 
 
 def final_epoch_bounds(report, max_epochs, best_validation=False):
@@ -380,6 +387,7 @@ def main():
                      'scripts/run_laya_repeats.py', 'scripts/sync_laya_training_metrics.py',
                      'scripts/build_laya_full_dataset.py', 'scripts/build_laya_pilot.py',
                      'scripts/prepare_laya_cuda_experiment.py', 'scripts/check_laya_cuda_resume.py', 'requirements-decision.txt',
+                     'scripts/build_laya_ten_tools.py', 'scripts/audit_laya_export_format.py',
                      'requirements-decision-cuda.txt']:
             path = ROOT / name
             sources[name] = {'sha256': hashlib.sha256(path.read_bytes()).hexdigest(), 'content': path.read_text()}
@@ -461,7 +469,7 @@ def main():
             raise ValueError('Frozen encoder/restore verification failed')
         api('mlflow/runs/log-batch', {'run_id': item['run_id'], 'metrics': [
             {'key': 'test_accuracy', 'value': test['case_accuracy'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
-            {'key': 'test_macro_f1', 'value': test['decision_macro_f1'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
+            {'key': 'test_macro_f1', 'value': comparison_macro_f1(test), 'step': selected_epoch, 'timestamp': int(time.time()*1000)},
             {'key': 'test_coverage', 'value': test['coverage'], 'step': selected_epoch, 'timestamp': int(time.time()*1000)}]})
         snapshot(item, out)
         for runner in sorted(local.glob('runner-*')):

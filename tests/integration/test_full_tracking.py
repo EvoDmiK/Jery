@@ -14,6 +14,15 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_ten_tool_f1_is_explicit_without_reinterpreting_legacy_metrics(self):
+        result = {'decision_macro_f1': .25, 'tool_macro_f1': .8, 'macro_f1_scope': 'tools'}
+        self.assertEqual(tracking.comparison_macro_f1(result), .8)
+        self.assertEqual(tracking.comparison_macro_f1({'decision_macro_f1': .25}), .25)
+        with self.assertRaises(KeyError):
+            tracking.comparison_macro_f1({'decision_macro_f1': .25, 'macro_f1_scope': 'tools'})
+        with self.assertRaises(ValueError):
+            tracking.comparison_macro_f1({'decision_macro_f1': .25, 'macro_f1_scope': 'unknown'})
+
     @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
     def test_joint_search_tracks_weight_and_replays_only_trained_validation(self):
         plan = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())
