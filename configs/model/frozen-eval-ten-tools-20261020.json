@@ -1,0 +1,15 @@
+{
+  "schema_version": "frozen-eval-v1",
+  "evaluation_task": "ten_tool_choice",
+  "criteria": "configs/training/laya-ten-tools-criteria-v2-20261020.json",
+  "catalog_version": "hermes-ten-tools-2289142ab57a",
+  "catalog_sha256": "11c0253a5de892afaec5836b847cfb70bc76c4caf23e96b8b41a414183123847",
+  "instructions": "요청을 처리할 도구 하나를 고르세요.",
+  "model_config": "configs/training/laya-ten-tools-description_control-model-20261020.json",
+  "candidates": {
+    "baseline-regularized": "ca0d15030d6543a99ba6a7084679d6bc",
+    "augmented-train240": "5ee0cebebfbd465898abdd4b5f300a56"
+  },
+  "min_ai_proposers": 2,
+  "target_per_tool": 10
+}
