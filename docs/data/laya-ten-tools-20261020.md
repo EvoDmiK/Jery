@@ -49,3 +49,5 @@ full 단계는 같은 명령의 plan을 `laya-ten-tools-full-20261020.json`, mod
 학습 집합 fit만을 근거로 LR 1e-3의 별도 64에폭 진단을 추가했다. 재현 시 위 plan을 `configs/training/laya-ten-tools-memorization-lr1e-3-20261020.json`, state-dir을 `outputs/laya-ten-tools-20261020/memorization-lr1e-3-tracking`으로 바꾼다. Parent는 `37611c82fb924ba6bccb5d4410db9226`이며 기존 결과를 덮어쓰지 않는다. Gate 결과와 재시도 근거는 두 Parent의 `diagnostic/initial-train-fit-gate.json`에 업로드하고 SHA-256 read-back을 확인했다. Test는 gate나 LR 조정 근거로 사용하지 않았다.
 
 Claude가 native CUDA 단일 10개 선택과 도구별 F1·train fit 보고를 구현했고 AGY가 원본 무결성·재현성·분할·중복·입력 누수를 독립 감사했다. 통합 후 학습용 Python에서 전체 145개 테스트가 통과했다. 두 profile의 native builder/tokenizer readiness는 skip·target 불일치·학습/추론 특징 불일치·잘림 모두 0건이며 최대 229 token이다.
+
+재진단 Parent `37611c82fb924ba6bccb5d4410db9226` / Child `c997b44b16b04a9c9f43c02725ef616e`가 64에폭을 완료했다. 마지막 train 정확도는 100%로 gate를 통과했고, 최고 trained validation은 epoch 18의 60%(초기 50%)였다. 마지막 train fit과 validation 선택 head는 서로 다른 평가 대상이다. 학습 head 재로딩 후 validation 예측이 동일하며 encoder는 유지됐다. 학습 호출 59.91초, CLI 77초 안팎이다. Gate JSON은 진단 Parent에 업로드·해시 검증했고, 본 실험은 별도 Parent `c328674ecd9c4eabb1bf3d4dbc6c9dde`로 준비했다.
