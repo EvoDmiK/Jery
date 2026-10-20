@@ -26,6 +26,7 @@ import traceback
 
 ROOT = Path(__file__).resolve().parents[3]
 QUESTION = 'route_in_window'
+TEN_TOOL_SCOPE = 'fixed_ten_tools_select_only'
 PACKAGES = ('unsloth', 'unsloth_zoo', 'mlx', 'mlx-metal', 'mlx-lm', 'torch', 'transformers',
             'tokenizers', 'safetensors', 'numpy', 'laya')
 
@@ -45,8 +46,10 @@ def read_jsonl(path):
 def load_export(folder, splits=('train', 'validation')):
     """Rows of each split after checking them against the export manifest (the export is read-only)."""
     manifest = json.loads((folder / 'manifest.json').read_text())
-    if manifest.get('export_version') != 'decision-export-v1':
-        raise ValueError(f'not a decision-export-v1 export: {folder}')
+    version, scope = manifest.get('export_version'), manifest.get('export_scope')
+    # v2 is accepted only for the explicit ten-tool learnability scope; any other v2 scope is refused.
+    if version != 'decision-export-v1' and (version, scope) != ('decision-export-v2', TEN_TOOL_SCOPE):
+        raise ValueError(f'not a decision-export-v1 or {TEN_TOOL_SCOPE} decision-export-v2 export: {folder}')
     rows, hashes = {}, {}
     for split in splits:
         path = folder / f'{split}.jsonl'
@@ -57,7 +60,10 @@ def load_export(folder, splits=('train', 'validation')):
         rows[split] = read_jsonl(path)
         if len(rows[split]) != manifest['splits'][split]['rows']:
             raise ValueError(f'{path} row count differs from manifest')
-    return rows, {'manifest_sha256': sha256(folder / 'manifest.json'), 'sha256': hashes}
+    info = {'manifest_sha256': sha256(folder / 'manifest.json'), 'sha256': hashes}
+    if version == 'decision-export-v2':
+        info.update(export_version=version, export_scope=scope, evaluation_task=manifest.get('evaluation_task'))
+    return rows, info
 
 
 def accepted(row):

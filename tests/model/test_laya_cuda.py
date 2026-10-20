@@ -4,10 +4,41 @@ from pathlib import Path
 import tempfile
 import unittest
 
-from jery.model.laya_cuda import (RoutingPolicy, check_soft_targets, policy_settings, restore_head,
-                                  resume_adds_steps, rewind_history, tensor_hash, window_none_weights)
-from jery.model.laya_full import ValidationPolicy
-from jery.model.laya_pilot import QUESTION
+from jery.model.laya_cuda import (RoutingPolicy, check_soft_targets, check_ten_tool_rows, policy_settings,
+                                  restore_head, resume_adds_steps, rewind_history, task_settings, tensor_hash,
+                                  train_fit, window_none_weights)
+from jery.model.laya_full import (ValidationPolicy, balanced_indices, case_gold, evaluate_split, group_cases,
+                                  tool_macro_f1)
+from jery.model.laya_pilot import QUESTION, TEN_TOOL_SCOPE, load_export, sha256
+
+CONFIG = Path(__file__).resolve().parents[2] / 'configs/model'
+TOOLS = [f'mcp__s__t{i}' for i in range(10)]
+
+
+def ten_tool_row(source_id, gold_tool, order=TOOLS):
+    """A decision-export-v2 fixed_ten_tools_select_only row: one window, ten tool options, no null options."""
+    aliases = {f'T{i}': t for i, t in enumerate(order)}
+    label = next(a for a, t in aliases.items() if t == gold_tool)
+    return {'state': {'request': 'r', 'context': [], 'candidates': [{'alias': a, 'server': 's', 'name': t, 'summary': t}
+                                                                     for a, t in aliases.items()]},
+            'questions': {QUESTION: {'type': 'choice', 'instructions': 'i', 'criteria': {a: a for a in aliases}}},
+            'gold': {QUESTION: {'label': label, 'probabilities': {label: 1.0}}},
+            'metadata': {'source_id': source_id, 'window_index': 0, 'window_count': 1, 'export_id': f'{source_id}:0',
+                         'window_tools': list(order), 'alias_to_tool': aliases, 'original_candidate_tools': list(order),
+                         'original_decision': 'select_tools', 'acceptable_choices': [{'tool': gold_tool}]}}
+
+
+class FakeScorer:
+    """Picks a fixed tool per source; must never be asked for a second-round window."""
+    def __init__(self, picks):
+        self.picks = picks
+
+    def top(self, items):
+        choices = [next(a for a, t in item['alias_to_tool'].items() if t == self.picks[item['source_id']]) for item in items]
+        return choices, [{c: 1.0} for c in choices]
+
+    def __call__(self, windows):
+        raise AssertionError('single-window cases must not build a final round')
 
 
 class CudaResumeHistoryTest(unittest.TestCase):
@@ -94,6 +125,128 @@ class RoutingPolicyV2Test(unittest.TestCase):
         check_soft_targets([{'target': [.5, .5, 0], 'markers': [1, 2, 3]}])
         with self.assertRaises(ValueError):
             check_soft_targets([{'target': [.5, .4, 0], 'markers': [1, 2, 3]}])
+
+
+class TenToolTaskTest(unittest.TestCase):
+    def setUp(self):
+        shuffled = TOOLS[3:] + TOOLS[:3]
+        self.rows = {'train': [ten_tool_row(f'tr{i}', TOOLS[i % 10], shuffled if i % 2 else TOOLS) for i in range(20)],
+                     'validation': [ten_tool_row('v0', TOOLS[0])], 'test': [ten_tool_row('te0', TOOLS[1])]}
+        self.export = {'export_version': 'decision-export-v2', 'export_scope': TEN_TOOL_SCOPE,
+                       'evaluation_task': 'ten_tool_choice'}
+
+    def test_ten_options_accepted_on_single_window_path_without_label_leakage(self):
+        check_ten_tool_rows(self.rows, self.export)
+        rows = self.rows['train']
+        with self.assertRaises(ValueError):
+            group_cases(rows)  # Legacy windows stay at most 8 tools.
+        cases = group_cases(rows, 10)
+        flat = json.dumps(cases)
+        for leaked in ('gold', 'original_decision', 'acceptable_choices', 'probabilities'):
+            self.assertNotIn(leaked, flat)
+        items = [{'alias_to_tool': r['metadata']['alias_to_tool'], 'source_id': r['metadata']['source_id']} for r in rows]
+        picks = {r['metadata']['source_id']: TOOLS[0] for r in rows}
+        metrics, predictions, _ = evaluate_split(FakeScorer(picks), rows, items, cases, case_gold(rows), 'ten_tool_choice')
+        self.assertEqual({p['path'] for p in predictions}, {'single'})
+        self.assertEqual(metrics['case_accuracy'], .1)
+        self.assertEqual(metrics['decision_macro_f1'], 1.0)  # Decision-level F1 is trivially perfect here...
+        self.assertEqual(metrics['macro_f1_scope'], 'tools')  # ...so the tool scope is explicit.
+        self.assertEqual(metrics['tool_macro_f1'], round((2 * .1 / 1.1) / 10, 4))
+        legacy, _, _ = evaluate_split(FakeScorer(picks), rows, items, cases, case_gold(rows))
+        self.assertNotIn('tool_macro_f1', legacy)
+        self.assertNotIn('macro_f1_scope', legacy)
+        self.assertNotIn('per_tool', legacy['case'])
+
+    def test_invalid_candidates_and_contracts_are_rejected(self):
+        alternatives = json.loads(json.dumps(self.rows))
+        alternatives['test'][0]['metadata']['acceptable_choices'].append({'tool': TOOLS[1], 'action': 'other'})
+        check_ten_tool_rows(alternatives, self.export)  # Action alternatives of the same tool are one tool.
+        def broken(change):
+            row = json.loads(json.dumps(self.rows['validation'][0]))
+            change(row)
+            return {**self.rows, 'validation': [row]}
+        q = lambda r: r['questions'][QUESTION]
+        cases = [lambda r: q(r)['criteria'].pop('T9'),
+                 lambda r: q(r)['criteria'].update(window_none='w'),
+                 lambda r: r['metadata'].update(original_decision='unsupported'),
+                 lambda r: r['metadata']['acceptable_choices'].append({'tool': TOOLS[1]}),
+                 lambda r: r['gold'][QUESTION].update(label='T1'),
+                 lambda r: r['gold'][QUESTION]['probabilities'].update(T1=.5),
+                 lambda r: r['metadata'].update(window_count=2)]
+        for change in cases:
+            with self.assertRaises(ValueError):
+                check_ten_tool_rows(broken(change), self.export)
+        with self.assertRaises(ValueError):
+            check_ten_tool_rows({**self.rows, 'test': self.rows['test'] * 2}, self.export)  # Two windows per source.
+        with self.assertRaises(ValueError):
+            check_ten_tool_rows(self.rows, {'export_scope': 'exhaustive_original_candidates'})
+        with self.assertRaises(ValueError):
+            check_ten_tool_rows(self.rows, {**self.export, 'evaluation_task': None})
+
+    def test_load_export_accepts_only_v1_or_the_explicit_v2_scope(self):
+        with tempfile.TemporaryDirectory() as folder:
+            folder = Path(folder)
+            (folder / 'train.jsonl').write_text(''.join(json.dumps(r) + '\n' for r in self.rows['train']))
+            split = {'train': {'sha256': sha256(folder / 'train.jsonl'), 'rows': 20}}
+            for manifest, ok in (({'export_version': 'decision-export-v1'}, True),
+                                 ({'export_version': 'decision-export-v2', 'export_scope': TEN_TOOL_SCOPE}, True),
+                                 ({'export_version': 'decision-export-v2', 'export_scope': 'other'}, False),
+                                 ({'export_version': 'decision-export-v2'}, False)):
+                (folder / 'manifest.json').write_text(json.dumps({**manifest, 'splits': split}))
+                if not ok:
+                    with self.assertRaises(ValueError):
+                        load_export(folder, ('train',))
+                    continue
+                rows, info = load_export(folder, ('train',))
+                self.assertEqual(len(rows['train']), 20)
+                self.assertEqual('export_scope' in info, manifest['export_version'] == 'decision-export-v2')
+
+    def test_zero_null_buckets_only_when_truly_empty_and_every_row_retained(self):
+        ratios = {'tool': 1, 'window_none': 0, 'no_tool': 0, 'clarify': 0}
+        indices, summary = balanced_indices(self.rows['train'], ratios, 3407)
+        self.assertEqual(sorted(indices), list(range(20)))
+        self.assertEqual(summary['sampled_counts'], {'tool': 20, 'window_none': 0, 'no_tool': 0, 'clarify': 0})
+        with_null = self.rows['train'] + [{'gold': {QUESTION: {'label': 'window_none'}}}]
+        with self.assertRaises(ValueError):
+            balanced_indices(with_null, ratios, 3407)  # Would silently discard a source window.
+        for bad in ({**ratios, 'tool': 0}, {**ratios, 'no_tool': -1}, {**ratios, 'clarify': True}):
+            with self.assertRaises(ValueError):
+                balanced_indices(self.rows['train'], bad, 3407)
+        with self.assertRaises(ValueError):  # Legacy positive ratios still demand every bucket.
+            balanced_indices(self.rows['train'], {'tool': 4, 'window_none': 4, 'no_tool': 1, 'clarify': 1}, 3407)
+
+    def test_tool_macro_f1_counts_wrong_picks_against_both_tools(self):
+        gold = {s: {'acceptable_choices': [{'tool': t}]} for s, t in (('a', 'x'), ('b', 'x'), ('c', 'y'))}
+        f1, per_tool = tool_macro_f1(gold, [{'source_id': 'a', 'tool': 'x'}, {'source_id': 'b', 'tool': 'y'},
+                                            {'source_id': 'c', 'tool': 'y'}])
+        self.assertEqual(per_tool['x'], {'precision': 1.0, 'recall': .5, 'f1': .6667, 'support': 2})
+        self.assertEqual(per_tool['y'], {'precision': .5, 'recall': 1.0, 'f1': .6667, 'support': 1})
+        self.assertEqual(f1, .6667)
+
+    def test_train_fit_reports_last_and_best_without_selecting(self):
+        history = [{'epoch': e, 'validation': {'case_accuracy': .1}, **({'train_evaluation': {'case_accuracy': a}} if a else {})}
+                   for e, a in ((1, .3), (2, .95), (3, .95), (4, .9))]
+        self.assertEqual(train_fit(history), {'last_trained_epoch': 4, 'last_trained_accuracy': .9, 'best_accuracy': .95,
+                                              'best_epoch': 2, 'used_for_selection': False})
+        self.assertIsNone(train_fit([{'epoch': 1, 'validation': {'case_accuracy': .1}}]))
+
+    def test_task_config_and_legacy_compatibility(self):
+        config = json.loads((CONFIG / 'laya-ten-tools-20261020.json').read_text())
+        legacy = json.loads((CONFIG / 'laya-cuda-routing-v2-20261019.json').read_text())
+        self.assertEqual(task_settings(config), 'ten_tool_choice')
+        self.assertEqual(policy_settings(config), {'window_none_loss_weight': 1.0, 'min_epochs': 64})
+        self.assertIsNone(task_settings(legacy))
+        for bad in ({'max_window_tools': 10}, {'evaluation_task': 'other', 'max_window_tools': 10},
+                    {'evaluation_task': 'ten_tool_choice', 'max_window_tools': 8}):
+            with self.assertRaises(ValueError):
+                task_settings(bad)
+        policy = RoutingPolicy(config['validation_callback']['patience'], config['validation_callback']['min_delta'], 64)
+        policy.observe(0, .1)
+        for epoch in range(1, 65):
+            policy.observe(epoch, .1)
+        self.assertFalse(policy.stopped)  # Patience never fires inside min_epochs=64...
+        self.assertFalse(resume_adds_steps(policy, 64, config['epochs']))  # ...and a completed run adds no epochs.
+        self.assertTrue(resume_adds_steps(policy, 63, config['epochs']))
 
 
 @unittest.skipUnless(importlib.util.find_spec('torch') and importlib.util.find_spec('unsloth'),

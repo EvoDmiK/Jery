@@ -39,18 +39,25 @@ BLIND_METADATA = ('source_id', 'window_index', 'window_count', 'export_id', 'win
 
 
 def balanced_indices(rows, ratios, seed):
-    """Train-only oversampling; retain every original window and repeat evenly within each bucket."""
-    if set(ratios) != {'tool', *NULLS} or any(not isinstance(v, int) or v <= 0 for v in ratios.values()):
-        raise ValueError('Positive integer ratios required for tool and all three null buckets')
+    """Train-only oversampling; retain every original window and repeat evenly within each bucket.
+
+    A null bucket may have ratio 0 only when it has no source windows at all, so no window is ever dropped."""
+    if set(ratios) != {'tool', *NULLS} or any(isinstance(v, bool) or not isinstance(v, int) or v < 0 for v in ratios.values()) \
+            or ratios['tool'] <= 0:
+        raise ValueError('Non-negative integer ratios required for all three null buckets, positive for tool')
     buckets = {key: [] for key in ratios}
     for index, row in enumerate(rows):
         label = row['gold'][QUESTION]['label']
         buckets[label if label in NULLS else 'tool'].append(index)
-    if any(not values for values in buckets.values()):
+    if any(not values for key, values in buckets.items() if ratios[key]):
         raise ValueError('Cannot balance a training bucket with no examples')
-    scale = max(math.ceil(len(buckets[key]) / ratio) for key, ratio in ratios.items())
+    if any(values for key, values in buckets.items() if not ratios[key]):
+        raise ValueError('Ratio 0 would discard source windows of a non-empty bucket')
+    scale = max(math.ceil(len(buckets[key]) / ratio) for key, ratio in ratios.items() if ratio)
     rng, indices = random.Random(seed), []
     for key, ratio in ratios.items():
+        if not ratio:
+            continue
         pool = buckets[key][:]
         rng.shuffle(pool)
         target = scale * ratio
@@ -103,7 +110,7 @@ def case_gold(rows):
                                            'acceptable_choices': row['metadata']['acceptable_choices']} for row in rows}
 
 
-def group_cases(rows):
+def group_cases(rows, max_window_tools=WINDOW):
     """Blind windows of each source case in window order, after checking they cover C exactly once."""
     cases = defaultdict(list)
     for row in rows:
@@ -117,7 +124,7 @@ def group_cases(rows):
         if len(tools) != len(set(tools)) or set(tools) != set(meta['original_candidate_tools']):
             raise ValueError(f'{source_id}: windows do not cover the original candidates exactly once')
         for w in windows:
-            if list(w['metadata']['alias_to_tool'].values()) != w['metadata']['window_tools'] or len(w['metadata']['window_tools']) > WINDOW:
+            if list(w['metadata']['alias_to_tool'].values()) != w['metadata']['window_tools'] or len(w['metadata']['window_tools']) > max_window_tools:
                 raise ValueError(f'{source_id}: alias map does not match window tools')
     return dict(cases)
 
@@ -246,6 +253,28 @@ def case_metrics(gold, predictions):
             'forwards_max': max(forwards), 'rounds_max': max(p['rounds'] for p in predictions)}
 
 
+def tool_macro_f1(gold, predictions):
+    """ten_tool_choice: per-tool F1 of the predicted tool against the single acceptable gold tool, averaged
+    over tools with gold support (the decision_macro_f1 convention). A wrong pick is a false positive of the
+    picked tool and a false negative of the gold tool."""
+    tp, fp, fn = Counter(), Counter(), Counter()
+    for prediction in predictions:
+        truth = list({c['tool'] for c in gold[prediction['source_id']]['acceptable_choices']})
+        if len(truth) != 1:
+            raise ValueError('ten_tool_choice needs exactly one acceptable tool per case')
+        if prediction['tool'] == truth[0]:
+            tp[truth[0]] += 1
+        else:
+            fn[truth[0]] += 1
+            fp[prediction['tool']] += prediction['tool'] is not None
+    per_tool = {}
+    for tool in sorted(set(tp) | set(fn)):
+        precision, recall = _ratio(tp[tool], tp[tool] + fp[tool]), _ratio(tp[tool], tp[tool] + fn[tool])
+        f1 = round(2 * precision * recall / (precision + recall), 4) if precision and recall else 0.0
+        per_tool[tool] = {'precision': precision, 'recall': recall, 'f1': f1, 'support': tp[tool] + fn[tool]}
+    return round(statistics.fmean(v['f1'] for v in per_tool.values()), 4), per_tool
+
+
 def window_metrics(rows, choices, probabilities):
     """Window-level any-of top-1 and soft CE (probabilities floored at 1e-12), by gold kind."""
     hits, losses, kinds = 0, [], defaultdict(lambda: [0, 0])
@@ -303,8 +332,8 @@ class Scorer:
         return self.top([self.encode(w)[0] for w in windows])[0]
 
 
-def evaluate_split(scorer, rows, items, cases, gold):
-    """Window metrics, case metrics and raw predictions for one split."""
+def evaluate_split(scorer, rows, items, cases, gold, task=None):
+    """Window metrics, case metrics and raw predictions for one split; task=ten_tool_choice adds tool macro F1."""
     started = time.perf_counter()
     choices, probabilities = scorer.top(items)
     window_seconds = time.perf_counter() - started
@@ -317,6 +346,9 @@ def evaluate_split(scorer, rows, items, cases, gold):
     metrics = {'case_accuracy': case['case_accuracy'], 'decision_macro_f1': case['decision_macro_f1'],
                'coverage': case['coverage'], 'case': case, 'window': window_metrics(rows, choices, probabilities),
                'seconds': {'windows': window_seconds, 'total': time.perf_counter() - started}}
+    if task == 'ten_tool_choice':
+        metrics['tool_macro_f1'], case['per_tool'] = tool_macro_f1(gold, predictions)
+        metrics['macro_f1_scope'] = 'tools'
     return metrics, predictions, [{'export_id': r['metadata']['export_id'], 'choice': c, 'probabilities': p}
                                   for r, c, p in zip(rows, choices, probabilities)]
 
