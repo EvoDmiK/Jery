@@ -282,12 +282,12 @@ class TestFrozenEvalAudit(unittest.TestCase):
             # Row 0: Swallow tool has no action in schema, but action="buy" supplied
             r0 = self._make_row(0, "mcp__swallow_trader__swallow_order")
             r0["acceptable_choices"] = [{"tool": "mcp__swallow_trader__swallow_order", "action": "buy"}]
-            # Row 1: Post-call result field & tool ID leaked into context/request + unsanitized email
+            # Row 1: Post-call result field & tool ID leaked into context/request + unsanitized email + speaker nickname
             r1 = self._make_row(
                 1,
                 "mcp__obsidian_vault__vault",
                 action="read",
-                request_text="mcp__obsidian_vault__vault 도구로 alice@example.com 노트를 읽어줘",
+                request_text="[SpeakerNick] mcp__obsidian_vault__vault 도구로 alice@example.com 노트를 읽어줘",
                 context=[{"role": "tool", "content": "ok", "tool_call_id": "call_123"}],
             )
             proposals = {
@@ -309,6 +309,9 @@ class TestFrozenEvalAudit(unittest.TestCase):
             self.assertIn("FEATURE_BOUNDARY_OR_POST_TOOL_LEAKAGE", codes)
             self.assertIn("UNSANITIZED_PII_OR_SECRET_DETECTED", codes)
             self.assertIn("AI_PROPOSALS_CONTRACT_VIOLATION", codes)
+            patterns = {w["pattern"] for w in res["feature_and_privacy_hygiene"]["privacy_warnings"]}
+            self.assertIn("bracket_speaker_nickname", patterns)
+            self.assertIn("raw_email", patterns)
 
     def test_cli_deterministic_output_and_overwrite_protection(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -341,6 +344,38 @@ class TestFrozenEvalAudit(unittest.TestCase):
             finally:
                 if out_json.exists():
                     out_json.unlink()
+
+    def test_candidate_manifest_v1_schema_and_real_alias_supported(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            tmpdir = Path(td)
+            row = self._make_row(0, self.ten_tools[0], decision=None, review_status="needs_human_review")
+            row["source"] = {
+                "kind": "real",
+                "actor_kind": "user",
+                "record_type": "standalone_root_discord_user_message",
+                "source_alias": "hermes-profile-1",
+                "sanitized": True,
+                "human_origin_verified": False,
+                "context_dependency_suspected": True,
+                "standalone_label_review_required": True,
+            }
+            cases_path = tmpdir / "cases.jsonl"
+            cases_path.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
+            c_manifest = {
+                "schema_version": "frozen-eval-candidates-v1",
+                "status": "candidate",
+                "catalog_version": self.catalog_version,
+                "catalog_sha256": self.catalog_sha,
+                "cases_sha256": compute_sha256(cases_path),
+                "counts": {"candidate_requests": 1},
+            }
+            (tmpdir / "candidate-manifest.json").write_text(json.dumps(c_manifest) + "\n", encoding="utf-8")
+            res = run_frozen_eval_audit(packet_dir=tmpdir)
+            self.assertEqual(res["blockers"], [])
+            self.assertEqual(res["schema_version"], "frozen-eval-candidates-v1")
+            self.assertEqual(res["counts"]["by_actor_kind"], {"user": 1})
+            self.assertEqual(res["counts"]["context_dependency_suspected_count"], 1)
+            self.assertEqual(res["counts"]["standalone_label_review_required_count"], 1)
 
 
 if __name__ == "__main__":
