@@ -16,6 +16,8 @@ def validate_explicit_plan(plan, config):
         raise ValueError('CUDA backend required')
     if plan.get('training_policy_version') != config.get('training_policy_version'):
         raise ValueError('Plan/model policy versions differ')
+    if plan.get('evaluation_task') != config.get('evaluation_task'):
+        raise ValueError('Plan/model evaluation tasks differ')
     child_param_keys(plan)
     if set(plan['child_metrics']) != METRICS:
         raise ValueError('Tracking allowlist changed')

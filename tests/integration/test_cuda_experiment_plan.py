@@ -41,6 +41,13 @@ class CudaExperimentPlanTest(unittest.TestCase):
         bad['child_params'].remove('window_none_loss_weight')
         with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, self.config)
 
+    def test_ten_tool_plan_and_model_task_must_match(self):
+        plan = json.loads((ROOT / 'configs/training/laya-ten-tools-memorization-20261020.json').read_text())
+        config = json.loads((ROOT / 'configs/model/laya-ten-tools-20261020.json').read_text())
+        prepare.validate_explicit_plan(plan, config)
+        plan.pop('evaluation_task')
+        with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, config)
+
     def test_rejects_mixed_search_or_invalid_weights_and_budget(self):
         for kind in ('mixed', 'weight', 'duplicate', 'short_budget', 'version'):
             with self.subTest(kind=kind):

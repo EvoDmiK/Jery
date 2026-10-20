@@ -1,0 +1,82 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-full-hyperopt-20261020",
+  "dataset_version": "hermes-ten-tools-v1",
+  "export_dir": "outputs/laya-ten-tools-20261020/full",
+  "epochs": 64,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank best trained tool-choice validation accuracy; serving baseline protected",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-ten-tools-full",
+  "previous_parent_run_id": "afef02bf60dc496e8287ca3dc3057ad7",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 5,
+    "min_delta": 0.004,
+    "min_epochs": 10,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "Balanced sixty-case ten-tool learning after a successful memorization diagnostic",
+  "search_score": "best_trained_validation_case_accuracy",
+  "hyperopt": {
+    "algorithm": "tpe",
+    "max_evals": 5,
+    "startup_trials": 2,
+    "head_lr": [
+      1e-06,
+      3e-05
+    ],
+    "weight_decay": [
+      0.0
+    ],
+    "label_smoothing": [
+      0.0
+    ],
+    "objective": "1 - best_trained_validation_case_accuracy",
+    "test_used_for_search": false
+  },
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "window_none_loss_weight_active": false,
+    "label_smoothing": 0.0,
+    "weight_decay": 0.0,
+    "warmup_steps": 0,
+    "lr_scheduler": "linear"
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v1",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "ten_tool_hyperopt"
+}
