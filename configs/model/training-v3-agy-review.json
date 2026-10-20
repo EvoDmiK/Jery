@@ -1,7 +1,7 @@
 {
- "review_version": "training-v3-agy-review-claude-1",
- "input_file": "outputs/laya-ten-tools-training-v3-20261020/agy-author-snapshot.jsonl",
- "input_sha256": "beb6750f02063e9688a3e6133eb198fa7c832fb2424f9cbc843fd33f7f61b49e",
+ "review_version": "training-v3-agy-review-claude-2",
+ "input_file": "outputs/laya-ten-tools-training-v3-20261020/agy-revised-snapshot.jsonl",
+ "input_sha256": "8d44816f8543f354e4be27c074d0700d156a0e02428fc18299de0ac7cd24e715",
  "catalog_version": "hermes-ten-tools-2289142ab57a",
  "builder_commit": "cad7a3d",
  "reviewer": "claude",
@@ -9,9 +9,25 @@
  "human_review_status": "needs_human_review",
  "execution_verified": false,
  "counts": {
-  "accept": 152,
-  "revise": 28
+  "accept": 180
  },
+ "changes": {
+  "unchanged": 103,
+  "revised_per_initial_finding": 28,
+  "source_metadata_only": 8,
+  "text_changed_after_initial_review": 41
+ },
+ "history": [
+  {
+   "review_version": "training-v3-agy-review-claude-1",
+   "input_file": "outputs/laya-ten-tools-training-v3-20261020/agy-author-snapshot.jsonl",
+   "input_sha256": "beb6750f02063e9688a3e6133eb198fa7c832fb2424f9cbc843fd33f7f61b49e",
+   "counts": {
+    "accept": 152,
+    "revise": 28
+   }
+  }
+ ],
  "reviews": [
   {
    "id": "train-v3.agy.obsidian_vault__vault.00.0",
@@ -19,7 +35,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.00.1",
@@ -27,7 +49,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.01.0",
@@ -35,15 +63,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "read",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "read",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.01.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "read",
-   "rationale": "라벨은 맞음. assistant가 \"문서가 존재합니다\"라고 단정해 호출 전 맥락에 실행 결과처럼 보이는 정보가 들어감. 수정: assistant를 \"EventBus 설계 문서 말씀이시군요. 어떤 작업을 할까요?\"로 바꿀 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "assistant가 파일 존재를 단정하지 않는 중립 응답으로 바뀜.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "read",
+    "rationale": "라벨은 맞음. assistant가 \"문서가 존재합니다\"라고 단정해 호출 전 맥락에 실행 결과처럼 보이는 정보가 들어감. 수정: assistant를 \"EventBus 설계 문서 말씀이시군요. 어떤 작업을 할까요?\"로 바꿀 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.02.0",
@@ -51,7 +91,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "create",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "create",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.02.1",
@@ -59,7 +105,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "create",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "create",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.03.0",
@@ -67,15 +119,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "update",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=update이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "update",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=update이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.03.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "update",
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "update",
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.04.0",
@@ -83,7 +147,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "delete",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=delete이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "delete",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=delete이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.04.1",
@@ -91,7 +161,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "delete",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=delete이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "delete",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=delete이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.05.0",
@@ -99,7 +175,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "search",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=search이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "search",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=search이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.05.1",
@@ -107,7 +189,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "search",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=search이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "search",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=search이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.06.0",
@@ -115,7 +203,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "fragments",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=fragments이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "fragments",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=fragments이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.07.0",
@@ -123,7 +217,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "move",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=move이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "move",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=move이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.08.0",
@@ -131,7 +231,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "rename",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=rename이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "rename",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=rename이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.09.0",
@@ -139,7 +245,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "copy",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=copy이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "copy",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=copy이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.10.0",
@@ -147,7 +259,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "split",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=split이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "split",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=split이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__vault.11.0",
@@ -155,7 +273,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__vault",
    "expected_action": "concatenate",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=concatenate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "concatenate",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=concatenate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.00.0",
@@ -163,7 +287,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "window",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "window",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.00.1",
@@ -171,7 +301,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "window",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "window",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.01.0",
@@ -179,7 +315,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "append",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "append",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.01.1",
@@ -187,7 +329,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "append",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "append",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.02.0",
@@ -195,7 +343,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.02.1",
@@ -203,7 +357,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.03.0",
@@ -211,7 +371,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.03.1",
@@ -219,7 +385,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.04.0",
@@ -227,7 +399,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.04.1",
@@ -235,7 +413,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.05.0",
@@ -243,7 +427,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "at_line",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "at_line",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.05.1",
@@ -251,15 +441,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "at_line",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "at_line",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.06.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
-   "expected_action": "from_buffer",
-   "rationale": "from_buffer 라벨은 카탈로그와 맞지만, 맥락이 비어 있는데 \"직전 편집 버퍼\"를 가리켜 호출 전 입력이 해결되지 않음. 수정: 같은 파일에서 직전 window 편집을 시도했다는 user/assistant 맥락을 넣을 것. 할 수 없으면 제외."
+   "expected_action": "window",
+   "change": "revised_per_initial_finding",
+   "rationale": "from_buffer 사례를 맥락 없는 window 찾아 바꾸기 요청(경로·옛 문구·새 문구 명시)으로 다시 씀. action이 window로 바뀌었고 카탈로그 enum과 대조해 맞음.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "from_buffer",
+    "rationale": "from_buffer 라벨은 카탈로그와 맞지만, 맥락이 비어 있는데 \"직전 편집 버퍼\"를 가리켜 호출 전 입력이 해결되지 않음. 수정: 같은 파일에서 직전 window 편집을 시도했다는 user/assistant 맥락을 넣을 것. 할 수 없으면 제외."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.07.0",
@@ -267,7 +469,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "window",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "window",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=window이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.08.0",
@@ -275,7 +483,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "at_line",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "at_line",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=at_line이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.09.0",
@@ -283,7 +497,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.10.0",
@@ -291,7 +511,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "patch",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "patch",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=patch이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__edit.11.0",
@@ -299,7 +525,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__edit",
    "expected_action": "append",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "append",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=append이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.00.0",
@@ -307,7 +539,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "neighbors",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=neighbors이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "neighbors",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=neighbors이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.00.1",
@@ -315,7 +553,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "neighbors",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=neighbors이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "neighbors",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=neighbors이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.01.0",
@@ -323,7 +567,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "backlinks",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=backlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "backlinks",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=backlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.01.1",
@@ -331,7 +581,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "backlinks",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=backlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "backlinks",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=backlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.02.0",
@@ -339,7 +595,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "forwardlinks",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=forwardlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "forwardlinks",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=forwardlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.02.1",
@@ -347,7 +609,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "forwardlinks",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=forwardlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "forwardlinks",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=forwardlinks이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.03.0",
@@ -355,15 +623,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "path",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=path이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "path",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=path이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.03.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "path",
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "path",
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.04.0",
@@ -371,7 +651,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "traverse",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "traverse",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.04.1",
@@ -379,7 +665,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "traverse",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "traverse",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.05.0",
@@ -387,7 +679,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "statistics",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "statistics",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.05.1",
@@ -395,15 +693,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "statistics",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "statistics",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.06.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "search-traverse",
-   "rationale": "라벨은 맞음. 요청에 action 이름 \"(search-traverse)\"가 그대로 들어 있어 라벨이 노출됨. 수정: 괄호와 \"검색-그래프 탐색\" 표현을 빼고 \"링크를 따라가며 각 노트에서 '토큰 검증'을 찾아줘\"로 바꿀 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "\"(search-traverse)\" 노출을 지움. 시작 노트와 검색어가 명시돼 있어 search-traverse가 맞음.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "search-traverse",
+    "rationale": "라벨은 맞음. 요청에 action 이름 \"(search-traverse)\"가 그대로 들어 있어 라벨이 노출됨. 수정: 괄호와 \"검색-그래프 탐색\" 표현을 빼고 \"링크를 따라가며 각 노트에서 '토큰 검증'을 찾아줘\"로 바꿀 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.07.0",
@@ -411,15 +721,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "advanced-traverse",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=advanced-traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "advanced-traverse",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=advanced-traverse이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.08.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "tag-traverse",
-   "rationale": "라벨은 맞음. 요청에 action 이름 \"(tag-traverse)\"가 그대로 들어 있음. 수정: 괄호를 빼고 자연스러운 표현으로 바꿀 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "\"(tag-traverse)\" 노출을 지움.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "tag-traverse",
+    "rationale": "라벨은 맞음. 요청에 action 이름 \"(tag-traverse)\"가 그대로 들어 있음. 수정: 괄호를 빼고 자연스러운 표현으로 바꿀 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.09.0",
@@ -427,7 +749,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "tag-analysis",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=tag-analysis이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "tag-analysis",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=tag-analysis이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.10.0",
@@ -435,7 +763,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "shared-tags",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=shared-tags이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "shared-tags",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=shared-tags이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__graph.11.0",
@@ -443,7 +777,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__graph",
    "expected_action": "statistics",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "statistics",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=statistics이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.00.0",
@@ -451,7 +791,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.00.1",
@@ -459,7 +805,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.01.0",
@@ -467,15 +819,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.01.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "query",
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.02.0",
@@ -483,7 +847,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.02.1",
@@ -491,7 +861,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.03.0",
@@ -499,7 +875,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.03.1",
@@ -507,7 +889,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.04.0",
@@ -515,7 +903,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "metadata",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "metadata",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.04.1",
@@ -523,7 +917,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "metadata",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "metadata",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.05.0",
@@ -531,7 +931,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "validate",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "validate",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.05.1",
@@ -539,7 +945,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "validate",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "validate",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.06.0",
@@ -547,7 +959,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "status",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=status이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "status",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=status이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.07.0",
@@ -555,7 +973,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.08.0",
@@ -563,7 +987,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.09.0",
@@ -571,7 +1001,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "metadata",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "metadata",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=metadata이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.10.0",
@@ -579,7 +1015,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "validate",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "validate",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=validate이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__dataview.11.0",
@@ -587,7 +1029,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__dataview",
    "expected_action": "status",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=status이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "status",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=status이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.00.0",
@@ -595,7 +1043,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.00.1",
@@ -603,7 +1057,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "list",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "list",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=list이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.01.0",
@@ -611,7 +1071,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "read",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "read",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.01.1",
@@ -619,15 +1085,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "read",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "read",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.02.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "create",
-   "rationale": "라벨은 맞음. 경로 \"` Recruiting/Hiring.base`\" 앞에 공백이 있어 형제 사례 02.1과 경로가 다름. 수정: 앞 공백을 지울 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "경로 앞 공백을 지움. 형제 02.1과 같은 경로가 됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "create",
+    "rationale": "라벨은 맞음. 경로 \"` Recruiting/Hiring.base`\" 앞에 공백이 있어 형제 사례 02.1과 경로가 다름. 수정: 앞 공백을 지울 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.02.1",
@@ -635,7 +1113,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "create",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "create",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=create이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.03.0",
@@ -643,7 +1127,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.03.1",
@@ -651,7 +1141,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.04.0",
@@ -659,15 +1155,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "view",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=view이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "view",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=view이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.04.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "view",
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "view",
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.05.0",
@@ -675,15 +1183,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "export",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "source_metadata_only",
+   "rationale": "요청·맥락·라벨은 바이트가 같고 source 검토 메모만 바뀜(모델 특징 아님). 첫 판정 accept를 유지.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "export",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.05.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "export",
-   "rationale": "라벨은 맞음. 요청에 action 이름 \"(export)\"가 괄호로 들어 있음. 수정: 괄호를 지울 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "\"(export)\" 노출을 지움.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "export",
+    "rationale": "라벨은 맞음. 요청에 action 이름 \"(export)\"가 괄호로 들어 있음. 수정: 괄호를 지울 것."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.06.0",
@@ -691,7 +1211,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "export",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "export",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.07.0",
@@ -699,7 +1225,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "export",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "export",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=export이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.08.0",
@@ -707,7 +1239,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "view",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=view이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "view",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=view이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.09.0",
@@ -715,7 +1253,13 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "query",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "query",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=query이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.10.0",
@@ -723,15 +1267,27 @@
    "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "read",
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": "read",
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=read이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.obsidian_vault__bases.11.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__obsidian_vault__bases",
    "expected_action": "create",
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": "create",
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.00.0",
@@ -739,7 +1295,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.00.1",
@@ -747,7 +1309,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.01.0",
@@ -755,7 +1323,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.01.1",
@@ -763,7 +1337,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.02.0",
@@ -771,7 +1351,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.02.1",
@@ -779,7 +1365,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.03.0",
@@ -787,7 +1379,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.03.1",
@@ -795,7 +1393,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.04.0",
@@ -803,7 +1407,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.04.1",
@@ -811,7 +1421,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.05.0",
@@ -819,7 +1435,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.05.1",
@@ -827,15 +1449,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.06.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.81 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.81 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.07.0",
@@ -843,7 +1477,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.08.0",
@@ -851,7 +1491,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.09.0",
@@ -859,7 +1505,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.10.0",
@@ -867,7 +1519,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_stock_price.11.0",
@@ -875,7 +1533,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_stock_price",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.00.0",
@@ -883,7 +1547,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.00.1",
@@ -891,7 +1561,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.01.0",
@@ -899,7 +1575,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.01.1",
@@ -907,7 +1589,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.02.0",
@@ -915,7 +1603,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.02.1",
@@ -923,7 +1617,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.03.0",
@@ -931,7 +1631,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.03.1",
@@ -939,7 +1645,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.04.0",
@@ -947,23 +1659,41 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.04.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.05.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.90 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.90 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.05.1",
@@ -971,7 +1701,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.06.0",
@@ -979,7 +1715,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.07.0",
@@ -987,7 +1729,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.08.0",
@@ -995,15 +1743,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.09.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.94 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.94 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.10.0",
@@ -1011,7 +1771,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_price_history.11.0",
@@ -1019,7 +1785,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_price_history",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.00.0",
@@ -1027,7 +1799,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.00.1",
@@ -1035,7 +1813,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.01.0",
@@ -1043,7 +1827,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.01.1",
@@ -1051,7 +1841,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.02.0",
@@ -1059,7 +1855,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.02.1",
@@ -1067,7 +1869,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.03.0",
@@ -1075,7 +1883,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.03.1",
@@ -1083,7 +1897,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.04.0",
@@ -1091,15 +1911,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.04.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.05.0",
@@ -1107,7 +1939,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.05.1",
@@ -1115,7 +1953,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.06.0",
@@ -1123,15 +1967,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.07.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 00.0(총자산과 예수금)과 의미가 같은데 scenario_id만 다름. 수정: 현금 비중이나 최대 손실 종목처럼 다른 계좌 질문으로 다시 쓰거나 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "총자산과 예수금 중복을 현금 비중 질문으로 다시 써서 00.0과 구분됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 00.0(총자산과 예수금)과 의미가 같은데 scenario_id만 다름. 수정: 현금 비중이나 최대 손실 종목처럼 다른 계좌 질문으로 다시 쓰거나 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.08.0",
@@ -1139,7 +1995,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.09.0",
@@ -1147,7 +2009,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.10.0",
@@ -1155,15 +2023,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_get_portfolio.11.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_get_portfolio",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 05.0·01.0(보유 종목, 평단, 평가손익)과 의미가 같음. 수정: 다른 계좌 질문으로 다시 쓰거나 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "수익 1위·최대 손실 종목 질문으로 다시 써서 05.0과 구분됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 05.0·01.0(보유 종목, 평단, 평가손익)과 의미가 같음. 수정: 다른 계좌 질문으로 다시 쓰거나 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.00.0",
@@ -1171,7 +2051,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.00.1",
@@ -1179,7 +2065,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.01.0",
@@ -1187,15 +2079,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.01.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.02.0",
@@ -1203,7 +2107,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.02.1",
@@ -1211,7 +2121,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.03.0",
@@ -1219,7 +2135,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.03.1",
@@ -1227,23 +2149,41 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.04.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.96 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.96 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.04.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.05.0",
@@ -1251,7 +2191,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.05.1",
@@ -1259,23 +2205,41 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.06.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.92 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.92 vs 04.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.07.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.95 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.95 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.08.0",
@@ -1283,31 +2247,55 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.09.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.10.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.92 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.92 vs 00.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_order.11.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_order",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.86 vs 01.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.86 vs 01.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.00.0",
@@ -1315,7 +2303,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.00.1",
@@ -1323,7 +2317,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.01.0",
@@ -1331,15 +2331,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.01.1",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "정답 동작을 예/아니오로 확인하던 assistant를 중립 질문으로 바꿈. 동작과 필수 인자는 사용자 맥락과 요청에만 있고, 합치면 대상이 확정됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. assistant 메시지가 정답 동작을 예/아니오 확인으로 그대로 말해 사용자의 \"응\"만으로 해결됨(정답 반복 금지 위반). 수정: assistant를 \"어떤 작업을 할까요?\" 같은 중립 질문으로 바꾸고 동작은 사용자 요청에만 남길 것."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.02.0",
@@ -1347,7 +2359,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.02.1",
@@ -1355,7 +2373,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.03.0",
@@ -1363,7 +2387,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.03.1",
@@ -1371,7 +2401,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.04.0",
@@ -1379,7 +2415,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.04.1",
@@ -1387,7 +2429,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.05.0",
@@ -1395,7 +2443,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.05.1",
@@ -1403,7 +2457,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.06.0",
@@ -1411,7 +2471,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.07.0",
@@ -1419,7 +2485,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.08.0",
@@ -1427,7 +2499,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "unchanged",
+   "rationale": "첫 snapshot과 바이트가 같음. 첫 판정 accept를 다시 읽고 유지함.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.09.0",
@@ -1435,7 +2513,13 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.10.0",
@@ -1443,15 +2527,27 @@
    "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   "change": "text_changed_after_initial_review",
+   "rationale": "첫 검토 뒤 작성자가 고친 행. 요청과 맥락을 다시 전부 읽었음. 단일 도구이고 action은 enum/null 규칙에 맞음. 맥락만으로 해결되고, assistant는 중립이며 정답을 반복하지 않음. 라벨이나 ID 노출 없음.",
+   "initial": {
+    "status": "accept",
+    "expected_action": null,
+    "rationale": "카탈로그 input_schema와 대조: 단일 도구, action=null이 enum/null 규칙에 맞음. 요청과 맥락만으로 대상·필수 인자가 확정됨. 라벨이나 도구 ID 노출 없음. 실행은 하지 않음."
+   }
   },
   {
    "id": "train-v3.agy.swallow_trader__swallow_backtest.11.0",
    "reviewer": "claude",
-   "status": "revise",
+   "status": "accept",
    "expected_tool": "mcp__swallow_trader__swallow_backtest",
    "expected_action": null,
-   "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.80 vs 06.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   "change": "revised_per_initial_finding",
+   "rationale": "같은 문장 틀을 다른 상황 표현으로 다시 씀(최종 파일에서 마스킹 difflib 0.80 이상 쌍 없음). 필수 인자와 라벨은 유지됨.",
+   "initial": {
+    "status": "revise",
+    "expected_action": null,
+    "rationale": "라벨은 맞음. 다른 scenario_id의 사례와 종목·숫자만 바꾼 같은 문장 틀(마스킹 difflib 0.80 vs 06.0)이라 템플릿 증식에 해당. 수정: 일상적·암시적 표현이나 다른 상황으로 다시 쓰거나 기준 사례와 scenario_id를 합칠 것."
+   }
   }
  ]
 }

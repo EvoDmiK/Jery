@@ -4,7 +4,7 @@
 
 - 기준 커밋: 루트 baseline `659de08`(통합 대상 `dev-codex`). 이 브랜치에는 병합하지 않고 `git show`로 읽었다.
 - 참조한 파일: 카탈로그 `datasets/hermes-ten-tools-v2/tools.json`(`hermes-ten-tools-2289142ab57a`), 기존 train 원문 `datasets/hermes-ten-tools-contrast-source-v1/cases.jsonl`, 기준 `configs/training/laya-ten-tools-criteria-v2-20261020.json`. validation/test 요청은 읽지 않았다.
-- 파일 sha256: `9f6311adfd8bf0211f06d8b81876397b53051b4f887725c3840c8eb55a94a514`
+- 파일 sha256: `fb557f56b94ba781cd4ade7f6167df7f1898f2d0234b1e0e0e6fb13e2edaa043`(커밋 `2e787a9`). 최초 버전 `9f6311ad…a514`와 비교하면 `train-v3.claude.swallow_get_stock_price.09.0`의 맥락·요청만 다르다. 라벨, ID, scenario_id는 같다.
 
 ## 스키마
 
@@ -101,4 +101,30 @@ revise 사유:
 
 정확한 ID와 수정안은 결과 JSON과 루트 메시지에 있다. 그 밖에 AGY 요청의 경향으로 "Swallow" 접두어 37건, "옵시디언" 23건, "~말고" 대조어 34건이 있다. 표면 단서에 기댈 위험이 있으니 사람 검토 때 함께 볼 것을 권한다.
 
-자체 점검: 이 검토 기준으로 보면 내 원문 `train-v3.claude.swallow_get_stock_price.09.0`도 assistant가 "주가를 확인해 드릴까요?"라고 확인하는 패턴이다. 루트 요청이 없어 원문은 바꾸지 않았다.
+자체 점검과 수정: 내 원문 `train-v3.claude.swallow_get_stock_price.09.0`도 assistant가 "주가를 확인해 드릴까요?"라고 확인하는 패턴이었다. 루트 요청에 따라 다음과 같이 고쳤다(`2e787a9`).
+
+- user: "크래프톤(259960) 실적 발표가 오늘이라던데."
+- assistant: "그렇군요. 어떤 걸 도와드릴까요?"
+- 요청: "그 종목 지금 시세랑 오늘 등락 좀 보여줘."
+
+빌더 확장 모드에서 v2 train 240과 held-out 대비 정규화 중복이 없었다. 기존 train 240과의 최대 유사도는 0.26이다.
+
+### AGY 수정본 최종 재검토 (Claude, AI 검토)
+
+- 입력: `outputs/laya-ten-tools-training-v3-20261020/agy-revised-snapshot.jsonl`, sha256 `8d44816f8543f354e4be27c074d0700d156a0e02428fc18299de0ac7cd24e715`
+- 첫 snapshot(`beb6750f…b49e`)과 ID별로 대조했다. 추가·삭제된 ID는 없다. 바뀐 77행의 구성은 다음과 같다.
+  - 첫 판정 revise 28행: 모두 고쳐졌다.
+  - 그 밖에 문장이 바뀐 41행: 예/아니오 선택지형 assistant를 중립 질문으로 바꾸는 등. 모두 다시 읽었다.
+  - source 메모만 바뀐 8행
+- 바이트가 같은 103행은 첫 판정 accept를 다시 읽고 유지했다.
+- 라벨이 바뀐 행은 `obsidian_vault__edit.06.0` 하나다. 맥락 없는 from_buffer를 경로·문구가 명시된 window 요청으로 다시 썼다.
+- 최종 판정: accept 180, revise 0, exclude 0. 첫 판정은 `configs/model/training-v3-agy-review.json`의 `history`와 사례별 `initial`에 남겼다.
+- 실제 검사(cad7a3d 빌더, Claude `fb557f56` + AGY `8d44816f`):
+  - train 600행, 도구당 60개
+  - validation/test는 바이트 동일, 앞 240행 유지
+  - 새 행마다 라벨·state·scenario 보존
+  - 음성 가드 17/17 거부
+  - 도구당 시나리오 가족 12개 이상, 형제는 최대 2개
+  - 같은 도구 안 다른 scenario 사이에서 마스킹 difflib 0.80 이상 쌍 0개
+  - 정답을 확인하는 assistant 0건
+- 남은 관찰(차단 아님): AGY assistant 맥락 30개 중 21개가 "…에 대해 어떤 작업을 할까요?"로 거의 같다. 도구와 무관한 문장이라 라벨 단서는 아니지만 다양성이 낮다. "~말고" 대조어는 37건, "Swallow" 접두어는 21건이다. 사람 검토 때 표면 단서 위험을 함께 볼 것을 권한다.
