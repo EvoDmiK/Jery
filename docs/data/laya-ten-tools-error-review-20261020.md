@@ -37,3 +37,5 @@ PYTHONPATH=src python3 -m unittest discover -s tests/data -p test_ten_tool_contr
 출처 prediction input과 감사 JSON은 outputs에 보존하고 MLflow artifact로 등록한다. 원본 예측 파일은 batch-seed Parent 아래 Child별 details 결과에서도 복원할 수 있다. 동반 notebook은 같은 감사 함수를 사용하며 입력 export·예측 JSON이 필요하다. 실제 로그 수집·사람 정답 검토·신규 독립 평가가 남아 있다.
 
 검증: 학습용 Python에서 전체 151개 테스트 통과(44.998초), 기본 v1 데이터 검증 통과. 동반 notebook의 코드 셀 4개는 Python으로 순서 실행해 출력을 저장했다. Jupyter kernel 검증은 nbformat/nbclient/ipykernel 미설치로 실행하지 않았으며 notebook에 별도 재현 명령과 한계를 적었다. 새 export는 회사 서버에서 native builder/tokenizer 검사 후 실행한다.
+
+Native 사전검사에서 초안 설명의 일부가 head의 옵션당 24token 한도를 넘어 6개 옵션이 잘리는 것을 발견해 학습을 차단했다. 초기 초안은 `outputs/laya-ten-tools-contrast-20261020-native-draft/`로 보존하고, 핵심 기능을 유지한 짧은 설명으로 representation_version을 v2.1-native-budget으로 바꿨다. Catalog version도 명세 해시에 따라 바뀐다. v1 원본과 라벨 의미는 그대로이며 새 설명의 native 재검사를 통과하기 전 학습하지 않는다.

@@ -8,44 +8,44 @@
   "tools": [
     {
       "id": "mcp__obsidian_vault__vault",
-      "description": "메모 파일 생성·검색·읽기·목록·이름 변경·이동"
+      "description": "메모 생성·검색·읽기·목록·이름변경·이동"
     },
     {
       "id": "mcp__obsidian_vault__edit",
-      "description": "기존 메모 본문 일부·줄·제목·frontmatter 속성 수정·추가"
+      "description": "메모 본문·줄·제목·frontmatter 수정·추가"
     },
     {
       "id": "mcp__obsidian_vault__graph",
-      "description": "메모 링크·백링크·연결 경로·이웃 노트·공통 태그 탐색"
+      "description": "메모 링크·백링크·경로·태그 관계"
     },
     {
       "id": "mcp__obsidian_vault__dataview",
-      "description": "Dataview DQL 실행·문법 검사·페이지 메타데이터·플러그인 상태 조회"
+      "description": "Dataview DQL 조회·문법검사·속성·상태"
     },
     {
       "id": "mcp__obsidian_vault__bases",
-      "description": "Obsidian .base YAML 설정·필터·뷰의 행 조회·내보내기"
+      "description": ".base 설정·필터·뷰 조회·내보내기"
     },
     {
       "id": "mcp__swallow_trader__swallow_get_stock_price",
-      "description": "한 종목의 현재가·등락률·장 상태·내 보유 여부와 현황 조회"
+      "description": "한 종목 현재가·등락·장상태·내 보유현황"
     },
     {
       "id": "mcp__swallow_trader__swallow_get_price_history",
-      "description": "종목 과거 일별 종가 시계열·기간 조회·토스/네이버 종가 교차검증"
+      "description": "과거 일별종가·기간·소스비교"
     },
     {
       "id": "mcp__swallow_trader__swallow_get_portfolio",
-      "description": "모의계좌 전체 총자산·예수금·보유목록·평균단가·평가손익 조회"
+      "description": "계좌 전체 자산·잔고·평균단가·평가손익"
     },
     {
       "id": "mcp__swallow_trader__swallow_order",
-      "description": "모의계좌에서 지정 종목의 매수·매도 주문 실행"
+      "description": "모의계좌 종목 매수·매도 주문"
     },
     {
       "id": "mcp__swallow_trader__swallow_backtest",
-      "description": "과거 일봉으로 RSI 전략 수익률·MDD·승률 백테스트"
+      "description": "과거 RSI 전략 수익률·MDD·승률 검증"
     }
   ],
-  "representation_version": "catalog-grounded-criteria-v2"
+  "representation_version": "catalog-grounded-criteria-v2.1-native-budget"
 }
