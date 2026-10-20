@@ -125,6 +125,16 @@ def trained_search_score(report, epochs):
     return value
 
 
+def trial_settings(plan, config, sampled):
+    overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
+                 'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
+    params = {'head_lr': overrides['head_learning_rate'], 'epochs': overrides['epochs'],
+              'seed': overrides['seed'], 'effective_batch_size': overrides['micro_batch'] * overrides['grad_accum']}
+    if 'window_none_loss_weight' in child_param_keys(plan):
+        params['window_none_loss_weight'] = overrides.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
+    return overrides, params
+
+
 def hyperopt_candidate(plan, children):
     """Hyperopt ask/tell: only finished validation results enter TPE; persist the actual trial document as JSON."""
     import numpy as np
@@ -330,8 +340,7 @@ def main():
                    {k: v for k, v in fixed_trial.items() if k != 'trial_id'} if fixed_trial else
                    {'head_learning_rate': plan['head_learning_rates'][index - 1]})
         lr = sampled['head_learning_rate']
-        overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
-                     'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
+        overrides, params = trial_settings(plan, config, sampled)
         item = prior[-1] if prior else None
         if item is None:
             trial_id = parent + ':' + str(index)
@@ -364,10 +373,6 @@ def main():
             if fixed_trial:
                 item['condition'] = fixed_trial
             state['children'].append(item); write_json(state_path, state)
-        params = {'head_lr': lr, 'epochs': plan['epochs'], 'seed': plan['seed'],
-                  'effective_batch_size': plan['micro_batch'] * plan['grad_accum']}
-        if 'window_none_loss_weight' in expected_params:
-            params['window_none_loss_weight'] = sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
         if plan.get('training_policy_version') == POLICY_V2:
             tag(item['run_id'], 'jery.training_policy', POLICY_V2)
             tag(item['run_id'], 'jery.window_none_loss_weight', sampled.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0)))

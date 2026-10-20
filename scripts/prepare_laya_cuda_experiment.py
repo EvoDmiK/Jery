@@ -51,8 +51,12 @@ def validate_explicit_plan(plan, config):
             raise ValueError('Fixed and searched trials cannot be mixed')
         names = set()
         for trial in plan['trials']:
-            if set(trial) != {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}:
+            required = {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}
+            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum'}:
                 raise ValueError('Unexpected fixed-trial fields')
+            for key in ('seed', 'micro_batch', 'grad_accum'):
+                if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key == 'seed' else 1)):
+                    raise ValueError('Invalid fixed-trial ' + key)
             if not isinstance(trial['trial_id'], str) or not trial['trial_id'] or trial['trial_id'] in names:
                 raise ValueError('Unique nonempty fixed trial IDs required')
             names.add(trial['trial_id'])
