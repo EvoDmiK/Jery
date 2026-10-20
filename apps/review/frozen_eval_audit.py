@@ -76,7 +76,13 @@ def dump_canonical(value: Any) -> str:
 
 
 def normalize_text_signature(text: str) -> str:
-    norm = unicodedata.normalize("NFKC", text).casefold()
+    masked = re.sub(
+        r"\[(?P<kind>url|path|relative_path|document|email|phone|user_id|personal_id|ip|private|secret)_[0-9a-f]{16,64}\]",
+        r"[\g<kind>]",
+        text,
+        flags=re.I,
+    )
+    norm = unicodedata.normalize("NFKC", masked).casefold()
     return "".join(ch for ch in norm if ch.isalnum())
 
 
@@ -405,6 +411,8 @@ def run_frozen_eval_audit(
     non_human_rows, invalid_source_rows, synthetic_rows = [], [], []
     unresolved_rows, prefilled_unreviewed, exec_verified_rows = [], [], []
     cap_violations, cand_violations, boundary_violations, privacy_warnings, multi_tool_warnings = [], [], [], [], []
+    context_dep_suspected_count = 0
+    standalone_review_req_count = 0
     case_rows_by_id: Dict[str, Dict[str, Any]] = {}
     pinned_tools = set(catalog_spec["tool_ids"])
 
@@ -495,13 +503,17 @@ def run_frozen_eval_audit(
         src_kind = src.get("kind") if isinstance(src, dict) else None
         actor = "unspecified"
         if isinstance(src, dict):
-            raw_act = src.get("actor") or src.get("origin") or src.get("record_type")
+            raw_act = src.get("actor_kind") or src.get("actor") or src.get("origin") or src.get("record_type")
             if isinstance(raw_act, str) and raw_act.strip():
                 actor = raw_act.strip().lower()
-                if "discord_user_message" in actor or actor in ("human", "user"):
-                    actor = "human_user"
+                if "discord_user_message" in actor or actor in ("human", "user", "human_user"):
+                    actor = "user"
             if src.get("automated") is True or src.get("is_cron") is True or src.get("is_worker") is True:
                 actor = "automated"
+            if src.get("context_dependency_suspected") is True:
+                context_dep_suspected_count += 1
+            if src.get("standalone_label_review_required") is True:
+                standalone_review_req_count += 1
             prov = src.get("provenance") or src.get("session_ref") or src.get("source_alias") or src.get("alias")
             if src_kind == "real" and (not isinstance(prov, str) or not prov.strip()):
                 invalid_source_rows.append({"id": rid, "issue": "missing_provenance_or_source_alias"})
@@ -533,6 +545,8 @@ def run_frozen_eval_audit(
             blockers.append({"code": "INVALID_REVIEW_STATUS", "message": f"Row {rid} invalid review_status '{rev}'"})
             rev = "invalid"
         review_statuses[rev] += 1
+        if isinstance(src, dict) and src.get("human_origin_verified") is True and rev != "human_reviewed":
+            invalid_source_rows.append({"id": rid, "issue": "unreviewed_row_claims_human_origin_verified"})
 
         ev = row.get("execution_verified")
         if not isinstance(ev, bool):
@@ -696,6 +710,8 @@ def run_frozen_eval_audit(
             "by_decision": dict(decisions),
             "unresolved_label_count": len(unresolved_rows),
             "execution_verified_true_count": len(exec_verified_rows),
+            "context_dependency_suspected_count": context_dep_suspected_count,
+            "standalone_label_review_required_count": standalone_review_req_count,
         },
         "quota_and_shortage": {
             "target_total": TARGET_TEN_TOOLS_TOTAL,

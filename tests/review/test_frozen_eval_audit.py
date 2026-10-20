@@ -351,9 +351,13 @@ class TestFrozenEvalAudit(unittest.TestCase):
             row = self._make_row(0, self.ten_tools[0], decision=None, review_status="needs_human_review")
             row["source"] = {
                 "kind": "real",
+                "actor_kind": "user",
                 "record_type": "standalone_root_discord_user_message",
                 "source_alias": "hermes-profile-1",
                 "sanitized": True,
+                "human_origin_verified": False,
+                "context_dependency_suspected": True,
+                "standalone_label_review_required": True,
             }
             cases_path = tmpdir / "cases.jsonl"
             cases_path.write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -369,7 +373,9 @@ class TestFrozenEvalAudit(unittest.TestCase):
             res = run_frozen_eval_audit(packet_dir=tmpdir)
             self.assertEqual(res["blockers"], [])
             self.assertEqual(res["schema_version"], "frozen-eval-candidates-v1")
-            self.assertEqual(res["counts"]["by_actor_kind"], {"human_user": 1})
+            self.assertEqual(res["counts"]["by_actor_kind"], {"user": 1})
+            self.assertEqual(res["counts"]["context_dependency_suspected_count"], 1)
+            self.assertEqual(res["counts"]["standalone_label_review_required_count"], 1)
 
 
 if __name__ == "__main__":
