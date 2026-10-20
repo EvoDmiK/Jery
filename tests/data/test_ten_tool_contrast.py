@@ -74,6 +74,35 @@ class ContrastDataTest(unittest.TestCase):
         with self.assertRaises(ValueError): self.build()
         self.assertFalse((self.root / 'dataset').exists())
 
+    def test_training_extension_preserves_pinned_catalog_and_existing_bytes(self):
+        self.build()
+        base, catalog = self.root / 'export/augmented', self.root / 'dataset'
+        original = {p.name: p.read_bytes() for p in base.iterdir()}
+        cases = list(map(json.loads, self.authored.read_text().splitlines()))
+        for case in cases:
+            case['id'] = 'new.' + case['id']
+            case['scenario_id'] = 'new.' + case['scenario_id']
+            case['request'] = '추가 학습 fixture: ' + case['request']
+        source = self.root / 'new.jsonl'
+        source.write_text(''.join(json.dumps(c, ensure_ascii=False) + '\n' for c in cases))
+        result = build(base, catalog, source, self.criteria, self.root / 'v3', self.root / 'v3-export', 'test-v3')
+        self.assertEqual(result['dataset_version'], 'test-v3')
+        self.assertEqual(result['catalog_version'], json.loads((catalog / 'manifest.json').read_text())['catalog_version'])
+        self.assertEqual((catalog / 'tools.json').read_bytes(), (self.root / 'v3/tools.json').read_bytes())
+        self.assertEqual(result['profiles']['augmented']['train']['rows'], 420)
+        self.assertEqual(set(result['profiles']['augmented']['train']['tool_counts'].values()), {42})
+        for name in ('validation.jsonl', 'test.jsonl'):
+            self.assertEqual((self.root / 'v3-export/augmented' / name).read_bytes(), original[name])
+        self.assertTrue((self.root / 'v3-export/augmented/train.jsonl').read_bytes().startswith(original['train.jsonl']))
+        for name in ('train.jsonl', 'validation.jsonl', 'test.jsonl'):
+            self.assertEqual((self.root / 'v3-export/description_control' / name).read_bytes(), original[name])
+        self.assertEqual(original, {p.name: p.read_bytes() for p in base.iterdir()})
+        cases[0]['id'] = json.loads(original['train.jsonl'].splitlines()[0])['metadata']['source_id']
+        source.write_text(''.join(json.dumps(c, ensure_ascii=False) + '\n' for c in cases))
+        with self.assertRaises(ValueError):
+            build(base, catalog, source, self.criteria, self.root / 'rejected', self.root / 'rejected-export', 'test-v3')
+        self.assertFalse((self.root / 'rejected').exists())
+
     def test_audit_validates_join_grain_and_counts_selected_validation_errors(self):
         rows = list(map(json.loads, (self.base / 'validation.jsonl').read_text().splitlines()))
         predictions = [{'source_id': r['metadata']['source_id'], 'decision': 'select_tools',

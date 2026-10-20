@@ -25,7 +25,7 @@ def signature(state):
     return ''.join(c for c in text if c.isalnum())
 
 
-def build(base, catalog_dir, authored, criteria_path, dataset, output):
+def build(base, catalog_dir, authored, criteria_path, dataset, output, dataset_version=None):
     if dataset.exists() or output.exists():
         raise ValueError('Never overwrite dataset/export paths')
     manifest = json.loads((base / 'manifest.json').read_text())
@@ -42,7 +42,8 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output):
         raise ValueError('Expected the same ten tools')
     by_tool = {t['id']: t for t in catalog['tools']}
     version = 'hermes-ten-tools-' + sha(criteria_path)[:12]
-    old = {}
+    old, base_texts = {}, {}
+    same_catalog = version == manifest['catalog_version']
     source_hashes = {'tools.json': sha(catalog_dir / 'tools.json'), 'criteria.json': sha(criteria_path),
                      'authored.jsonl': sha(authored), 'export-manifest.json': sha(base / 'manifest.json')}
     for split in SPLITS:
@@ -50,19 +51,29 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output):
         if sha(p) != manifest['splits'][split]['sha256']:
             raise ValueError('Base export checksum mismatch')
         source_hashes[split + '.jsonl'] = sha(p)
-        old[split] = [json.loads(line) for line in p.read_text().splitlines()]
+        base_texts[split] = p.read_text()
+        old[split] = [json.loads(line) for line in base_texts[split].splitlines()]
         for row in old[split]:
             meta = row['metadata']
             if meta['source_split'] != split or set(meta['alias_to_tool'].values()) != set(ids):
                 raise ValueError('Invalid base split/candidate set')
+            if same_catalog:
+                if row['questions'][QUESTION]['criteria'] != {a: descriptions[t] for a, t in meta['alias_to_tool'].items()}:
+                    raise ValueError('Base criteria differ from the pinned catalog')
+                continue
             meta['previous_tool_catalog_version'] = meta['tool_catalog_version']
             meta['tool_catalog_version'] = version
             row['questions'][QUESTION]['criteria'] = {a: descriptions[t] for a, t in meta['alias_to_tool'].items()}
-    extra, source_ids, normalized = [], set(), {signature(r['state']) for rows in old.values() for r in rows}
+    extra, source_ids, normalized = [], {r['metadata']['source_id'] for rows in old.values() for r in rows}, {signature(r['state']) for rows in old.values() for r in rows}
     for case in map(json.loads, authored.read_text().splitlines()):
         tool = case['tool']
         if (case['split'] != 'train' or tool not in ids or case['id'] in source_ids
-                or case['review_status'] != 'needs_human_review' or case['execution_verified'] is not False):
+                or case['review_status'] != 'needs_human_review' or case['execution_verified'] is not False
+                or case['source'].get('kind') != 'synthetic'
+                or not isinstance(case['request'], str) or not case['request'].strip()
+                or not isinstance(case['context'], list)
+                or any(not isinstance(m, dict) or m.get('role') not in ('user', 'assistant')
+                       or not isinstance(m.get('content'), str) for m in case['context'])):
             raise ValueError('Invalid authored case or unsupported review promotion')
         source_ids.add(case['id'])
         state = {'request': case['request'], 'context': case['context']}
@@ -109,6 +120,10 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output):
         profiles[profile], contents[profile] = {}, {}
         for split in SPLITS:
             text = ''.join(dump(r) + '\n' for r in rows[split])
+            if same_catalog:
+                text = base_texts[split]
+                if profile == 'augmented' and split == 'train':
+                    text += ('' if text.endswith('\n') else '\n') + ''.join(dump(r) + '\n' for r in extra)
             contents[profile][split] = text
             profiles[profile][split] = {'rows': len(rows[split]), 'source_rows': len(rows[split]),
                 'scenario_groups': len(groups[split]), 'sha256': hashlib.sha256(text.encode()).hexdigest(),
@@ -116,14 +131,16 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output):
     # All integrity checks complete before creating any output path.
     dataset.mkdir(parents=True)
     output.mkdir(parents=True)
-    catalog['source_catalog_version'], catalog['catalog_version'] = catalog['catalog_version'], version
+    if not same_catalog:
+        catalog['source_catalog_version'], catalog['catalog_version'] = catalog['catalog_version'], version
     (dataset / 'tools.json').write_text(json.dumps(catalog, ensure_ascii=False, indent=2) + '\n')
-    result = {'dataset_version': criteria['dataset_version'], 'catalog_version': version,
+    result = {'dataset_version': dataset_version or criteria['dataset_version'], 'catalog_version': version,
               'source_sha256': source_hashes, 'profiles': profiles,
               'sha256': {'tools.json': sha(dataset / 'tools.json')}, 'review_status': 'needs_human_review',
               'limitations': ['Synthetic AI-authored/AI-inspected, not human-reviewed or executed',
                 'Original validation/test cases observed previously: regression only',
-                'Validation/test states, labels and aliases preserved; criteria changed explicitly',
+                ('Validation/test files and base train prefix preserved byte-for-byte; same pinned criteria'
+                 if same_catalog else 'Validation/test states, labels and aliases preserved; criteria changed explicitly'),
                 'Paraphrase and context siblings stay in train; no independent real-use evaluation']}
     (dataset / 'manifest.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
     for profile in contents:
@@ -132,7 +149,7 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output):
         for split, text in contents[profile].items():
             (folder / (split + '.jsonl')).write_text(text)
         exported = {'export_version': 'decision-export-v2', 'export_scope': 'fixed_ten_tools_select_only',
-            'evaluation_task': 'ten_tool_choice', 'dataset_version': criteria['dataset_version'],
+            'evaluation_task': 'ten_tool_choice', 'dataset_version': result['dataset_version'],
             'catalog_version': version, 'profile': profile, 'source_sha256': source_hashes,
             'max_window_tools': 10, 'seed': criteria['seed'], 'splits': profiles[profile],
             'limitations': result['limitations']}
@@ -148,6 +165,7 @@ if __name__ == '__main__':
     p.add_argument('--criteria', type=Path, default=Path('configs/training/laya-ten-tools-criteria-v2-20261020.json'))
     p.add_argument('--dataset', type=Path, default=Path('datasets/hermes-ten-tools-v2'))
     p.add_argument('--output', type=Path, default=Path('outputs/laya-ten-tools-contrast-20261020'))
+    p.add_argument('--dataset-version', help='Version of the enlarged dataset; does not change the pinned criteria/catalog')
     a = p.parse_args()
-    r = build(a.base, a.catalog_dir, a.authored, a.criteria, a.dataset, a.output)
+    r = build(a.base, a.catalog_dir, a.authored, a.criteria, a.dataset, a.output, a.dataset_version)
     print(json.dumps({'catalog_version': r['catalog_version'], 'profiles': r['profiles']}, ensure_ascii=False))
