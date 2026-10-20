@@ -22,3 +22,5 @@ TORCHINDUCTOR_COMPILE_THREADS=4 /home/persona-ai/envs/jery-cuda/bin/python scrip
   --model-config configs/training/laya-ten-tools-batch-seed-model-20261020.json \
   --state-dir outputs/laya-ten-tools-batch-seed-20261020/tracking --detach
 ```
+
+새 Parent `a29741cab715401ea4ae3fa25cbe3ea4`, 첫 Child `239883aee1af49bc822fb54f518de05a`(b4-s3407)에서 epoch 1·optimizer step 15의 실제 CUDA 학습을 확인했다. Native readiness·독립 감사·암기 gate artifact를 새 Parent에 업로드하고 SHA-256 read-back을 검증했다. 코드·설정은 dev-codex의 `2795a67`로 커밋·푸시 및 서버 반영했다.
