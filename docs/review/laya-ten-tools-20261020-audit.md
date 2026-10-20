@@ -29,7 +29,7 @@
 ## 3. 고정 10개 후보 카탈로그 및 한국어 선택지 설명 검증
 
 - **10개 고정 도구 구성**: Obsidian(`obsidian_vault`) 5종(`vault`, `edit`, `graph`, `dataview`, `bases`)과 Swallow(`swallow_trader`) 5종(`swallow_get_stock_price`, `swallow_get_price_history`, `swallow_get_portfolio`, `swallow_order`, `swallow_backtest`) 총 10개가 `mcp-routing-v2/tools.json` 원본 명세와 바이트 단위로 동일하게 `datasets/hermes-ten-tools-v1/tools.json`에 보존되었다.
-- **한국어 선택지 설명(`criteria`)**: 기존 `mcp-routing-v2/tools.json`에서는 Obsidian 도구가 영문 설명, Swallow 도구가 국문 설명이어서 앞부분 절단 시 서버 간 한·영 언어 단서(shortcut)가 존재했으나, `laya-ten-tools-catalog-20261020.json`은 10개 도구 모두에 고유하고 의미가 명확한 15~19자 한국어 설명을 부여해 언어 편향 단서를 제거했다.
+- **한국어 선택지 설명(`criteria`)**: 기존 `mcp-routing-v2/tools.json`에서는 Obsidian 도구가 영문 설명, Swallow 도구가 국문 설명이어서 앞부분 절단 시 서버 간 한·영 언어 단서(shortcut)가 존재했으나, `laya-ten-tools-catalog-20261020.json`은 10개 도구 모두에 고유한 한국어 기능 설명을 부여해 설명 언어를 통일했다. 이것만으로 모델의 편향이 해소됐다고 단정할 수는 없다.
 
 ## 4. 입력 중복 제거, 클래스 균형, 시나리오 분리 및 선택지 위치 분포
 
@@ -46,7 +46,7 @@
 | `full / test` | 20 | 2 | 12 | 0 | 1 | `158a0baa6125758bb7fbddf7a98efa35e579e76edb42012ac3b1142a79092e7f` |
 
 - **Profile 간 일관성**: `memorization`과 `full`의 `validation.jsonl`, `test.jsonl`은 바이트 단위로 완전히 동일하며, `memorization/train` 20행은 `full/train` 60행의 엄밀한 부분집합(동일 `source_id`에 대해 선택지 배치와 정답 alias까지 완전히 일치)이다.
-- **선택지 위치(`T0`~`T9`) 비편향 셔플 및 one-hot 타깃**: 모든 행은 `window_index=0`, `window_count=1` 단일 창이며 `no_tool`, `clarify`, `window_none` 없이 `T0`~`T9` 10개 선택지만 포함한다. 후보 순서는 정답을 참조하지 않고 `random.Random(f"{seed}:{row['id']}")`로 섞이며, `gold.route_in_window`는 `{label: 1.0}` one-hot 분포다. 정답 위치 분포는 `full/train`(`T0`:6, `T1`:5, `T2`:8, `T3`:8, `T4`:6, `T5`:8, `T6`:7, `T7`:6, `T8`:3, `T9`:3), `validation`(`T0`:2, `T1`:2, `T2`:2, `T3`:3, `T4`:0, `T5`:1, `T6`:3, `T7`:2, `T8`:3, `T9`:2), `test`(`T0`:2, `T1`:1, `T2`:0, `T3`:1, `T4`:4, `T5`:2, `T6`:2, `T7`:3, `T8`:2, `T9`:3)로 특정 위치 편향이 없다.
+- **선택지 위치(`T0`~`T9`) 정답 비참조 셔플 및 one-hot 타깃**: 모든 행은 `window_index=0`, `window_count=1` 단일 창이며 `no_tool`, `clarify`, `window_none` 없이 `T0`~`T9` 10개 선택지만 포함한다. 후보 순서는 정답을 참조하지 않고 `random.Random(f"{seed}:{row['id']}")`로 섞이며, `gold.route_in_window`는 `{label: 1.0}` one-hot 분포다. 정답 위치 분포는 `full/train`(`T0`:6, `T1`:5, `T2`:8, `T3`:8, `T4`:6, `T5`:8, `T6`:7, `T7`:6, `T8`:3, `T9`:3), `validation`(`T0`:2, `T1`:2, `T2`:2, `T3`:3, `T4`:0, `T5`:1, `T6`:3, `T7`:2, `T8`:3, `T9`:2), `test`(`T0`:2, `T1`:1, `T2`:0, `T3`:1, `T4`:4, `T5`:2, `T6`:2, `T7`:3, `T8`:2, `T9`:3)다. 이 분포는 셔플 결과를 기록한 것이며 통계적 무편향의 증명은 아니다.
 
 ## 5. 입력-메타데이터 경계 및 계보 보존 소견
 

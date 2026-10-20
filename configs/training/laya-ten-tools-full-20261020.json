@@ -30,7 +30,7 @@
   "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
   "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
   "child_name_prefix": "laya-ten-tools-full",
-  "previous_parent_run_id": "afef02bf60dc496e8287ca3dc3057ad7",
+  "previous_parent_run_id": "37611c82fb924ba6bccb5d4410db9226",
   "training_policy_version": "laya-routing-v2",
   "balance": {
     "ratios": {
@@ -45,19 +45,19 @@
     "monitor": "validation.case_accuracy",
     "patience": 5,
     "min_delta": 0.004,
-    "min_epochs": 10,
+    "min_epochs": 32,
     "include_baseline": true
   },
   "backend": "cuda",
-  "purpose": "Balanced sixty-case ten-tool learning after a successful memorization diagnostic",
+  "purpose": "Balanced sixty-case ten-tool learning after train-fit diagnostic; higher LR range based only on train fit",
   "search_score": "best_trained_validation_case_accuracy",
   "hyperopt": {
     "algorithm": "tpe",
     "max_evals": 5,
     "startup_trials": 2,
     "head_lr": [
-      1e-06,
-      3e-05
+      0.0001,
+      0.001
     ],
     "weight_decay": [
       0.0
@@ -78,5 +78,11 @@
   },
   "source_dataset_dir": "datasets/hermes-ten-tools-v1",
   "evaluation_task": "ten_tool_choice",
-  "experiment_stage": "ten_tool_hyperopt"
+  "experiment_stage": "ten_tool_hyperopt",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  }
 }
