@@ -40,3 +40,9 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 ```
 
 기존 state/lock/process를 확인하고 supervisor를 중복 실행하지 않는다. 상태와 완료 여부는 서버 tracking/state.json 및 MLflow를 함께 확인한다. 데이터 검증 PASS(130 examples/10 tools/65 isolated scenarios), CUDA 계획 통합 테스트5개 PASS, 새 plan/model 및 참고값 범위 검증 PASS. 실행기 코드는 변경하지 않았고 추가 의존성도 없다.
+
+## 실행 상태
+
+MLflow Jery(47) Parent: [dca0889273a641eaae6e4a92bfa9efc9](https://mlflow.dove-nest.com/#/experiments/47/runs/dca0889273a641eaae6e4a92bfa9efc9). 준비 단계의 데이터·설정 업로드를 검증했고 실행 코드/설정 기준은 fc1989d다. Detached supervisor PID209691로 시작했다. 이 문서는 시작 시점 기록이며 20회 완료를 뜻하지 않는다. 참고 모델 원본 configuration/report/run metadata 9개 JSON은 reference-runs/에 SHA read-back 검증 후 보관한다.
+
+첫 Child `87e3fbaf6f3848b898e02a3ecf089551`의 실제 학습과 MLflow epoch1 동기화를 확인했다(LR0.0001503248604273792, WD0.05, smoothing0). 초기 validation accuracy0.60, epoch1 accuracy0.60/F1 0.48이며 탐색 초반 값이다. 9개 참고 JSON의 업로드·SHA read-back 검증도 완료했다. 문서는 Obsidian `Work/Jery/작업기록/2026-10-20-Jery-train600-참고모델기반-Hyperopt20회`와 프로젝트 index에 반영했다.
