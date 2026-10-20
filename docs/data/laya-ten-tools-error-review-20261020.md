@@ -43,3 +43,5 @@ Native 사전검사에서 초안 설명의 일부가 head의 옵션당 24token �
 최종 catalog `hermes-ten-tools-2289142ab57a`의 native 재검사에서 두 profile 모두 skip·target 매핑 불일치·특징 불일치·잘림 0건을 확인했다(최대 전체 길이 289token). 첫 draft의 설명만 native 검사에서 실패했고 모델 학습은 시작하지 않았다.
 
 회사 서버에서 보강 Parent `5f64008a2b974b7f87fab5088bafcf8a` / Child `5ee0cebebfbd465898abdd4b5f300a56`, 설명만 보완 Parent `f7faeae2708945d6b62f59e54a6f56ae` / Child `6145fe8c826a4fcea9f23fc525535aec`를 실행했다. 보강군 epoch3·180step, 대조군 epoch9·135step까지 유한 loss/gradient와 CUDA 실행을 확인했다. 감사 input·결과·라벨 대조·criteria·합성 원문·notebook·native readiness를 각 Parent의 data-quality/readiness artifact에 업로드하고 SHA-256 read-back으로 검증한다.
+
+두 GPU 학습은 완료됐다. 보강군은 6에폭·360step에서 조기 종료, initial validation 60% → best trained/serving validation 65%(epoch3)였다. 설명만 보완한 대조군은 22에폭·330step에서 조기 종료, initial/best trained validation 60%로 serving은 초기 head를 유지했다. 두 모델 모두 frozen encoder 유지와 저장 head 재로딩 후 validation 예측 일치를 확인했다. 보강군과 대조군 차이는 검증 20개 중 1개이며 이전 과제의 최고 validation 65%를 넘지 못했다. 동일 자료를 반복 관찰했으므로 독립적 개선으로 주장하지 않는다. Test는 이 진단 결론이나 추가 튜닝에 사용하지 않았다. 두 Parent의 모델 artifact 업로드·최종화는 supervisor가 진행한다.
