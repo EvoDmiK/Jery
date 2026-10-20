@@ -35,3 +35,9 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 ```
 
 데이터 검증 PASS(130 examples/10tools/65 isolated scenarios), CUDA 계획 통합 테스트5개 PASS, 새 plan/model 계약과 참고6개 threshold·선택 head val·범위 포함 검증 PASS. 학습 상태는 서버 state.json과 MLflow를 따른다. Supervisor 중복 실행 전 기존 process/lock/state를 확인한다.
+
+## 실행 기록
+
+새 [MLflow Parent 6e2c92b081534cc8a8e3b1271e3c0e9c](https://mlflow.dove-nest.com/#/experiments/47/runs/6e2c92b081534cc8a8e3b1271e3c0e9c)에 20회 순차 실행을 준비하고 데이터·설정 Artifact SHA를 검증했다. 실행 코드/설정 기준은 dev-codex f9b9ebc이며 서버에 fast-forward 반영했다. 이 문서는 시작 시점 기록이고 완료를 의미하지 않는다.
+
+Supervisor PID222834, 첫 Child `d82d17ed8deb48f396a19cf5af941af7` 실행을 확인했다. 첫 조건은 LR0.00020433959312884904 / WD0.05 / smoothing0이다. 참고 report/run JSON12개와 source-runs/qualifying-runs JSON2개, 총14개를 새 Parent reference-runs/에 업로드하고 SHA read-back 검증했다. Obsidian 작업기록 및 index에도 반영했다.
