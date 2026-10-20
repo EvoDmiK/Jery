@@ -1,6 +1,6 @@
 # Hermes 고정 10개 도구 v3 — 학습 데이터 보강
 
-v2의 train 240개에 Claude·Antigravity가 새로 작성하고 상호 검토한 합성 train 360개를 더하는 학습 데이터 버전이다. 최종 train은 600개(도구당 60개)이며 검증·평가는 각 20개다. 건수·검증 결과는 manifest, readiness.json과 통합 보고서를 따른다. 원본 보강 자료는 `datasets/hermes-ten-tools-contrast-source-v2/`다.
+v2의 train 240개에 Claude·Antigravity가 새로 작성하고 Claude·Codex가 검토한 합성 train 360개를 더하는 학습 데이터 버전이다. 최종 train은 600개(도구당 60개)이며 검증·평가는 각 20개다. 건수·검증 결과는 manifest, readiness.json과 통합 보고서를 따른다. 원본 보강 자료는 `datasets/hermes-ten-tools-contrast-source-v2/`다.
 
 카탈로그 `hermes-ten-tools-2289142ab57a`, 짧은 선택지 설명 v2.1-native-budget, seed 3407과 decision-export-v2 의미는 유지한다. 같은 설명을 사용하는 v2 augmented export를 기점으로 validation/test 각 20개와 기존 train 240개의 바이트를 보존한다. 새 파생 데이터는 기존 디렉터리를 덮어쓰지 않고 아래 명령으로 만든다.
 
