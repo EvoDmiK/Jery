@@ -1,22 +1,39 @@
-# MLflow 비교 params 추가 후 supervisor 중단 복구 — 2026-10-21
+# MLflow 파라미터 추가 후 완료 검증 오류 복구
 
-사용자가 공동 탐색 표가 멈춰 있다고 보고했다. 서버에서 Parent3b7fd13fe2f74146a520fa64d0c2305d의 supervisor226349가 종료됐고 state는 supervisor_failed임을 확인했다. Child1~9는 finished, Child10 f599948302284d26ab2a7a66173d2379는 uploading에서 멈췄다.
+**복구 완료.** 학습이 끝난 Child 10을 재학습하지 않고 같은 Parent에서 완료 처리한 뒤 후속 학습을 이어갔다. 해당 공동 탐색은 이후 20회 모두 완료됐다.
 
-## 원인과 수정
+## 원인
 
-Child10의 실제 CUDA 학습은17epoch/2550steps, 2026-10-21 01:47:11 UTC에 succeeded로 종료했다. Report·head·원본 config/source가 보존돼 있다. 선택 epoch11의 test accuracy0.65/F1 0.56도 이미 기록했다. 03:24 UTC 확인 시 supervisor는 죽어 있었고 예외는 `Nonessential MLflow keys were logged, or required keys are missing`였다.
+비교 파라미터 5개를 추가했지만, supervisor의 완료 검증은 기존 5개만 허용하고 있었다. 실제 파라미터가 10개가 되자 업로드 후 검증에서 종료됐다.
 
-비교용5개 optimizer params를 기존 Child에 backfill했지만 기존 supervisor의 완료 검증은 예전 plan의5개 params와 정확히 같은 key 집합만 허용했다. 실제10개를 만나 실패했다. 파라미터 표시 확장 때 post-upload 완료 검증 경로를 갱신하지 못한 코드 결함이다.
+| 구분 | 확인 내용 |
+|---|---|
+| 화면 증상 | 공동 탐색 표가 더 이상 갱신되지 않음 |
+| 실제 학습 | Child 10은 17에폭·2,550 steps 학습 완료 |
+| 실패 단계 | 업로드 후 MLflow key 집합 검증 |
+| 오류 | `Nonessential MLflow keys were logged, or required keys are missing` |
 
-`scripts/run_laya_full_experiment.py`의 완료 key 검증을 `validate_logged_keys`로 분리하고 plan의 필수 params는 계속 요구하되 승인된 COMPARISON_PARAMS5개만 추가 허용한다. Unknown params·필수 누락·metrics 추가/누락은 계속 거부한다. 새 plan에서 비교 params를 필수로 선언했으면 누락을 허용하지 않는다. 실제 실패 Child의 remote params/metrics도 새 검증을 통과했다.
+## 수정
 
-회귀 테스트는 legacy5개/보강10개/신규10개를 정상으로, unknown·core 누락·metric 추가/누락·새 plan의 비교 param 누락을 오류로 검증한다. Tracking 통합14개 PASS, 원본 데이터 검증 PASS(130examples/10tools/65isolated scenarios). Graphify AST update를 수행한다.
+[실행기](../../scripts/run_laya_full_experiment.py)의 `validate_logged_keys`에서 계획의 필수 파라미터를 검사하되, 승인된 비교 파라미터 5개는 추가로 허용하도록 수정했다.
 
-## 복구 원칙과 재현
+필수 항목 누락, 알 수 없는 파라미터, 지표의 추가·누락은 계속 거부한다. 새 계획에서 비교 파라미터를 필수로 선언한 경우에도 누락을 허용하지 않는다.
 
-기존 supervisor 사망과 모델 status succeeded/report 존재를 확인한 뒤 동일 state와 Parent로 재실행한다. Prepare를 새로 실행하거나 새 Parent/Child를 만들지 않는다. 완료된1~9는 건너뛰고, Child10은 report가 존재하므로 학습 프로세스를 만들지 않고 업로드·완료 검증만 재수행한다. 이후11~20을 이어 학습한다. 다른 GPU 작업은 변경하지 않는다.
+## 복구 결과
 
-복구 전 tracking/recovery-param-keys-before.json에 Child10의 report/steps/metrics/head/config/source6개 SHA·mtime와 runner-1 목록을 저장했다. 복구 후 같은 값을 비교해 재학습하지 않았음을 검증한다. 원래 source/config와 실제 사용한 plan을 덮어쓰지 않는다.
+| 항목 | 결과 |
+|---|---|
+| 수정 커밋 | `3ac42f4` |
+| 회귀 검증 | 서버 tracking 테스트 14개 통과 · 기존 데이터 검증 통과 |
+| Child 10 | 기존 실행에서 업로드·완료 검증만 재수행해 `FINISHED` |
+| 재학습 여부 | 없음 · 기존 파일 6개의 SHA·mtime와 runner 목록 동일 |
+| 후속 실행 | Child 11 시작 확인 · 이후 공동 탐색 20회 완료 |
+
+복구 전·후 증거는 Parent의 `recovery/` Artifact에 보관했다. 기존 실행, 모델, 원본 설정은 유지했다.
+
+## 당시 복구 명령
+
+기존 supervisor 종료와 학습 결과 파일을 확인한 뒤, 같은 state로 실행했다. 완료된 Child는 건너뛰고 미완료 단계부터 이어간다.
 
 ```sh
 TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/bin/python scripts/run_laya_full_experiment.py \
@@ -25,10 +42,6 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
  --state-dir outputs/laya-ten-tools-train600-joint20-20261021/tracking --detach
 ```
 
-이번 재실행은 이미 FINISHED인 upstream 대기를 다시 지정할 필요가 없다. 현재 Parent/Child의 실제 복구 결과와 supervisor PID는 아래에 추가 기록한다. 자동 params observer는 학습과 독립적이며 유지한다. 추가 의존성·모델·데이터 변경은 없다.
-
-## 복구 결과
-
-수정3ac42f4를 서버에 반영하고 서버 tracking 테스트14개 PASS 후 supervisor229433으로 동일 state를 재개했다. Child10은 같은 run f599948302284d26ab2a7a66173d2379에서 FINISHED로 완료됐고, Child11 f273c4e8e8db45cc8accb2a6dd41a9ac가 자동 시작됐다. Child10의6개 파일 SHA·mtime 및 runner-1 단일 목록이 복구 전과 동일한지 확인했다. recovery-param-keys-after.json에 검증 결과를 남긴다. 기존 모델을 재학습하지 않았고 Parent/기존 Child도 새로 생성하지 않았다.
-
-Child11의 실제 CUDA750steps/5epoch까지 확인했다. 복구 전·후 증거 JSON은 Parent recovery/ Artifact에 SHA read-back 검증 후 보관한다. 전체20회 완료를 뜻하지 않으며 이어 학습 중이다.
+Parent: `3b7fd13fe2f74146a520fa64d0c2305d`
+복구한 Child: `f599948302284d26ab2a7a66173d2379`
+증거 파일: `tracking/recovery-param-keys-before.json`, `tracking/recovery-param-keys-after.json`

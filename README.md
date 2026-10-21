@@ -41,19 +41,29 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 예측 명령은 로컬 학습 모델이 필요하며 실제 MCP를 실행하지 않는다. [첫 실험 결과](docs/data/weekend-baseline-20261016.md), [학습·절전 방지 실행 절차](docs/data/local-training.md), [모델 구현](docs/model/baseline.md), [예측 계약](docs/contracts/prediction-v1.md)을 참고한다. 학습·가중치·원본 결과 경로는 Git에서 제외한다.
 
-[Laya 첫 파일럿](docs/data/laya-pilot-20261017.md)에서는 M4에서 FP16 인코더를 고정하고 헤드를 32건으로 학습했다. 64스텝 학습과 저장·복원을 확인했지만 검증 12건의 내부 선택 정답은 학습 전후 모두 0건이었다. 공학 실행 확인용 결과이며 공개 예측 함수나 운영 모델에는 연결하지 않았다.
+## Laya 학습 실험
 
-[Laya 전체 데이터 64에폭 실험](docs/data/laya-full-training-20261017.md)은 v2의 668/248/246건을 모두 사용하고, `Jery` MLflow Experiment의 Parent–Child 구조로 세 학습률을 순차 비교한다. 실제 진행 상태와 완료 결과는 연결된 MLflow run 및 상태 파일에서 확인한다.
+현재는 **LR만 변경하는 20개 조건을 동일한 층화 5-fold로 검증**한다. 비-LR 설정은 `lr1e3` 실험의 최종 선택 Child에 맞췄다. 데이터는 고정 도구 10개에 대한 합성 사례 600개이며, 실제 사용자 요청에 대한 평가와는 구분한다.
 
-[후속 균형 학습·Hyperopt 실험](docs/model/laya-balanced-hyperopt-20261018.md)은 학습 창 비중 40/40/10/10, 검증 기준 최적 head 복원·patience 5 조기 종료, Hyperopt TPE 5회 탐색을 적용한다. 이전 고정 64에폭 실험은 결과를 보존하고 중단했다.
+| 항목 | 내용 |
+|---|---|
+| 현재 실험 | [MLflow](https://mlflow.dove-nest.com/#/experiments/47/runs/675bf807c9674425ba6f9de1ad536b91) · [설정과 진행 확인 방법](docs/data/lr-only-reference-lr1e3-20261021.md) |
+| LR 탐색 | `1e-3 ~ 5e-3` · Hyperopt TPE 20개 조건 |
+| 검증 | 5-fold · fold마다 학습 480개 / 검증 120개 |
+| 고정 설정 | batch 4 · warmup 10 · clipping 1.0 · linear · WD 0.05 · smoothing 0.1 · seed 3407 |
+| 실행 환경 | Linux · RTX 5070 Ti · 인코더 고정 / head 학습 |
 
-[Linux RTX 5070 Ti 실행 검증](docs/model/laya-cuda-probe-20261019.md)에서는 별도 CUDA 환경에서 같은 Laya 라우팅 head를 32스텝씩 학습하고 저장·재로드를 확인했다. 전체 Hyperopt 학습은 기존 Mac에서 유지하며 CUDA로 이전하지 않았다.
+설정은 [학습 계획](configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-20261021.json)과 [모델 설정](configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-model-20261021.json), 지표 의미는 [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 따른다. 최신 진행 상황은 MLflow와 서버 상태 파일에서 확인한다.
 
-[전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증했고, 사용자 요청으로 CUDA Hyperopt 5회를 기존 Mac 실험과 동시에 실행한다. 두 실험은 별도 Parent로 기록한다.
+### 이전 실험
 
-[고정 10개 도구 학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md)는 기존 train 240개에 AI 작성·검토한 합성 360개를 더한 600개(도구당 60개)다. 검증·평가 각 20개와 기존 train prefix를 바이트 단위로 보존했다. 전체 테스트 169개와 Laya native 입력 검증을 통과했고, 이후 회사 CUDA 서버에서 [train600 Hyperopt 5회](docs/data/ten-tool-train600-20261020.md)를 완료했고, 참고 모델 기반 [Hyperopt 20회](docs/data/ten-tool-train600-search20-20261020.md)도 완료했다. F1 조건을 함께 만족한 6개 실행의 파라미터로 범위를 좁힌 [후속 Hyperopt 20회](docs/data/ten-tool-train600-refine20-20261021.md)를 회사 CUDA 서버에서 시작했다. 상세 검토·재현·한계는 [통합 보고서](docs/data/ten-tool-training-augmentation-20261020.md)를 따른다. 이어 LR·warmup·유효 배치·clipping·scheduler를 함께 탐색하는 [공동 Hyperopt20회](docs/data/ten-tool-train600-joint20-20261021.md)를 완료했고, 비-LR 조건을 고정한 [LR-only20회 × 층화5-fold 검증](docs/data/ten-tool-lr-only-cv5-20261021.md)을 실행했으며 사용자 요청으로 중단했다.
-
-[지정 Parent의 선택 Child 기준 설정](docs/data/lr-only-reference-lr1e3-20261021.md)으로 LR 외 전체 모델 설정을 일치시켰다. 이후 사용자 요청으로 별도 Parent에서 LR-only20조건 × 동일 층화5-fold 학습을 시작했다.
+| 단계 | 기록 |
+|---|---|
+| Mac 파일럿·기준 모델 | [Laya 첫 파일럿](docs/data/laya-pilot-20261017.md) · [전체 데이터 학습](docs/data/laya-full-training-20261017.md) · [균형 학습](docs/model/laya-balanced-hyperopt-20261018.md) |
+| CUDA 전환 | [환경 검증](docs/model/laya-cuda-probe-20261019.md) · [전체 학습 경로](docs/model/laya-cuda-full-20261019.md) |
+| 데이터 보강 | [학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md) · [보강 보고서](docs/data/ten-tool-training-augmentation-20261020.md) |
+| 학습 조건 탐색 | [train600 5회](docs/data/ten-tool-train600-20261020.md) · [20회 탐색](docs/data/ten-tool-train600-search20-20261020.md) · [범위 축소](docs/data/ten-tool-train600-refine20-20261021.md) · [공동 탐색](docs/data/ten-tool-train600-joint20-20261021.md) |
+| 이전 CV | [최초 5-fold 구현·중단 기록](docs/data/ten-tool-lr-only-cv5-20261021.md) |
 
 ## 초기 데이터셋
 

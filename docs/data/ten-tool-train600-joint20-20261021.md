@@ -1,35 +1,55 @@
-# Train600 다중 파라미터 Hyperopt20회 — 2026-10-21
+# Train 600 · 다중 파라미터 탐색 20회
 
-사용자가 LR만 바꾸는 실험에 더해 warmup·유효 배치·gradient clipping·scheduler도 함께 적용하도록 요청했다. LR-only 대기 Parent `8e27ea4395af45c9ba1fc429e01dab44`에 Child가0이고 waiting_for_upstream임을 확인한 뒤 해당 supervisor225880만 SIGTERM으로 중단했다. 서버 state interrupted, MLflow KILLED와 Child0을 확인했다. 실제 학습 중인 이전 Parent `6261a1bdca194867a835cbfb2216493f`와 다른 GPU 작업은 유지한다. 그 Parent 성공 완료 뒤 새 공동 탐색20회를 시작한다.
+**20회 모두 완료.** LR, 정규화, warmup, 배치, clipping, scheduler를 함께 탐색한 실험이다.
 
-## 실제 공동 탐색 공간
+[MLflow 실험 보기](https://mlflow.dove-nest.com/#/experiments/47/runs/3b7fd13fe2f74146a520fa64d0c2305d) · [현재 LR 단독 실험](lr-only-reference-lr1e3-20261021.md)
+
+## 탐색 범위
 
 | 항목 | 후보 |
 |---|---|
-| Head LR | log-uniform1e-3~5e-3 |
-| Weight decay | 0,0.05,0.1 |
-| Label smoothing | 0,0.1 |
-| Warmup optimizer steps | 10,75,150 |
-| Gradient accumulation | 1,2,4 |
-| Effective batch | micro batch4 × accumulation =4,8,16 |
-| Max gradient norm | 0.5,1,2 |
-| LR scheduler | linear,cosine |
+| Head LR | log-uniform `1e-3 ~ 5e-3` |
+| Weight decay | 0, 0.05, 0.1 |
+| Label smoothing | 0, 0.1 |
+| Warmup steps | 10, 75, 150 |
+| Gradient accumulation | 1, 2, 4 |
+| 유효 배치 | micro batch 4 × accumulation → 4, 8, 16 |
+| Gradient clipping | 0.5, 1.0, 2.0 |
+| Scheduler | `linear`, `cosine` |
 
-Hyperopt TPE20회/startup6으로 위7개 변수를 함께 탐색한다. Warmup10과 다른 기존 값도 포함해 baseline 근방을 비교할 수 있게 했다. 20회는7차원 공간의 거친 탐색이며 전 조합 비교나 개별 변수의 인과 효과 검증이 아니다. Micro batch4를 고정해 GPU activation 메모리 사용을 유지하고 accumulation으로 유효 배치를 늘린다. Batch가 달라지면 epoch당 optimizer step과 전체 scheduler 길이도 달라진다. Warmup은 epoch 비율이 아닌 optimizer step 수다.
+Hyperopt TPE로 20개 조건을 비교했다. 초기 탐색은 6개다. 여러 변수를 함께 바꾼 거친 탐색이므로 개별 파라미터의 효과를 분리해 판단할 수는 없다. Warmup은 에폭 비율이 아닌 optimizer step 수이며, 배치가 달라지면 전체 step 수도 달라진다.
 
-Seed3407·최대32epoch·최소8·patience6/min_delta0.004, 데이터 hermes-ten-tools-v3 train600/validation20/test20, catalog hermes-ten-tools-2289142ab57a/v2.1 표현, base revision/SHA를 유지한다. 매 trial은 고정 base에서 새로 시작한다. CUDA encoder는 고정하고 head/scorer/type_emb를 학습한다. Native max_len1024/head256, memory fraction0.3과 기존 다른 작업을 유지한다.
+## 고정 조건과 평가
 
-TPE/checkpoint 선택은 validation accuracy만 사용한다. Macro F1은 매 epoch 기록하고 각 Child의 최종 선택 head test는 한 번 수행한다. 과거 test-informed 범위 설계의 출처와 미검토 합성 정답에 대한 탐색 한계는 유지한다. 필수 params5개·metrics7개만 tracking하며 warmup/clipping/scheduler/accumulation을 포함한 실제 선택값은 Child configuration.json과 report config 및 Hyperopt document JSON Artifacts에 보관한다. Effective batch는 필수 param에도 실제 accumulation을 반영한다.
+| 항목 | 설정 |
+|---|---|
+| 데이터 | 합성 `hermes-ten-tools-v3` · train 600 / validation 20 / test 20 |
+| 학습 | Laya 인코더 고정 · head/scorer/type embedding 학습 |
+| Seed | 3407 |
+| 종료 정책 | 최대 32에폭 · 최소 8에폭 · patience 6 · min_delta 0.004 |
+| 환경 | Linux · RTX 5070 Ti · 매 조건 동일한 base에서 시작 |
+
+TPE와 체크포인트 선택에는 validation accuracy를 사용했다. Test는 선택한 head의 최종 평가에 사용했다. 다만 과거 test 결과를 참고해 탐색 범위를 정한 이력이 있어 독립적인 최종 성능 검증으로 해석하지 않는다.
+
+실제 선택값과 전체 설정은 Child의 `configuration.json`, `details/report.json`, Hyperopt JSON Artifact에 남겼다. MLflow 표에 표시하는 항목은 [파라미터 비교 설정](mlflow-comparison-params-20261021.md)을 따른다.
+
+## 결과와 한계
+
+검증 정확도가 가장 높은 best-trained Child는 `c0635c4ce7c44e97aad5e9f695516a0b`였으며 **0.85**를 기록했다. Warmup 75, clipping 2.0, cosine, weight decay 0.1, label smoothing 0을 사용했다.
+
+검증 사례가 20개인 합성 데이터 반복 실험이다. 실제 사용자 요청에 대한 성능 개선으로 단정하지 않는다. 후속 5-fold 실험은 별도 문서에서 관리한다.
 
 ## 구현과 검증
 
-`scripts/run_laya_full_experiment.py`의 기존 optional hp.choice 패턴을4개 항목에 확장했다. 모든 값을 float로 변환하던 경로는 NumPy scalar만 native scalar로 변환하도록 바꿔 scheduler 문자열과 accumulation/warmup 정수를 보존한다. 기존 trial_settings의 sampled override 경로가 학습 CLI·MLflow effective batch·JSON 설정에 함께 반영된다. 모델 코드는 변경하지 않는다.
+기존 실행기에 선택형 탐색 항목을 추가하고, 문자열·정수 타입을 학습 설정과 Artifact까지 보존했다. 새 선택값의 범위·타입 검사와 TPE 이후 후보 검증도 추가했다. 모델 코드와 의존성은 변경하지 않았다.
 
-`scripts/prepare_laya_cuda_experiment.py`에서 새 선택 목록의 비어 있음, 정수/실수/문자열 타입·유효 범위·NaN·boolean 오용을 검증한다. 기존 optional 필드가 없는 계획은 같은 검색 공간을 사용한다. 별도 의존성은 추가하지 않았다.
+구현 당시 전체 테스트 171개와 데이터 검증을 통과했다. 실제 Hyperopt 후보 8개로 타입 보존·설정 전달·JSON 왕복과 test 값의 탐색 배제를 확인했다.
 
-새 통합 테스트는 실제 Hyperopt startup 이후 TPE까지8회를 재생하며 정수/문자열 타입 보존, 학습 override 전달, effective batch와 필수 tracking allowlist, JSON roundtrip 및 test값을 바꿔도 다음 후보가 동일함을 확인한다. 잘못된 신규 선택값의 prepare 거부도 검증한다. 데이터 검증 PASS(130examples/10tools/65isolated scenarios), tracking 통합12개·CUDA 계획6개 PASS. 전체 테스트171개 PASS. 코드 수정 후 graphify update . AST 갱신을 완료했다.
+실행 중 발생한 완료 검증 오류는 [같은 Parent에서 복구](mlflow-param-backfill-recovery-20261021.md)했다.
 
-## 재현
+## 당시 실행 명령
+
+아래는 최초 등록 명령이다. 이미 완료된 실험을 다시 실행하기 전에 기존 state와 lock을 확인해야 한다.
 
 ```sh
 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/bin/python scripts/prepare_laya_cuda_experiment.py \
@@ -42,9 +62,3 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
  --state-dir outputs/laya-ten-tools-train600-joint20-20261021/tracking \
  --wait-for-run 6261a1bdca194867a835cbfb2216493f --detach
 ```
-
-Upstream이 FINISHED일 때만 Child를 생성한다. waiting 중에는 새 GPU 학습이 없다. 실패/중단된 upstream이면 오류를 기록하고 자동 학습을 시작하지 않는다. 대기 등록은 실제 학습 시작/완료와 다르다. 기존 state/lock/process를 확인하고 supervisor를 중복 실행하지 않는다.
-
-## 실행 등록
-
-새 [Parent3b7fd13fe2f74146a520fa64d0c2305d](https://mlflow.dove-nest.com/#/experiments/47/runs/3b7fd13fe2f74146a520fa64d0c2305d)를 생성하고 데이터/설정 업로드 SHA를 검증했다. 서버 기준5a2bc2c로 반영한 뒤 서버에서도 tracking12개·계획6개 테스트 PASS. Supervisor226349에 기존6261 Parent 완료 대기를 지정했다. 대기했던 LR-only Parent와 새 Parent에 supersedes/superseded_by 태그를 연결했다. 실제 Hyperopt 첫 후보 preflight JSON도 업로드·SHA 검증한다(유효 batch16, LR0.0034488038272919228, smoothing0, WD0.05, warmup10, norm2, linear). 이는 후보 검증이며 GPU 학습 결과가 아니다. Obsidian 작업기록/index에 반영했다.

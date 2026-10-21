@@ -1,31 +1,51 @@
-# LR-only20회와 stratified grouped5-fold — 2026-10-21
+# 첫 LR 단독 5-fold 실험 · 중단 기록
 
-사용자가 비-LR 조건을 고정하고 LR1e-3~5e-3만 탐색하되 검증을 Stratified K-Fold로 요청했다. 직전 공동 탐색 Parent3b7fd13fe2f74146a520fa64d0c2305d는20회 전부 FINISHED임을 확인했다.
+**상태: 사용자 요청으로 중단.** 이 문서는 이전 실험의 기록이다. 이후 설정을 변경해 시작한 실험은 [현재 LR 탐색 문서](lr-only-reference-lr1e3-20261021.md)를 따른다.
 
-## 고정 조건과 탐색
+## 실행 결과
 
-직전 공동 탐색에서 best-trained validation accuracy가 가장 높은 run c0635c4ce7c44e97aad5e9f695516a0b(0.85)를 기준으로 비-LR 조건을 고정했다. Test는 이 선택에 사용하지 않았다.
+| 항목 | 결과 |
+|---|---|
+| 계획 | LR 20개 조건 × 5-fold = 100회 학습 |
+| 완료 | 2개 조건의 10개 fold + 세 번째 조건의 3개 fold |
+| 중단 지점 | 세 번째 조건의 네 번째 fold, 24에폭 |
+| 로컬 상태 | `interrupted` · 결과와 체크포인트 보존 |
+| MLflow | 기존 항목이 삭제된 상태여서 상태 갱신 불가 · 복원하지 않음 |
 
-- LR만 log-uniform1e-3~5e-3, Hyperopt TPE20/startup6.
-- seed3407, micro batch4/accumulation1(유효4), warmup75 optimizer steps, max_grad_norm2.0, cosine scheduler, WD0.1, label smoothing0.0.
-- 최대32epoch, 최소8epoch 관찰/patience6/min_delta0.004, 초기 head 보호·best-trained 별도 저장 유지.
-- 매 fold 동일 pinned Laya base에서 새로 시작한다. Encoder 고정/FP32 head·BF16 autocast, base SHA·입력 길이1024/256·CUDA memory fraction0.3 유지.
+중단 당시 활성 학습 프로세스가 없고 추가 fold가 시작되지 않았음을 확인했다. 아래 명령은 재현 참고용이며 자동 재개 지시가 아니다.
 
-## 검증과 데이터
+## 당시 설정
 
-[CV 계약 v1](../contracts/laya-cross-validation-v1.md)을 따른다. 실제 도구 ID로 층화하고 scenario_id group을 보존한다. 현재 group은 모두 단일 label이므로 표준 라이브러리의 deterministic largest-first 배정으로 정확한5-fold 균형을 확보했다. 새 scikit-learn 의존성을 추가하지 않았다. [공식 stratified/grouped CV 설명](https://scikit-learn.org/stable/modules/cross_validation.html)의 class 비율 보존과 group 비중첩 원칙을 적용하되 scikit-learn 클래스를 호출했다고 주장하지 않는다.
+직전 공동 탐색에서 validation accuracy가 가장 높은 Child를 기준으로 LR 외 조건을 고정했다. 이후 사용자가 지정한 `lr1e3` 실험의 Child와는 다른 기준이다.
 
-원래 train600만 CV pool이다. 각 fold480train/120validation, 도구당48/12.355개 scenario group 누수0, 전체600개 validation coverage1회, original test20 byte 보존. Original validation20은 CV에 사용하지 않는다. 모든20 LR trial이 같은 고정5-fold를 사용한다. 총100회 모델 학습으로 기존 단일 split20회보다 학습량이 늘어난다.
+| 파라미터 | 값 |
+|---|---|
+| LR | log-uniform `1e-3 ~ 5e-3` · Hyperopt TPE 20개 · 초기 탐색 6개 |
+| Warmup / clipping | 75 steps / 2.0 |
+| Scheduler / weight decay / label smoothing | `cosine` / 0.1 / 0.0 |
+| 유효 배치 / seed | 4 / 3407 |
+| 조기 종료 | 최대 32에폭 · 최소 8에폭 · patience 6 · min_delta 0.004 |
 
-Test20은 각 fold head 최종 평가에만 쓰고 TPE/epoch 선택에는 쓰지 않는다. Trial test값은5개 fold-trained 모델 결과의 평균이며 full600 단일 모델 성능이 아니다. Trial val 평균·sample std와 각 fold별 지표/모델을 MLflow3단계 구조로 남긴다. Primary selection은 cv_search_accuracy(5개 fold best-trained validation accuracy 평균)다. 상세 metrics 의미는 계약을 따른다.
+기준 Child: `c0635c4ce7c44e97aad5e9f695516a0b` · 이전 validation accuracy 0.85. 기준 선택에 test는 사용하지 않았다.
 
-## 구현과 검증
+## 검증 방법
 
-Fold builder `scripts/build_laya_stratified_folds.py`, CV supervisor `scripts/run_laya_cv_experiment.py`를 추가했다. 기존 full supervisor는 fixed trial별 export_dir를 받아 같은 LR의5개 fold를 학습하며 각 export manifest/SHA를 검사한다. 기존 prepare·CLI·모델 학습/업로드/복구를 재사용하고 모델 코드는 변경하지 않았다. Fold별 데이터 Artifact 참조도 실제 사용한 fold로 연결한다.
+- 합성 train 600개만 분할: fold별 학습 480개 / 검증 120개, 도구당 검증 12개.
+- 같은 `scenario_id`를 분할 간에 섞지 않고, 모든 LR 조건에 동일한 5-fold 적용.
+- 기존 validation 20개는 제외. Test 20개는 최종 평가에만 사용.
+- 탐색 기준은 fold별 best-trained validation accuracy의 평균인 `cv_search_accuracy`.
+- Test 점수는 fold 모델 5개의 평균이며 전체 600개로 학습한 단일 모델의 점수가 아님.
 
-테스트는 실제tool alias 복원·층화 균형·group/ID 누수 방지·전체 OOF coverage·heldout bytes·원본 보존·출력 덮어쓰기 거부·설정 drift 거부·LR-only 계획·test와 TPE 분리·학습 export override를 검증한다. 전체 테스트181개 PASS, LR-only8개 실제 Hyperopt 후보의 비-LR 불변식 검증 PASS, 기존 데이터 validator PASS. Graphify AST update 수행. 추가 의존성 없음.
+층화와 그룹 보존은 표준 라이브러리로 구현했다. 상세 지표 정의와 데이터 분할 규칙은 [CV 계약](../contracts/laya-cross-validation-v1.md)을 따른다.
 
-## 실행
+## 구현·검증 근거
+
+[Fold builder](../../scripts/build_laya_stratified_folds.py)와 [CV 실행기](../../scripts/run_laya_cv_experiment.py)를 추가하고 기존 학습·업로드·복구 흐름을 재사용했다. 구현 당시 전체 테스트 181개, 실제 Hyperopt 후보 8개의 비-LR 불변식 검사, 기존 데이터 검증을 통과했다.
+
+Fold 배정 SHA: `5e823b9408bf8c410005042315c362b8291aed9efd3e461cec7cc79fbac33e9b`
+이전 Parent: `790b62ac777c43098b47cadd134d3a4e`
+
+## 당시 실행 명령
 
 ```sh
 python3 scripts/build_laya_stratified_folds.py \
@@ -37,11 +57,3 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
  --state-dir outputs/laya-ten-tools-train600-lr-only-cv5-20261021/tracking \
  --python /home/persona-ai/envs/jery-cuda/bin/python --detach
 ```
-
-이미 생성된 fold 출력은 덮어쓰지 않는다. 재개는 기존 state와 같은 plan/config/fold 파일로 CV supervisor만 실행하며 process/lock을 확인한다. 학습 시작과100회 완료는 다른 상태이고 실제 상태는 tracking/state.json과 MLflow를 따른다.
-
-## 실행 등록
-
-[CV Parent790b62ac777c43098b47cadd134d3a4e](https://mlflow.dove-nest.com/#/experiments/47/runs/790b62ac777c43098b47cadd134d3a4e)를 생성해 supervisor230844로 detached 실행했다. 기준7e57349를 서버에 반영했고 서버에서도 새 데이터/통합 테스트6개 PASS. Fold assignment SHA는 로컬/서버 모두5e823b9408bf8c410005042315c362b8291aed9efd3e461cec7cc79fbac33e9b로 동일하다. 원본600개와 scenario/heldout 보존 검증 후 공통 fold Artifacts를 업로드한다. 실행 시작 시점 기록이며100회 완료를 뜻하지 않는다.
-
-첫 trial16bf49d97697472f958c9b5b47b8ff17(LR0.0012160733764562271) 및 첫 fold Childba46a692696444cd8d114a5fdcb8fa27가 실제 CUDA에서 학습 중이다. 429optimizer steps/3epoch, validation120 cases와 MLflow epoch3 동기화를 확인했다. 실제 optimizer params10개가 trial/fold 양쪽에 기록됐고 Parent→trial→fold 연결도 GET으로 검증했다. Trial 평균·표준편차는5개 fold 완료 뒤 기록하며 그전 실시간 진행은 fold 행의 epoch를 확인한다. 초기 진행은 전체100회 완료를 의미하지 않는다.
