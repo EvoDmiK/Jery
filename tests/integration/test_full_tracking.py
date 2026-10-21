@@ -61,6 +61,32 @@ class FullTrackingTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             tracking.validate_prepared_config(config, {}, config)
 
+    @unittest.skipUnless(importlib.util.find_spec('hyperopt'), 'Requires the decision-training environment')
+    def test_optimizer_search_keeps_types_and_replays_into_training(self):
+        plan = json.loads((ROOT / 'configs/training/laya-ten-tools-train600-joint20-20261021.json').read_text())
+        config = json.loads((ROOT / 'configs/training/laya-ten-tools-train600-joint20-model-20261021.json').read_text())
+        children = []
+        for index in range(8):  # Includes TPE after its six startup trials.
+            trial = tracking.hyperopt_candidate(plan, children)
+            sampled = trial['parameters']
+            self.assertIs(type(sampled['grad_accum']), int)
+            self.assertIs(type(sampled['warmup_steps']), int)
+            self.assertIn(sampled['lr_scheduler'], ['linear', 'cosine'])
+            overrides, params = tracking.trial_settings(plan, config, sampled)
+            for key in ('warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'):
+                self.assertIn(sampled[key], plan['hyperopt'][key])
+                self.assertEqual(overrides[key], sampled[key])
+            self.assertIn(params['effective_batch_size'], [4, 8, 16])
+            self.assertEqual(params['effective_batch_size'], 4 * sampled['grad_accum'])
+            self.assertEqual(set(params), tracking.child_param_keys(plan))
+            self.assertEqual(json.loads(json.dumps(trial)), trial)
+            children.append({'status': 'finished', 'search_validation': .6 + .01 * index,
+                             'hyperopt': trial, 'final_test': 0.})
+        expected = tracking.hyperopt_candidate(plan, children)
+        for child in children:
+            child['final_test'] = 1.
+        self.assertEqual(tracking.hyperopt_candidate(plan, children), expected)
+
     def test_v2_search_uses_trained_score_below_serving_baseline(self):
         plan = {'training_policy_version': tracking.POLICY_V2}
         self.assertEqual(tracking.comparison_score({'final_validation': .1613, 'search_validation': .08}, plan), .08)

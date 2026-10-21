@@ -1,0 +1,199 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-train600-joint20-20261021",
+  "dataset_version": "hermes-ten-tools-v3",
+  "export_dir": "outputs/laya-ten-tools-training-v3-final-20261020/augmented",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "rank best trained tool-choice validation accuracy; serving baseline protected",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-ten-tools-train600-joint20",
+  "previous_parent_run_id": "6261a1bdca194867a835cbfb2216493f",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 8,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "User-requested joint TPE20 search over LR, regularization, warmup, effective batch via accumulation, gradient clipping and scheduler; replaces waiting LR-only experiment",
+  "search_score": "best_trained_validation_case_accuracy",
+  "hyperopt": {
+    "algorithm": "tpe",
+    "max_evals": 20,
+    "startup_trials": 6,
+    "head_lr": [
+      0.001,
+      0.005
+    ],
+    "weight_decay": [
+      0.0,
+      0.05,
+      0.1
+    ],
+    "label_smoothing": [
+      0.0,
+      0.1
+    ],
+    "objective": "1 - best_trained_validation_case_accuracy",
+    "test_used_for_search": false,
+    "warmup_steps": [
+      10,
+      75,
+      150
+    ],
+    "grad_accum": [
+      1,
+      2,
+      4
+    ],
+    "max_grad_norm": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "lr_scheduler": [
+      "linear",
+      "cosine"
+    ]
+  },
+  "fixed_conditions": {
+    "window_none_loss_weight": 1.0,
+    "window_none_loss_weight_active": false,
+    "micro_batch": 4,
+    "seed": 3407
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v3",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "ten_tool_train600_joint_optimizer20",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  },
+  "tracking_notes": {
+    "searched_parameters": "TPE20/startup6: LR1e-3..5e-3,WD[0,0.05,0.1],smoothing[0,0.1],warmup_steps[10,75,150],grad_accum[1,2,4] (micro4 => effective batch4/8/16),max_grad_norm[0.5,1,2],lr_scheduler[linear,cosine]. Full typed samples in child configuration.json; essential tracking allowlist unchanged.",
+    "validation_display": "Child val metrics show last epoch; chosen head epoch/validation are in report.json and parent summary.",
+    "comparison": "Joint exploratory search, not a one-factor causal comparison. Seven varying parameters and20 trials provide coarse coverage. Current child test never enters TPE/checkpoint selection; historical test-informed provenance retained.",
+    "reference_scope": "Six historical F1-qualified runs informed the previous regularization choices; their LR values are below this user-requested higher-LR range and are retained as provenance, not claimed to lie inside the new range."
+  },
+  "range_design_used_historical_test": true,
+  "reference_runs": [
+    {
+      "run_id": "87e3fbaf6f3848b898e02a3ecf089551",
+      "head_lr": 0.0001503248604273792,
+      "weight_decay": 0.05,
+      "label_smoothing": 0.0,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.7933,
+      "selected_val_macro_f1": 0.84,
+      "test_macro_f1": 0.7433,
+      "selected_epoch": 16
+    },
+    {
+      "run_id": "62b290a1f0b64728838865fd265ad30d",
+      "head_lr": 0.00015075287542684683,
+      "weight_decay": 0.05,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.7733,
+      "selected_val_macro_f1": 0.76,
+      "test_macro_f1": 0.7033,
+      "selected_epoch": 11
+    },
+    {
+      "run_id": "a921dc11102849a6becf9d59eed28738",
+      "head_lr": 0.0002223984100861598,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8,
+      "selected_val_macro_f1": 0.8933,
+      "test_macro_f1": 0.7933,
+      "selected_epoch": 16
+    },
+    {
+      "run_id": "39fe7d47d62d4e25bdcd21c9e6124e86",
+      "head_lr": 0.00030688185181688786,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.0,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8433,
+      "selected_val_macro_f1": 0.8933,
+      "test_macro_f1": 0.72,
+      "selected_epoch": 13
+    },
+    {
+      "run_id": "2df2593adf2a4605978ba58c03fb313d",
+      "head_lr": 0.0003878263599767341,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.8433,
+      "selected_val_macro_f1": 0.9467,
+      "test_macro_f1": 0.7933,
+      "selected_epoch": 9
+    },
+    {
+      "run_id": "c79ecdc6091a46b98e938d5817d2743b",
+      "head_lr": 0.00040638972417911305,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.1,
+      "seed": 3407,
+      "effective_batch_size": 4,
+      "displayed_last_val_macro_f1": 0.78,
+      "selected_val_macro_f1": 0.9467,
+      "test_macro_f1": 0.74,
+      "selected_epoch": 10
+    }
+  ],
+  "reference_filter": {
+    "parent_run_id": "dca0889273a641eaae6e4a92bfa9efc9",
+    "status": "FINISHED",
+    "displayed_last_val_macro_f1_gte": 0.75,
+    "selected_serving_test_macro_f1_gte": 0.7,
+    "qualifying_count": 6,
+    "also_checked_selected_checkpoint_val_macro_f1_gte": 0.75
+  },
+  "launch_after_parent_run_id": "6261a1bdca194867a835cbfb2216493f",
+  "supersedes_waiting_parent_run_id": "8e27ea4395af45c9ba1fc429e01dab44"
+}

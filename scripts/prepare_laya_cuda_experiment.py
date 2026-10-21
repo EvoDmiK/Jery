@@ -41,6 +41,21 @@ def validate_explicit_plan(plan, config):
             raise ValueError('Invalid window_none weight search choices')
         if weights is not None and 'window_none_loss_weight' not in plan['child_params']:
             raise ValueError('Searched window_none weight must be tracked as a child parameter')
+        for key in ('warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'):
+            if key not in search:
+                continue
+            choices = search[key]
+            if not isinstance(choices, list) or not choices:
+                raise ValueError('Search choices must be nonempty: ' + key)
+            for value in choices:
+                if key == 'lr_scheduler':
+                    valid = isinstance(value, str) and value in ('linear', 'cosine')
+                elif key in ('warmup_steps', 'grad_accum'):
+                    valid = type(value) is int and value >= (0 if key == 'warmup_steps' else 1)
+                else:
+                    valid = (type(value) in (int, float) and math.isfinite(value) and value > 0)
+                if not valid:
+                    raise ValueError('Invalid search choice: ' + key)
     if plan.get('training_policy_version') == POLICY_V2:
         if plan['validation_callback'] != config['validation_callback']:
             raise ValueError('Plan/model callback policies differ')

@@ -58,6 +58,21 @@ class CudaExperimentPlanTest(unittest.TestCase):
         plan.pop('evaluation_task')
         with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, config)
 
+    def test_optimizer_search_choices_reject_bad_types_and_values(self):
+        plan = json.loads((ROOT / 'configs/training/laya-ten-tools-train600-joint20-20261021.json').read_text())
+        config = json.loads((ROOT / 'configs/training/laya-ten-tools-train600-joint20-model-20261021.json').read_text())
+        prepare.validate_explicit_plan(plan, config)
+        for key, choices in [('warmup_steps', []), ('warmup_steps', [True]),
+                             ('warmup_steps', [-1]), ('warmup_steps', [1.5]),
+                             ('grad_accum', [0]), ('grad_accum', [False]),
+                             ('max_grad_norm', [float('nan')]), ('max_grad_norm', [0]),
+                             ('max_grad_norm', [True]), ('lr_scheduler', ['typo']),
+                             ('lr_scheduler', 'linear')]:
+            with self.subTest(key=key, choices=choices):
+                bad = copy.deepcopy(plan)
+                bad['hyperopt'][key] = choices
+                with self.assertRaises(ValueError): prepare.validate_explicit_plan(bad, config)
+
     def test_rejects_mixed_search_or_invalid_weights_and_budget(self):
         for kind in ('mixed', 'weight', 'duplicate', 'short_budget', 'version'):
             with self.subTest(kind=kind):

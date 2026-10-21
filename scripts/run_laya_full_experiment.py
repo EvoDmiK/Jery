@@ -146,6 +146,9 @@ def hyperopt_candidate(plan, children):
              'label_smoothing': hp.choice('label_smoothing', search['label_smoothing'])}
     if 'window_none_loss_weight' in search:
         space['window_none_loss_weight'] = hp.choice('window_none_loss_weight', search['window_none_loss_weight'])
+    for key in ('warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'):
+        if key in search:
+            space[key] = hp.choice(key, search[key])
     trials = Trials()
     for child in children:
         if child['status'] != 'finished':
@@ -161,7 +164,7 @@ def hyperopt_candidate(plan, children):
     parameters = space_eval(space, values)
     # Hyperopt uses NumPy scalars; its trial dates are None until the objective is scheduled.
     document = json.loads(json.dumps(documents[0], default=lambda x: x.item() if isinstance(x, np.generic) else str(x)))
-    return {'parameters': {k: float(v) for k, v in parameters.items()}, 'document': document,
+    return {'parameters': {k: v.item() if isinstance(v, np.generic) else v for k, v in parameters.items()}, 'document': document,
             'algorithm': 'hyperopt.tpe.suggest',
             'objective': '1 - best_trained_validation_case_accuracy' if plan.get('training_policy_version') == POLICY_V2
                          else '1 - best_validation_case_accuracy'}
