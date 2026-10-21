@@ -22,6 +22,7 @@ from sync_laya_training_metrics import request
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TRACKING_URI = 'https://mlflow.dove-nest.com'
 PARAMS = {'head_lr', 'epochs', 'seed', 'effective_batch_size'}
+COMPARISON_PARAMS = {'warmup_steps', 'max_grad_norm', 'lr_scheduler', 'weight_decay', 'label_smoothing'}
 METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
            'test_accuracy', 'test_macro_f1', 'test_coverage'}
 POLICY_V2 = 'laya-routing-v2'
@@ -29,8 +30,9 @@ POLICY_V2 = 'laya-routing-v2'
 
 def child_param_keys(plan):
     keys = set(plan['child_params'])
-    if keys == PARAMS or (plan.get('training_policy_version') == POLICY_V2
-                         and keys == PARAMS | {'window_none_loss_weight'}):
+    core = keys - COMPARISON_PARAMS
+    if core == PARAMS or (plan.get('training_policy_version') == POLICY_V2
+                         and core == PARAMS | {'window_none_loss_weight'}):
         return keys
     raise ValueError('Unexpected child tracking parameters')
 
@@ -132,6 +134,8 @@ def trial_settings(plan, config, sampled):
               'seed': overrides['seed'], 'effective_batch_size': overrides['micro_batch'] * overrides['grad_accum']}
     if 'window_none_loss_weight' in child_param_keys(plan):
         params['window_none_loss_weight'] = overrides.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
+    for key in child_param_keys(plan) & COMPARISON_PARAMS:
+        params[key] = overrides[key] if key in overrides else config[key]
     return overrides, params
 
 

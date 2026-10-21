@@ -14,7 +14,12 @@
     "epochs",
     "seed",
     "effective_batch_size",
-    "window_none_loss_weight"
+    "window_none_loss_weight",
+    "warmup_steps",
+    "max_grad_norm",
+    "lr_scheduler",
+    "weight_decay",
+    "label_smoothing"
   ],
   "child_metrics": [
     "train_loss",
@@ -106,7 +111,7 @@
     "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
   },
   "tracking_notes": {
-    "searched_parameters": "TPE20/startup6: LR1e-3..5e-3,WD[0,0.05,0.1],smoothing[0,0.1],warmup_steps[10,75,150],grad_accum[1,2,4] (micro4 => effective batch4/8/16),max_grad_norm[0.5,1,2],lr_scheduler[linear,cosine]. Full typed samples in child configuration.json; essential tracking allowlist unchanged.",
+    "searched_parameters": "TPE20/startup6: LR1e-3..5e-3,WD[0,0.05,0.1],smoothing[0,0.1],warmup_steps[10,75,150],grad_accum[1,2,4] (micro4 => effective batch4/8/16),max_grad_norm[0.5,1,2],lr_scheduler[linear,cosine]. Five optimizer comparison parameters promoted to MLflow params; full typed samples retained in configuration.json.",
     "validation_display": "Child val metrics show last epoch; chosen head epoch/validation are in report.json and parent summary.",
     "comparison": "Joint exploratory search, not a one-factor causal comparison. Seven varying parameters and20 trials provide coarse coverage. Current child test never enters TPE/checkpoint selection; historical test-informed provenance retained.",
     "reference_scope": "Six historical F1-qualified runs informed the previous regularization choices; their LR values are below this user-requested higher-LR range and are retained as provenance, not claimed to lie inside the new range."

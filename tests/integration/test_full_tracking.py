@@ -79,6 +79,8 @@ class FullTrackingTest(unittest.TestCase):
             self.assertIn(params['effective_batch_size'], [4, 8, 16])
             self.assertEqual(params['effective_batch_size'], 4 * sampled['grad_accum'])
             self.assertEqual(set(params), tracking.child_param_keys(plan))
+            for key in tracking.COMPARISON_PARAMS:
+                self.assertEqual(params[key], overrides.get(key, config[key]))
             self.assertEqual(json.loads(json.dumps(trial)), trial)
             children.append({'status': 'finished', 'search_validation': .6 + .01 * index,
                              'hyperopt': trial, 'final_test': 0.})
@@ -86,6 +88,18 @@ class FullTrackingTest(unittest.TestCase):
         for child in children:
             child['final_test'] = 1.
         self.assertEqual(tracking.hyperopt_candidate(plan, children), expected)
+
+    def test_comparison_params_use_actual_override_then_config(self):
+        plan = {'epochs': 32, 'seed': 3407, 'micro_batch': 4, 'grad_accum': 1,
+                'export_dir': 'unchanged', 'child_params': sorted(tracking.PARAMS | tracking.COMPARISON_PARAMS)}
+        config = {'warmup_steps': 10, 'max_grad_norm': 1., 'lr_scheduler': 'linear',
+                  'weight_decay': .05, 'label_smoothing': 0.}
+        _, params = tracking.trial_settings(plan, config, {'head_learning_rate': .003,
+                                            'warmup_steps': 150, 'lr_scheduler': 'cosine'})
+        self.assertEqual(params['warmup_steps'], 150)
+        self.assertEqual(params['lr_scheduler'], 'cosine')
+        self.assertEqual(params['weight_decay'], .05)
+        self.assertEqual(params['label_smoothing'], 0.)
 
     def test_v2_search_uses_trained_score_below_serving_baseline(self):
         plan = {'training_policy_version': tracking.POLICY_V2}
