@@ -39,3 +39,9 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 ```
 
 이미 생성된 fold 출력은 덮어쓰지 않는다. 재개는 기존 state와 같은 plan/config/fold 파일로 CV supervisor만 실행하며 process/lock을 확인한다. 학습 시작과100회 완료는 다른 상태이고 실제 상태는 tracking/state.json과 MLflow를 따른다.
+
+## 실행 등록
+
+[CV Parent790b62ac777c43098b47cadd134d3a4e](https://mlflow.dove-nest.com/#/experiments/47/runs/790b62ac777c43098b47cadd134d3a4e)를 생성해 supervisor230844로 detached 실행했다. 기준7e57349를 서버에 반영했고 서버에서도 새 데이터/통합 테스트6개 PASS. Fold assignment SHA는 로컬/서버 모두5e823b9408bf8c410005042315c362b8291aed9efd3e461cec7cc79fbac33e9b로 동일하다. 원본600개와 scenario/heldout 보존 검증 후 공통 fold Artifacts를 업로드한다. 실행 시작 시점 기록이며100회 완료를 뜻하지 않는다.
+
+첫 trial16bf49d97697472f958c9b5b47b8ff17(LR0.0012160733764562271) 및 첫 fold Childba46a692696444cd8d114a5fdcb8fa27가 실제 CUDA에서 학습 중이다. 429optimizer steps/3epoch, validation120 cases와 MLflow epoch3 동기화를 확인했다. 실제 optimizer params10개가 trial/fold 양쪽에 기록됐고 Parent→trial→fold 연결도 GET으로 검증했다. Trial 평균·표준편차는5개 fold 완료 뒤 기록하며 그전 실시간 진행은 fold 행의 epoch를 확인한다. 초기 진행은 전체100회 완료를 의미하지 않는다.
