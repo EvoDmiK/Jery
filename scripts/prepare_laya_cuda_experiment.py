@@ -67,15 +67,17 @@ def validate_explicit_plan(plan, config):
         names = set()
         for trial in plan['trials']:
             required = {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}
-            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum'}:
+            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum', 'export_dir'}:
                 raise ValueError('Unexpected fixed-trial fields')
+            if 'export_dir' in trial and (not isinstance(trial['export_dir'], str) or not trial['export_dir'].strip()):
+                raise ValueError('Invalid fixed-trial export_dir')
             for key in ('seed', 'micro_batch', 'grad_accum'):
                 if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key == 'seed' else 1)):
                     raise ValueError('Invalid fixed-trial ' + key)
             if not isinstance(trial['trial_id'], str) or not trial['trial_id'] or trial['trial_id'] in names:
                 raise ValueError('Unique nonempty fixed trial IDs required')
             names.add(trial['trial_id'])
-            if not all(isinstance(v, (int, float)) and math.isfinite(v) for k, v in trial.items() if k != 'trial_id'):
+            if not all(isinstance(v, (int, float)) and math.isfinite(v) for k, v in trial.items() if k not in ('trial_id', 'export_dir')):
                 raise ValueError('Nonfinite trial parameter')
             if (trial['head_learning_rate'] <= 0 or trial['weight_decay'] < 0
                     or not 0 <= trial['label_smoothing'] < 1 or not 0 < trial['window_none_loss_weight'] <= 1):

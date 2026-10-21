@@ -138,7 +138,7 @@ def trained_search_score(report, epochs):
 
 def trial_settings(plan, config, sampled):
     overrides = {'epochs': plan['epochs'], 'seed': plan['seed'], 'micro_batch': plan['micro_batch'],
-                 'grad_accum': plan['grad_accum'], **sampled, 'export_dir': plan['export_dir']}
+                 'grad_accum': plan['grad_accum'], 'export_dir': plan['export_dir'], **sampled}
     params = {'head_lr': overrides['head_learning_rate'], 'epochs': overrides['epochs'],
               'seed': overrides['seed'], 'effective_batch_size': overrides['micro_batch'] * overrides['grad_accum']}
     if 'window_none_loss_weight' in child_param_keys(plan):
@@ -179,8 +179,8 @@ def hyperopt_candidate(plan, children):
     document = json.loads(json.dumps(documents[0], default=lambda x: x.item() if isinstance(x, np.generic) else str(x)))
     return {'parameters': {k: v.item() if isinstance(v, np.generic) else v for k, v in parameters.items()}, 'document': document,
             'algorithm': 'hyperopt.tpe.suggest',
-            'objective': '1 - best_trained_validation_case_accuracy' if plan.get('training_policy_version') == POLICY_V2
-                         else '1 - best_validation_case_accuracy'}
+            'objective': search.get('objective', '1 - best_trained_validation_case_accuracy'
+                         if plan.get('training_policy_version') == POLICY_V2 else '1 - best_validation_case_accuracy')}
 
 
 def main():
@@ -214,11 +214,13 @@ def main():
     if plan.get('training_policy_version') == POLICY_V2:
         validate_prepared_config(config, plan, json.loads((folder / 'configuration.json').read_text()))
     base, parent = options.tracking_uri, state['parent_run_id']
-    expected_export = json.loads((ROOT / plan['export_dir'] / 'manifest.json').read_text())
-    for split in ('train', 'validation', 'test'):
-        path = ROOT / plan['export_dir'] / (split + '.jsonl')
-        if hashlib.sha256(path.read_bytes()).hexdigest() != expected_export['splits'][split]['sha256']:
-            raise ValueError('Export changed: ' + split)
+    export_dirs = {plan['export_dir']} | {t['export_dir'] for t in plan.get('trials', []) if 'export_dir' in t}
+    for directory in export_dirs:
+        expected_export = json.loads((ROOT / directory / 'manifest.json').read_text())
+        for split in ('train', 'validation', 'test'):
+            path = ROOT / directory / (split + '.jsonl')
+            if hashlib.sha256(path.read_bytes()).hexdigest() != expected_export['splits'][split]['sha256']:
+                raise ValueError('Export changed: ' + str(path))
     os.environ.update(PYTHONPATH=str(ROOT / 'src'), HF_HUB_OFFLINE='1', USE_TF='0', TOKENIZERS_PARALLELISM='false')
     state.update(status='running', supervisor_pid=os.getpid(), tracking_uri=base,
                  started_at=datetime.now(timezone.utc).isoformat())
@@ -397,7 +399,8 @@ def main():
         local = folder / item['local_id']; local.mkdir(parents=True, exist_ok=True)
         configuration = local / 'configuration.json'
         write_json(configuration, {'config': {**config, **overrides}, 'plan': plan,
-                                  'data_parent_artifact_uri': state['parent_artifact_uri'] + '/data'}, overwrite=False)
+                                  'data_parent_artifact_uri': plan.get('export_artifact_uris', {}).get(
+                                      overrides['export_dir'], state['parent_artifact_uri'] + '/data')}, overwrite=False)
         item.setdefault('verified_artifacts', {})['configuration.json'] = store_json(
             item['run_id'], item['artifact_uri'], 'configuration.json', configuration)
         sources = {}
