@@ -53,7 +53,7 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 [고정 10개 도구 학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md)는 기존 train 240개에 AI 작성·검토한 합성 360개를 더한 600개(도구당 60개)다. 검증·평가 각 20개와 기존 train prefix를 바이트 단위로 보존했다. 전체 테스트 169개와 Laya native 입력 검증을 통과했고, 이후 회사 CUDA 서버에서 [train600 Hyperopt 5회](docs/data/ten-tool-train600-20261020.md)를 완료했고, 참고 모델 기반 [Hyperopt 20회](docs/data/ten-tool-train600-search20-20261020.md)도 완료했다. F1 조건을 함께 만족한 6개 실행의 파라미터로 범위를 좁힌 [후속 Hyperopt 20회](docs/data/ten-tool-train600-refine20-20261021.md)를 회사 CUDA 서버에서 시작했다. 상세 검토·재현·한계는 [통합 보고서](docs/data/ten-tool-training-augmentation-20261020.md)를 따른다. 이어 LR·warmup·유효 배치·clipping·scheduler를 함께 탐색하는 [공동 Hyperopt20회](docs/data/ten-tool-train600-joint20-20261021.md)를 완료했고, 비-LR 조건을 고정한 [LR-only20회 × 층화5-fold 검증](docs/data/ten-tool-lr-only-cv5-20261021.md)을 실행했으며 사용자 요청으로 중단했다.
 
-현재는 [지정 Parent의 선택 Child 기준 설정](docs/data/lr-only-reference-lr1e3-20261021.md)을 별도로 준비했다. LR 외 전체 모델 설정을 기준 Child와 일치시켰고 학습은 재개하지 않았다.
+[지정 Parent의 선택 Child 기준 설정](docs/data/lr-only-reference-lr1e3-20261021.md)으로 LR 외 전체 모델 설정을 일치시켰다. 이후 사용자 요청으로 별도 Parent에서 LR-only20조건 × 동일 층화5-fold 학습을 시작했다.
 
 ## 초기 데이터셋
 
