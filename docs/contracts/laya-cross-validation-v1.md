@@ -25,3 +25,7 @@ Trial의 val_accuracy/val_macro_f1은5개 fold 최종 selected-serving head의 �
 ## 복구
 
 CV supervisor와 기존 fold supervisor는 각각 lock을 갖는다. 재실행 시 plan/config/folds hash를 확인하고 완료 trial/fold를 재학습하지 않는다. 모델 report가 이미 있으면 기존 supervisor의 업로드 복구를 재사용한다. 실패 시 CV state와 MLflow Parent에 실패 상태를 표시한다.
+
+## 선택적 기준 Child 전체 설정 고정
+
+reference_model_config가 있는 CV plan은 head_learning_rate와 models_dir/outputs_dir를 제외한 모든 model config key/value가 snapshot과 일치해야 한다. 기준은 parent 기본값이 아닌 실제 Child configuration.json이다. LR 이외의 전처리·학습·평가·memory 설정 drift도 거부한다. 이 snapshot을 추가해도 과거 run/state/학습 결과를 다시 해석하거나 변경하지 않는다.

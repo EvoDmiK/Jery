@@ -49,6 +49,12 @@ def aggregate_folds(reports):
 
 def validate_cv_plan(plan, config):
     validate_explicit_plan(plan, config)
+    reference = plan.get('reference_model_config')
+    if reference is not None:
+        excluded = {'head_learning_rate', 'models_dir', 'outputs_dir'}
+        if ({k: v for k, v in config.items() if k not in excluded}
+                != {k: v for k, v in reference.items() if k not in excluded}):
+            raise ValueError('Non-LR model parameters differ from the reference child')
     search = plan['hyperopt']
     if (set(search) - {'algorithm', 'max_evals', 'startup_trials', 'head_lr', 'weight_decay',
                       'label_smoothing', 'objective', 'test_used_for_search'}

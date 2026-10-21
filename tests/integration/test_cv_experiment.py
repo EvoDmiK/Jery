@@ -9,6 +9,20 @@ from run_laya_full_experiment import trial_settings, PARAMS
 
 
 class CvExperimentTest(unittest.TestCase):
+    def test_reference_child_all_non_lr_model_settings_are_immutable(self):
+        root = Path(__file__).resolve().parents[2]
+        plan = json.loads((root / 'configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-20261021.json').read_text())
+        config = json.loads((root / 'configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-model-20261021.json').read_text())
+        validate_cv_plan(plan, config)
+        config['head_learning_rate'] = .004
+        config['models_dir'] = 'isolated-model-output'
+        validate_cv_plan(plan, config)
+        for key, value in [('warmup_steps', 75), ('label_smoothing', 0.),
+                           ('eval_batch_size', 8), ('gradient_checkpointing', False)]:
+            changed = {**config, key: value}
+            with self.subTest(key=key), self.assertRaises(ValueError):
+                validate_cv_plan(plan, changed)
+
     def test_cv_plan_rejects_searching_non_lr_conditions(self):
         root = Path(__file__).resolve().parents[2]
         plan = json.loads((root / 'configs/training/laya-ten-tools-train600-lr-only-cv5-20261021.json').read_text())
