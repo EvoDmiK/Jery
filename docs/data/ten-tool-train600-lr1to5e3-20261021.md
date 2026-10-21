@@ -39,3 +39,7 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 ```
 
 실행기 코드/추가 의존성 변경 없음. 데이터 검증 PASS(130examples/10tools/65isolated scenarios), 새 plan/model 계약 및 LR 범위/20회/기타 조건 보존 assert PASS. 기존 CUDA 계획 테스트5개도 확인한다. 기존 supervisor 중복 실행을 피하고 upstream FINISHED 때만 다음 Child를 생성한다. 대기 등록과 실제 학습 시작/완료는 구분한다.
+
+## 실행 등록
+
+[새 Parent8e27ea4395af45c9ba1fc429e01dab44](https://mlflow.dove-nest.com/#/experiments/47/runs/8e27ea4395af45c9ba1fc429e01dab44)를 생성하고 데이터/설정 Artifact의 SHA read-back을 검증했다. 실행 코드/설정 기준dev-codex d5b8ee5를 서버에 반영했다. 기존6261 Parent를 wait-for-run으로 지정한 detached supervisor를 등록했다. CUDA 계획 테스트5개 PASS. Obsidian 작업기록과 index에도 설정·추가 조정 후보를 기록했다.
