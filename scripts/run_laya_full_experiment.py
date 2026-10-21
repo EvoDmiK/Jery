@@ -37,6 +37,15 @@ def child_param_keys(plan):
     raise ValueError('Unexpected child tracking parameters')
 
 
+def validate_logged_keys(saved, expected_params):
+    """Legacy in-flight plans may have the newly supported comparison params backfilled."""
+    actual_params = {p['key'] for p in saved['data']['params']}
+    missing = expected_params - actual_params
+    unexpected = actual_params - expected_params - COMPARISON_PARAMS
+    if missing or unexpected or {m['key'] for m in saved['data']['metrics']} != METRICS:
+        raise ValueError(f'MLflow tracking keys mismatch: missing={sorted(missing)}, unexpected={sorted(unexpected)}')
+
+
 def write_json(path, data, *, overwrite=True):
     if not overwrite and path.exists():
         return
@@ -522,8 +531,7 @@ def main():
                                  'format': report['restore'].get('format', 'unsloth-mlx-laya-trainable-v1')})
         item['verified_artifacts']['model/dependencies.json'] = store_json(item['run_id'], item['artifact_uri'], 'model/dependencies.json', dependencies)
         saved = api('mlflow/runs/get?run_id=' + item['run_id'])['run']
-        if {p['key'] for p in saved['data']['params']} != expected_params or {m['key'] for m in saved['data']['metrics']} != METRICS:
-            raise ValueError('Nonessential MLflow keys were logged, or required keys are missing')
+        validate_logged_keys(saved, expected_params)
         for key in ['train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage']:
             query = urllib.parse.urlencode({'run_id': item['run_id'], 'metric_key': key})
             history = api('mlflow/metrics/get-history?' + query)['metrics']

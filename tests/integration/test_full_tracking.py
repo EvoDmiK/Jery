@@ -14,6 +14,24 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_legacy_completion_accepts_backfilled_comparison_params_only(self):
+        core = tracking.PARAMS | {'window_none_loss_weight'}
+        def record(params, metrics=tracking.METRICS):
+            return {'data': {'params': [{'key': k} for k in params],
+                             'metrics': [{'key': k} for k in metrics]}}
+        tracking.validate_logged_keys(record(core), core)
+        tracking.validate_logged_keys(record(core | tracking.COMPARISON_PARAMS), core)
+        tracking.validate_logged_keys(record(core | tracking.COMPARISON_PARAMS), core | tracking.COMPARISON_PARAMS)
+        for params, metrics, required in [
+            (core | {'private_detail'}, tracking.METRICS, core),
+            (core - {'head_lr'}, tracking.METRICS, core),
+            (core, tracking.METRICS - {'test_accuracy'}, core),
+            (core, tracking.METRICS | {'private_metric'}, core),
+            (core, tracking.METRICS, core | tracking.COMPARISON_PARAMS),
+        ]:
+            with self.subTest(params=params, metrics=metrics, required=required), self.assertRaises(ValueError):
+                tracking.validate_logged_keys(record(params, metrics), required)
+
     def test_trial_overrides_drive_both_training_and_mlflow_parameters(self):
         plan = {'epochs': 32, 'seed': 3407, 'micro_batch': 4, 'grad_accum': 1,
                 'export_dir': 'unchanged-split', 'child_params': sorted(tracking.PARAMS)}
