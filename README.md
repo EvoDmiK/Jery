@@ -51,7 +51,7 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 [전체 CUDA 학습 경로](docs/model/laya-cuda-full-20261019.md)는 같은 데이터·집계·검증 콜백과 MLflow 계약을 사용한다. 서버에서 한 에폭을 검증했고, 사용자 요청으로 CUDA Hyperopt 5회를 기존 Mac 실험과 동시에 실행한다. 두 실험은 별도 Parent로 기록한다.
 
-[고정 10개 도구 학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md)는 기존 train 240개에 AI 작성·검토한 합성 360개를 더한 600개(도구당 60개)다. 검증·평가 각 20개와 기존 train prefix를 바이트 단위로 보존했다. 전체 테스트 169개와 Laya native 입력 검증을 통과했고, 이후 회사 CUDA 서버에서 [train600 Hyperopt 5회](docs/data/ten-tool-train600-20261020.md)를 완료했고, 참고 모델 기반 [Hyperopt 20회](docs/data/ten-tool-train600-search20-20261020.md)도 완료했다. F1 조건을 함께 만족한 6개 실행의 파라미터로 범위를 좁힌 [후속 Hyperopt 20회](docs/data/ten-tool-train600-refine20-20261021.md)를 회사 CUDA 서버에서 시작했다. 상세 검토·재현·한계는 [통합 보고서](docs/data/ten-tool-training-augmentation-20261020.md)를 따른다.
+[고정 10개 도구 학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md)는 기존 train 240개에 AI 작성·검토한 합성 360개를 더한 600개(도구당 60개)다. 검증·평가 각 20개와 기존 train prefix를 바이트 단위로 보존했다. 전체 테스트 169개와 Laya native 입력 검증을 통과했고, 이후 회사 CUDA 서버에서 [train600 Hyperopt 5회](docs/data/ten-tool-train600-20261020.md)를 완료했고, 참고 모델 기반 [Hyperopt 20회](docs/data/ten-tool-train600-search20-20261020.md)도 완료했다. F1 조건을 함께 만족한 6개 실행의 파라미터로 범위를 좁힌 [후속 Hyperopt 20회](docs/data/ten-tool-train600-refine20-20261021.md)를 회사 CUDA 서버에서 시작했다. 상세 검토·재현·한계는 [통합 보고서](docs/data/ten-tool-training-augmentation-20261020.md)를 따른다. 이어 LR·warmup·유효 배치·clipping·scheduler를 함께 탐색하는 [공동 Hyperopt20회](docs/data/ten-tool-train600-joint20-20261021.md)를 등록했다.
 
 ## 초기 데이터셋
 

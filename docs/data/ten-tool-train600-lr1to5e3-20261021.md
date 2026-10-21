@@ -43,3 +43,5 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src /home/persona-ai/envs/jery-cuda/b
 ## 실행 등록
 
 [새 Parent8e27ea4395af45c9ba1fc429e01dab44](https://mlflow.dove-nest.com/#/experiments/47/runs/8e27ea4395af45c9ba1fc429e01dab44)를 생성하고 데이터/설정 Artifact의 SHA read-back을 검증했다. 실행 코드/설정 기준dev-codex d5b8ee5를 서버에 반영했다. 기존6261 Parent를 wait-for-run으로 지정한 detached supervisor를 등록했다. CUDA 계획 테스트5개 PASS. Obsidian 작업기록과 index에도 설정·추가 조정 후보를 기록했다.
+
+후속 변경: 사용자가 warmup·배치·clipping·scheduler 공동 탐색을 요청해 이 LR-only Parent8e27을 waiting/Child0 상태에서 중단했다(MLflow KILLED). [공동 탐색20회](ten-tool-train600-joint20-20261021.md), Parent3b7fd13fe2f74146a520fa64d0c2305d로 대체했으며 기존6261 학습은 유지한다.
