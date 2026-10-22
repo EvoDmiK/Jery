@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import urllib.error
 from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -14,6 +15,19 @@ spec.loader.exec_module(tracking)
 
 
 class FullTrackingTest(unittest.TestCase):
+    def test_proxy_outage_is_retryable_but_client_and_validation_errors_are_not(self):
+        for code in (429, 500, 502, 503, 504, 520, 521, 522, 523, 524):
+            with self.subTest(code=code):
+                self.assertTrue(tracking.transient_tracking_error(
+                    urllib.error.HTTPError('https://tracking.invalid', code, 'outage', {}, None)))
+        for code in (400, 401, 403, 404, 409, 501):
+            with self.subTest(code=code):
+                self.assertFalse(tracking.transient_tracking_error(
+                    urllib.error.HTTPError('https://tracking.invalid', code, 'permanent', {}, None)))
+        for error in (urllib.error.URLError('offline'), TimeoutError(), ConnectionError()):
+            self.assertTrue(tracking.transient_tracking_error(error))
+        self.assertFalse(tracking.transient_tracking_error(ValueError('invalid artifact')))
+
     def test_legacy_completion_accepts_backfilled_comparison_params_only(self):
         core = tracking.PARAMS | {'window_none_loss_weight'}
         def record(params, metrics=tracking.METRICS):

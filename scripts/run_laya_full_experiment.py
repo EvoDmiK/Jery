@@ -28,6 +28,13 @@ METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
 POLICY_V2 = 'laya-routing-v2'
 
 
+def transient_tracking_error(error):
+    """Retry transport outages, including proxy 520–524 responses, but reject client errors."""
+    if isinstance(error, urllib.error.HTTPError):
+        return error.code in (429, 500, 502, 503, 504, 520, 521, 522, 523, 524)
+    return isinstance(error, (urllib.error.URLError, TimeoutError, ConnectionError))
+
+
 def child_param_keys(plan):
     keys = set(plan['child_params'])
     core = keys - COMPARISON_PARAMS
@@ -237,11 +244,6 @@ def main():
     signal.signal(signal.SIGTERM, stop)
     signal.signal(signal.SIGINT, stop)
 
-    def transient(error):
-        return (isinstance(error, urllib.error.HTTPError) and error.code in (429, 500, 502, 503, 504)
-                or isinstance(error, (urllib.error.URLError, TimeoutError, ConnectionError))
-                and not isinstance(error, urllib.error.HTTPError))
-
     def network_call(function, *args):
         while True:
             try:
@@ -251,7 +253,7 @@ def main():
                     write_json(state_path, state)
                 return result
             except Exception as error:
-                if not transient(error) or stopped:
+                if not transient_tracking_error(error) or stopped:
                     raise
                 state['tracking_error'] = repr(error)
                 write_json(state_path, state)

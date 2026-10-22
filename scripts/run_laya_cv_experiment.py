@@ -14,7 +14,7 @@ import urllib.error
 
 from prepare_laya_cuda_experiment import validate_explicit_plan
 from run_laya_full_experiment import (ROOT, DEFAULT_TRACKING_URI, hyperopt_candidate, trial_settings,
-                                     comparison_macro_f1, write_json)
+                                     comparison_macro_f1, write_json, transient_tracking_error)
 from run_laya_repeats import upload
 from sync_laya_training_metrics import request
 
@@ -124,7 +124,7 @@ def main():
             try:
                 return function(*values)
             except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
-                if stopped or (isinstance(error, urllib.error.HTTPError) and error.code not in (429, 500, 502, 503, 504)):
+                if stopped or not transient_tracking_error(error):
                     raise
                 print('Tracking retry: ' + str(error), flush=True)
                 time.sleep(15)
