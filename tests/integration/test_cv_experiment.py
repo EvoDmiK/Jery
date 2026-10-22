@@ -5,10 +5,47 @@ import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
 from run_laya_cv_experiment import aggregate_folds, FIXED_KEYS, validate_cv_plan
-from run_laya_full_experiment import trial_settings, PARAMS
+from run_laya_full_experiment import trial_settings, PARAMS, hyperopt_candidate
 
 
 class CvExperimentTest(unittest.TestCase):
+    def test_fixed_lr_reference_first_then_nineteen_parameter_conditions(self):
+        try:
+            import hyperopt
+        except ImportError:
+            self.skipTest('Hyperopt is required for actual ask/tell verification')
+        root = Path(__file__).resolve().parents[2]
+        plan = json.loads((root / 'configs/training/laya-ten-tools-fixedlr-params-cv5-20261022.json').read_text())
+        config = json.loads((root / 'configs/training/laya-ten-tools-fixedlr-params-cv5-20261022-model.json').read_text())
+        validate_cv_plan(plan, config)
+        children = []
+        for index in range(20):
+            candidate = hyperopt_candidate(plan, children)
+            parameters = candidate['parameters']
+            self.assertEqual(parameters['head_learning_rate'], config['head_learning_rate'])
+            if index == 0:
+                self.assertEqual(parameters, plan['first_trial_parameters'])
+            else:
+                self.assertNotEqual(parameters, plan['first_trial_parameters'])
+            overrides, tracked = trial_settings(plan, config, parameters)
+            self.assertEqual(tracked['effective_batch_size'], 4 * parameters['grad_accum'])
+            for key in parameters:
+                self.assertEqual(overrides[key], parameters[key])
+            changed_test = json.loads(json.dumps(children))
+            for child in changed_test:
+                child['final_test'] = 0.
+            self.assertEqual(hyperopt_candidate(plan, changed_test), candidate)
+            children.append({'status': 'finished', 'hyperopt': candidate,
+                             'search_validation': .6 + index / 100, 'final_test': .99})
+        changed = json.loads(json.dumps(plan))
+        changed['first_trial_parameters']['weight_decay'] = 0.
+        with self.assertRaises(ValueError):
+            validate_cv_plan(changed, config)
+        changed = json.loads(json.dumps(plan))
+        changed['hyperopt']['head_lr'] = [.0001, .001]
+        with self.assertRaises(ValueError):
+            validate_cv_plan(changed, config)
+
     def test_reference_child_all_non_lr_model_settings_are_immutable(self):
         root = Path(__file__).resolve().parents[2]
         plan = json.loads((root / 'configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-20261021.json').read_text())

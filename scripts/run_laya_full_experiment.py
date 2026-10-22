@@ -161,7 +161,8 @@ def hyperopt_candidate(plan, children):
     from hyperopt import Trials, base, hp, space_eval, tpe, STATUS_OK
     from hyperopt.base import JOB_STATE_DONE
     search = plan['hyperopt']
-    space = {'head_learning_rate': hp.loguniform('head_learning_rate', math.log(search['head_lr'][0]), math.log(search['head_lr'][1])),
+    space = {'head_learning_rate': (search['head_lr'][0] if search['head_lr'][0] == search['head_lr'][1]
+                                    else hp.loguniform('head_learning_rate', math.log(search['head_lr'][0]), math.log(search['head_lr'][1]))),
              'weight_decay': hp.choice('weight_decay', search['weight_decay']),
              'label_smoothing': hp.choice('label_smoothing', search['label_smoothing'])}
     if 'window_none_loss_weight' in search:
@@ -178,10 +179,19 @@ def hyperopt_candidate(plan, children):
         trials.insert_trial_docs([document])
     trials.refresh()
     tid = trials.new_trial_ids(1)[0]
-    documents = tpe.suggest([tid], base.Domain(lambda value: value, space), trials,
-                            seed=int(plan['seed'] + tid), n_startup_jobs=search['startup_trials'])
-    values = {key: value[0] for key, value in documents[0]['misc']['vals'].items() if value}
-    parameters = space_eval(space, values)
+    baseline = plan.get('first_trial_parameters')
+    for attempt in range(100):
+        documents = tpe.suggest([tid], base.Domain(lambda value: value, space), trials,
+                                seed=int(plan['seed'] + tid + attempt * 10000), n_startup_jobs=search['startup_trials'])
+        if baseline and tid == 0:
+            for key in documents[0]['misc']['vals']:
+                documents[0]['misc']['vals'][key] = [search[key].index(baseline[key])]
+        values = {key: value[0] for key, value in documents[0]['misc']['vals'].items() if value}
+        parameters = space_eval(space, values)
+        if not baseline or tid == 0 or parameters != baseline:
+            break
+    else:
+        raise ValueError('Could not sample a condition different from the reference')
     # Hyperopt uses NumPy scalars; its trial dates are None until the objective is scheduled.
     document = json.loads(json.dumps(documents[0], default=lambda x: x.item() if isinstance(x, np.generic) else str(x)))
     return {'parameters': {k: v.item() if isinstance(v, np.generic) else v for k, v in parameters.items()}, 'document': document,

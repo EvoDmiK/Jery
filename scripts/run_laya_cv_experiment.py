@@ -56,7 +56,18 @@ def validate_cv_plan(plan, config):
                 != {k: v for k, v in reference.items() if k not in excluded}):
             raise ValueError('Non-LR model parameters differ from the reference child')
     search = plan['hyperopt']
-    if (set(search) - {'algorithm', 'max_evals', 'startup_trials', 'head_lr', 'weight_decay',
+    if plan['cv'].get('search_mode') == 'fixed_lr_parameters':
+        keys = {'weight_decay', 'label_smoothing', 'warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'}
+        if (not reference or config['head_learning_rate'] != reference['head_learning_rate']
+                or search['head_lr'] != [config['head_learning_rate']] * 2):
+            raise ValueError('Reference LR must remain fixed')
+        if plan.get('first_trial_parameters') != {k: config[k] for k in keys | {'head_learning_rate'}}:
+            raise ValueError('First trial must exactly match the reference')
+        if any(config[k] not in search[k] for k in keys):
+            raise ValueError('Reference parameters must be in the search space')
+        if set(search) - keys - {'algorithm', 'max_evals', 'startup_trials', 'head_lr', 'objective', 'test_used_for_search'}:
+            raise ValueError('Unsupported search parameter')
+    elif (set(search) - {'algorithm', 'max_evals', 'startup_trials', 'head_lr', 'weight_decay',
                       'label_smoothing', 'objective', 'test_used_for_search'}
             or search['weight_decay'] != [config['weight_decay']]
             or search['label_smoothing'] != [config['label_smoothing']]):
@@ -194,20 +205,22 @@ def main():
                 write_json(state_path, state)
             sampled = item['hyperopt']['parameters']
             item['head_lr'] = sampled['head_learning_rate']
+            overrides, params = trial_settings(plan, config, sampled)
+            trial_config = {**config, **overrides}
             trial = folder / f'trial-{index:02d}'
             trial.mkdir(exist_ok=True)
-            nested_plan = {**plan, 'parent_name': f"lr-cv-trial{index:02d}-lr{item['head_lr']:g}",
+            nested_plan = {**plan, 'grad_accum': trial_config['grad_accum'], 'parent_name': f"lr-cv-trial{index:02d}-lr{item['head_lr']:g}",
                            'export_dir': str(folds / 'fold-1'),
                            'export_artifact_uris': {str(folds / f'fold-{n}'): uri + f'/data/fold-{n}'
                                                     for n in range(1, plan['cv']['n_splits'] + 1)},
                            'child_name_prefix': f'lr-cv-trial{index:02d}', 'trials': [
                                {'trial_id': f'fold{fold}', 'head_learning_rate': item['head_lr'],
-                                'weight_decay': config['weight_decay'], 'label_smoothing': config['label_smoothing'],
+                                'weight_decay': trial_config['weight_decay'], 'label_smoothing': trial_config['label_smoothing'],
                                 'window_none_loss_weight': config['window_none_loss_weight'],
                                 'export_dir': str(folds / f'fold-{fold}')}
                                for fold in range(1, plan['cv']['n_splits'] + 1)]}
             nested_plan.pop('hyperopt')
-            model = {**config, 'export_dir': nested_plan['export_dir']}
+            model = {**trial_config, 'export_dir': nested_plan['export_dir']}
             write_json(trial / 'plan.json', nested_plan, overwrite=False)
             write_json(trial / 'model-config.json', model, overwrite=False)
             tracking = trial / 'folds'

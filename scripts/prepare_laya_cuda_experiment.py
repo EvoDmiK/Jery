@@ -32,7 +32,7 @@ def validate_explicit_plan(plan, config):
         search = plan['hyperopt']
         lower, upper = search['head_lr']
         if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v > 0
-                   for v in (lower, upper)) or lower >= upper:
+                   for v in (lower, upper)) or lower > upper or (lower == upper and plan.get('cv', {}).get('search_mode') != 'fixed_lr_parameters'):
             raise ValueError('Invalid learning-rate search range')
         weights = search.get('window_none_loss_weight')
         if weights is not None and (plan.get('training_policy_version') != POLICY_V2 or not isinstance(weights, list)
