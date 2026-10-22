@@ -2,6 +2,8 @@
 
 지정한 run의 설정으로 첫 조건을 학습하고, 나머지 19개 조건은 LR을 고정한 채 다른 학습 파라미터를 탐색한다. 기존과 동일한 층화·시나리오 그룹 보존 5-fold를 사용한다.
 
+[새 MLflow 실험](https://mlflow.dove-nest.com/#/experiments/47/runs/d9636e10f0b6449dbf6975e945e07aad) · 실행 코드 `94f6364`
+
 ## 기준 모델
 
 [지정 run](https://mlflow.dove-nest.com/#/experiments/47/runs/976cdae4215f4bf18175187fee21a2ce) · `laya-ten-tools-train600-refine20-lr0.000288845`
@@ -61,3 +63,18 @@ TORCHINDUCTOR_COMPILE_THREADS=4 PYTHONPATH=src \
   --state-dir outputs/laya-ten-tools-fixedlr-params-cv5-20261022/tracking \
   --python /home/persona-ai/envs/jery-cuda/bin/python --detach
 ```
+
+## 검증 결과
+
+서버에서 CV 5개·tracking 15개·계획 6개 테스트가 모두 통과했다. 실제 Hyperopt 후보 20개를 생성해 다음을 확인했다.
+
+- 첫 후보가 지정 run의 설정과 일치.
+- 나머지 19개 후보도 LR이 정확히 동일하며 기준 조합 전체의 반복은 제외.
+- 유효 배치와 실제 학습 override·MLflow 값 일치.
+- Test 값을 바꿔도 다음 후보가 동일.
+
+기존 데이터 검증도 통과했다. 추가 의존성은 없다.
+
+## 실행 확인
+
+2026-10-22 12:37 KST 기준, 첫 조건의 fold 1에서 실제 CUDA 1에폭과 MLflow 동기화를 확인했다. 기준 run과 실제 첫 조건의 전체 모델 설정을 비교해 CV 분할·저장 경로 외 일치를 확인했고, MLflow의 LR·weight decay·label smoothing도 원본 값과 일치했다. 전체 20개 조건 완료를 의미하지 않는다.

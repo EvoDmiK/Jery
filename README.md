@@ -43,17 +43,17 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 ## Laya 학습 실험
 
-현재는 **LR만 변경하는 20개 조건을 동일한 층화 5-fold로 검증**한다. 비-LR 설정은 `lr1e3` 실험의 최종 선택 Child에 맞췄다. 데이터는 고정 도구 10개에 대한 합성 사례 600개이며, 실제 사용자 요청에 대한 평가와는 구분한다.
+현재는 **기준 설정 1개 + LR을 고정한 파라미터 탐색 19개**를 동일한 층화 5-fold로 검증한다. 기준은 사용자가 지정한 `laya-ten-tools-train600-refine20-lr0.000288845` run이다.
 
 | 항목 | 내용 |
 |---|---|
-| 현재 실험 | [MLflow](https://mlflow.dove-nest.com/#/experiments/47/runs/675bf807c9674425ba6f9de1ad536b91) · [설정과 진행 확인 방법](docs/data/lr-only-reference-lr1e3-20261021.md) |
-| LR 탐색 | `1e-3 ~ 5e-3` · Hyperopt TPE 20개 조건 |
-| 검증 | 5-fold · fold마다 학습 480개 / 검증 120개 |
-| 고정 설정 | batch 4 · warmup 10 · clipping 1.0 · linear · WD 0.05 · smoothing 0.1 · seed 3407 |
-| 실행 환경 | Linux · RTX 5070 Ti · 인코더 고정 / head 학습 |
+| 현재 실험 | [MLflow](https://mlflow.dove-nest.com/#/experiments/47/runs/d9636e10f0b6449dbf6975e945e07aad) · [설정과 실행 자료](docs/data/fixed-lr-parameter-search-20261022.md) |
+| 고정 LR | `0.00028884521694941566` |
+| 탐색 | 배치·warmup·clipping·scheduler·weight decay·label smoothing |
+| 검증 | 20개 조건 × 5-fold · fold마다 학습 480개 / 검증 120개 |
+| 실행 환경 | Linux · RTX 5070 Ti · Laya 인코더 고정 / head 학습 |
 
-설정은 [학습 계획](configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-20261021.json)과 [모델 설정](configs/training/laya-ten-tools-lr-only-cv5-lr1e3ref-model-20261021.json), 지표 의미는 [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 따른다. 최신 진행 상황은 MLflow와 서버 상태 파일에서 확인한다.
+고정 도구 10개에 대한 합성 데이터 실험이다. 실제 요청 성능과는 구분한다. 전체 설정은 [학습 계획](configs/training/laya-ten-tools-fixedlr-params-cv5-20261022.json)과 [모델 설정](configs/training/laya-ten-tools-fixedlr-params-cv5-20261022-model.json), 지표 의미는 [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 따른다.
 
 ### 이전 실험
 
@@ -63,7 +63,7 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 | CUDA 전환 | [환경 검증](docs/model/laya-cuda-probe-20261019.md) · [전체 학습 경로](docs/model/laya-cuda-full-20261019.md) |
 | 데이터 보강 | [학습 데이터 v3](datasets/hermes-ten-tools-v3/README.md) · [보강 보고서](docs/data/ten-tool-training-augmentation-20261020.md) |
 | 학습 조건 탐색 | [train600 5회](docs/data/ten-tool-train600-20261020.md) · [20회 탐색](docs/data/ten-tool-train600-search20-20261020.md) · [범위 축소](docs/data/ten-tool-train600-refine20-20261021.md) · [공동 탐색](docs/data/ten-tool-train600-joint20-20261021.md) |
-| 이전 CV | [최초 5-fold 구현·중단 기록](docs/data/ten-tool-lr-only-cv5-20261021.md) |
+| 이전 CV | [LR 단독 20개 조건](docs/data/lr-only-reference-lr1e3-20261021.md) · [최초 5-fold 구현·중단 기록](docs/data/ten-tool-lr-only-cv5-20261021.md) |
 
 ## 초기 데이터셋
 
