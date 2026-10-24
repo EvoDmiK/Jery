@@ -56,7 +56,7 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 고정 도구 10개의 합성 실험이다. 모든 seed에서 validation 개선이 있었지만 기존 test20에서는 일관된 개선이 없었다. 실제 요청 성능과는 구분한다. [학습 계획](configs/training/laya-ten-tools-seed-confirmation-cv5-20261024.json), [실행·재현 자료](docs/data/laya-oof-seed-confirmation-20261024.md), [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 참고한다.
 
-새 학습 자료 [v4](datasets/hermes-ten-tools-v4/README.md)는 train800개와 개선 도구 설명을 제공한다. [데이터 저장·검증 기록](docs/data/ten-tool-boundary-v4-20261024.md)을 참고한다. 위 완료 모델은 train600의 CV 결과이며, v4로 재학습한 결과가 아니다.
+새 학습 자료 [v4](datasets/hermes-ten-tools-v4/README.md)는 train800개와 개선 도구 설명을 제공한다. [데이터 저장·검증 기록](docs/data/ten-tool-boundary-v4-20261024.md)을 참고한다. 위 완료 모델은 train600의 CV 결과이며, v4로 재학습한 결과가 아니다. v4는 [최고 설정 고정·층화 5-fold 재학습](docs/data/laya-v4-retraining-20261024.md)을 CUDA 서버에서 시작했다. 결과는 진행 중이다.
 
 ### 이전 실험
 

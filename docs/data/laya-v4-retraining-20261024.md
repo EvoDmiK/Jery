@@ -1,5 +1,13 @@
 # v4 데이터 재학습 — 2026-10-24
 
+## 실행 상태
+
+2026-10-24 21:21 KST, 회사 RTX 5070 Ti에서 첫 fold의 실제 optimizer step 진행을 확인했다. 전체 5회는 백그라운드에서 순차 실행한다. 완료 성능은 아직 없다.
+
+[MLflow 재학습 Parent](https://mlflow.dove-nest.com/#/experiments/47/runs/79480c4a3be84189906f4bc2924757fb) → [고정 설정](https://mlflow.dove-nest.com/#/experiments/47/runs/9fe16d70fb8c4a49b56125565912d615) → [첫 fold](https://mlflow.dove-nest.com/#/experiments/47/runs/ebb69afb5e2f4d6199c6f7f7cc685af7).
+
+학습 코드 커밋은 `6e009e6` (`dev-codex`, push 완료). Parent의 Dataset 입력에는 기존에 저장한 `hermes-ten-tools-v4/combined/train`을 연결했다. 각 fold의 실제 입력 JSON과 SHA-256은 Parent의 `data/fold-N/`에 있다.
+
 ## 실행 구성
 
 개선 데이터와 도구 설명을 함께 적용한 `hermes-ten-tools-v4` 800개를 사용한다. 기존 검증 결과로 정한 최고 설정을 고정하고, CUDA 서버에서 5개 fold를 순차 학습한다. 모든 fold는 동일한 원본 Laya 가중치에서 시작한다.
@@ -33,4 +41,4 @@ python3 scripts/build_laya_stratified_folds.py --source outputs/laya-ten-tools-v
 
 분할 출력이 이미 있으면 덮어쓰지 않는다. 실행 상태는 `outputs/laya-ten-tools-v4-best-cv5-20261024/tracking/state.json`, 로그는 같은 폴더의 `supervisor.log`에 기록한다.
 
-검증: 기존 데이터 130개 통과, 데이터 테스트 38개 통과. CV·계획 테스트는 로컬 16개 통과·Hyperopt 의존 테스트 2개 건너뜀. CUDA 환경에서 해당 테스트를 추가 확인한다.
+검증: 기존 데이터 130개 통과, 데이터 테스트 38개 통과. CV·계획 테스트는 로컬 16개 통과·Hyperopt 의존 테스트 2개 건너뜀. CUDA 환경에서는 18개 모두 통과했다. 과거 train600의 fold 배정이 그대로 재현되는 것도 확인했다. 로컬과 CUDA 서버의 새 folds.json SHA-256은 `61028a5ef74219c82e1f035a93fe777629e4e76d76ec80c80aa3924f64c135ae`로 동일하다.
