@@ -73,7 +73,8 @@ def compare(root, state_dir, baseline_index=1, best_index=9):
                 if meta['alias_to_tool'][row['gold']['route_in_window']['label']] != gold:
                     raise ValueError('Gold alias disagrees with tool ID')
                 identity = {'source_id': source_id, 'fold': fold, 'scenario_id': meta['scenario_id'],
-                            'gold': gold, 'request': row['state']['request'], 'review_status': meta['review_status']}
+                            'gold': gold, 'request': row['state']['request'],
+                            'context': row['state'].get('context', []), 'review_status': meta['review_status']}
                 if source_id in joined and any(joined[source_id][k] != v for k, v in identity.items()):
                     raise ValueError('Paired case or fold mismatch')
                 joined.setdefault(source_id, identity)[name] = pred['tool']

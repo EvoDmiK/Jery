@@ -44,3 +44,11 @@ reference_model_config가 있는 CV plan은 head_learning_rate와 models_dir/out
 ## 후보 중복 방지 · 2026-10-24 확장
 
 새 후보는 저장된 모든 기존 파라미터 조합과 비교한다. 고정 LR의 유한 탐색에서 TPE 제안이 중복되면 미사용 조합을 seed로 선택하고 실제 선택을 Hyperopt document에도 기록한다. `proposal`은 `reference`, `tpe`, `unseen_grid`로 구분한다. 남은 조합이 없으면 명시적으로 종료한다. 기존 저장 후보는 재추출하지 않으며, 완료된 실험의 기록은 수정하지 않는다.
+
+## 명시적 조건·seed 반복 · 2026-10-24 확장
+
+`cv.search_mode=fixed_conditions`는 Hyperopt 대신 `trials`에 미리 선언한 조건을 순서대로 실행한다. 전체 Parent → 조건·seed Child → fold Child 구조와 기존 지표 정의를 유지한다. 현재 계획은 기준·최고 설정 × seed 3407·3408·3409, 총 6조건·30회 학습이다. seed3407 반복은 재현성 확인을 위한 의도적인 반복이며 탐색 중복 제거 대상이 아니다.
+
+각 조건의 seed·micro_batch·grad_accum·optimizer 설정을 실제 fold config와 MLflow params에 같이 전달한다. 모든 조건은 동일한 고정 fold 파일을 사용하며 trial의 export_dir 변경과 fixed_conditions 위반을 거부한다. 요약의 validation 순위는 기술 통계이며 test로 다음 조건을 고르지 않는다. `parameters`와 `condition`을 state에 보존하고 가짜 Hyperopt document를 만들지 않는다.
+
+prepare의 실험 조회·Artifact PUT/GET 검증은 기존 transient 오류 분류를 재사용해 최대 8회 재시도한다. HTTP 4xx(429 제외)·해시 불일치는 즉시 실패한다. 응답 유실 시 중복 Run을 만들 수 있는 `runs/create`는 자동 재시도하지 않는다. 이 경우 원격 생성 여부를 확인한 뒤 복구해야 한다.
