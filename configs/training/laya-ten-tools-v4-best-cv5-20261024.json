@@ -1,0 +1,126 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-v4-best-cv5-20261024",
+  "dataset_version": "hermes-ten-tools-v4",
+  "export_dir": "outputs/laya-ten-tools-v4-20261024/combined-controls/augmented",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight",
+    "warmup_steps",
+    "max_grad_norm",
+    "lr_scheduler",
+    "weight_decay",
+    "label_smoothing"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "One fixed condition; checkpoint selection uses validation only.",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-v4-best",
+  "previous_parent_run_id": "af613b715d804393b17872be8d5ad671",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 8,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "Retrain combined v4 data and descriptions with fixed best settings on grouped stratified five folds; exploratory synthetic data.",
+  "search_score": "mean_fold_best_trained_validation_case_accuracy",
+  "fixed_conditions": {
+    "head_learning_rate": 0.00028884521694941566,
+    "seed": 3407,
+    "micro_batch": 4,
+    "grad_accum": 1,
+    "epochs": 32,
+    "weight_decay": 0.0,
+    "label_smoothing": 0.1,
+    "warmup_steps": 0,
+    "max_grad_norm": 2.0,
+    "lr_scheduler": "cosine"
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v4",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "v4_retraining",
+  "tracking_notes": {
+    "parameters": "Pinned best validation-selected settings from prior seed confirmation. No Hyperopt search in this retraining.",
+    "validation_display": "Condition metrics summarize selected serving heads across five folds. Fold time series retain per-epoch validation; selected head metrics are in details/report.json.",
+    "comparison": "640 train/160 validation per fold, 64/16 per tool. Scenario and contrast-pair groups never cross train/validation. Original validation20 unused. Test20 excluded from selection; repeated test estimates remain exploratory.",
+    "baseline": "All folds initialize from pinned base, not a previous trained head.",
+    "limitation": "Data and descriptions change together; this run does not isolate their individual effects. Old train600 CV scores are not a paired comparison with new train800 folds."
+  },
+  "range_design_used_historical_test": true,
+  "reference_runs": [
+    {
+      "run_id": "976cdae4215f4bf18175187fee21a2ce",
+      "parent_run_id": "6e2c92b081534cc8a8e3b1271e3c0e9c",
+      "run_name": "laya-ten-tools-train600-refine20-lr0.000288845",
+      "selected_by": "explicit user choice",
+      "configuration_sha256": "f60c74a63bca989f0691718b03bdcc12df7287ba21be009d8496889dd1822896"
+    },
+    {
+      "run_id": "662086af081f4108877b34d908037069",
+      "selected_by": "baseline condition"
+    },
+    {
+      "run_id": "8072368c300b4679b58900a2cd7220f4",
+      "selected_by": "highest mean validation accuracy; test excluded"
+    }
+  ],
+  "cv": {
+    "n_splits": 5,
+    "seed": 3407,
+    "folds_dir": "outputs/laya-ten-tools-v4-stratified5-20261024",
+    "pool": "v4 train800 only; all 800 cases validated exactly once",
+    "group": "scenario_id",
+    "stratify": "actual tool ID, not permuted alias",
+    "std": "sample,ddof=1",
+    "search_mode": "fixed_conditions"
+  },
+  "preparation_status": "ready",
+  "trials": [
+    {
+      "trial_id": "combined-seed3407",
+      "seed": 3407,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.1,
+      "warmup_steps": 0,
+      "max_grad_norm": 2.0,
+      "lr_scheduler": "cosine"
+    }
+  ],
+  "dataset_parent_run_id": "ff162f7af7d64c05bd2a9fde44d9d8bd",
+  "dataset_run_id": "aa7dd390929147538e1242ce9aba3604"
+}

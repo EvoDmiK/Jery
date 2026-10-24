@@ -1,4 +1,4 @@
-"""Build deterministic class-stratified folds while keeping homogeneous scenario groups together."""
+"""Build deterministic stratified folds while keeping scenario groups together."""
 import argparse
 from collections import Counter, defaultdict
 import hashlib
@@ -19,15 +19,16 @@ def stratified_group_folds(rows, n_splits=5, seed=3407):
         groups[row['metadata']['scenario_id']].append(index)
     by_class = defaultdict(list)
     for group, indices in groups.items():
-        labels = {label(rows[i]) for i in indices}
-        if len(labels) != 1:
-            raise ValueError('Mixed-label scenario requires a general grouped splitter: ' + group)
-        by_class[next(iter(labels))].append(indices)
+        labels = Counter(label(rows[i]) for i in indices)
+        # ponytail: mixed groups need >= n_splits repetitions of each label histogram.
+        # Reject sparse histograms rather than silently split a contrast pair.
+        signature = tuple(sorted(labels)) if len(labels) == 1 else tuple(sorted(labels.elements()))
+        by_class[signature].append(indices)
     folds = [[] for _ in range(n_splits)]
     rng = random.Random(seed)
     for tool, buckets in sorted(by_class.items()):
         if len(buckets) < n_splits:
-            raise ValueError('Not enough independent scenario groups: ' + tool)
+            raise ValueError('Not enough independent scenario groups: ' + str(tool))
         rng.shuffle(buckets)
         buckets.sort(key=len, reverse=True)
         counts = [0] * n_splits
@@ -38,7 +39,7 @@ def stratified_group_folds(rows, n_splits=5, seed=3407):
             folds[fold].extend(indices)
             counts[fold] += len(indices)
         if max(counts) - min(counts) > max(map(len, buckets)):
-            raise ValueError('Unbalanced class folds: ' + tool)
+            raise ValueError('Unbalanced class folds: ' + str(tool))
     return [sorted(indices) for indices in folds]
 
 
@@ -66,7 +67,12 @@ def build(source, output, n_splits=5, seed=3407):
         raise ValueError('Incomplete or duplicate validation coverage')
     all_indices = set(range(len(rows)))
     prepared = []
-    summary = {'algorithm': 'homogeneous-scenario-stratified-largest-first-v1', 'seed': seed,
+    mixed_groups = defaultdict(set)
+    for row in rows:
+        mixed_groups[row['metadata']['scenario_id']].add(label(row))
+    algorithm = ('scenario-label-histogram-stratified-v2' if any(len(v) > 1 for v in mixed_groups.values())
+                 else 'homogeneous-scenario-stratified-largest-first-v1')
+    summary = {'algorithm': algorithm, 'seed': seed,
                'n_splits': n_splits, 'source_manifest_sha256': hashlib.sha256((source / 'manifest.json').read_bytes()).hexdigest(),
                'source_train_sha256': manifest['splits']['train']['sha256'],
                'heldout_test_sha256': manifest['splits']['test']['sha256'], 'folds': []}

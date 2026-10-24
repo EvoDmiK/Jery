@@ -37,6 +37,18 @@ class StratifiedFoldsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             stratified_group_folds(self.rows, 7)
 
+    def test_mixed_label_pairs_are_balanced_and_never_split(self):
+        rows = self.rows + [row(tool, f'pair-{g}', n) for g in range(6)
+                            for n, tool in enumerate(('a', 'b'))]
+        folds = stratified_group_folds(rows, 3, 3407)
+        self.assertEqual(folds, stratified_group_folds(rows, 3, 3407))
+        self.assertEqual(sorted(i for fold in folds for i in fold), list(range(len(rows))))
+        for fold in folds:
+            self.assertEqual(Counter(label(rows[i]) for i in fold), {'a': 6, 'b': 6})
+            train = set(range(len(rows))) - set(fold)
+            self.assertFalse({rows[i]['metadata']['scenario_id'] for i in fold} &
+                             {rows[i]['metadata']['scenario_id'] for i in train})
+
     def test_exports_preserve_source_rows_and_heldout_test_bytes(self):
         with tempfile.TemporaryDirectory() as temporary:
             source, output = Path(temporary) / 'source', Path(temporary) / 'folds'
