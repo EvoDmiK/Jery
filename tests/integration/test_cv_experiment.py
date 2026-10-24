@@ -10,6 +10,36 @@ from run_laya_full_experiment import trial_settings, PARAMS, hyperopt_candidate
 
 
 class CvExperimentTest(unittest.TestCase):
+    def test_declared_seed_conditions_reach_every_fold_and_tracking(self):
+        from prepare_laya_cuda_experiment import validate_explicit_plan
+        root = Path(__file__).resolve().parents[2]
+        stem = 'laya-ten-tools-seed-confirmation-cv5-20261024'
+        plan = json.loads((root / ('configs/training/' + stem + '.json')).read_text())
+        config = json.loads((root / ('configs/training/' + stem + '-model.json')).read_text())
+        validate_cv_plan(plan, config)
+        self.assertEqual(len(plan['trials']), 6)
+        self.assertEqual({t['seed'] for t in plan['trials']}, {3407, 3408, 3409})
+        for index, trial in enumerate(plan['trials'], 1):
+            sampled = {k: v for k, v in trial.items() if k != 'trial_id'}
+            nested, model, tracked = fold_trial_settings(plan, config, sampled, index, Path('folds'), 'artifacts:parent')
+            validate_explicit_plan(nested, model)
+            self.assertEqual(tracked['seed'], trial['seed'])
+            self.assertIn(trial['trial_id'], nested['parent_name'])
+            self.assertEqual(len(nested['trials']), 5)
+            for fold in nested['trials']:
+                actual, params = trial_settings(nested, model, {k: v for k, v in fold.items() if k != 'trial_id'})
+                resolved = {**model, **actual}
+                self.assertEqual({k: resolved[k] for k in sampled}, sampled)
+                self.assertEqual(params, tracked)
+        bad = json.loads(json.dumps(plan))
+        bad['trials'][0]['head_learning_rate'] *= 2
+        with self.assertRaisesRegex(ValueError, 'Fixed trial condition'):
+            validate_cv_plan(bad, config)
+        bad = json.loads(json.dumps(plan))
+        bad['trials'][0]['export_dir'] = 'other-data'
+        with self.assertRaisesRegex(ValueError, 'frozen folds'):
+            validate_cv_plan(bad, config)
+
     def test_fixed_lr_reference_first_then_nineteen_parameter_conditions(self):
         try:
             import hyperopt

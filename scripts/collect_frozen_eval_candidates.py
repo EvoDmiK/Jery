@@ -38,7 +38,9 @@ def private_json(path, data):
         json.dump(data, stream, ensure_ascii=False, indent=2)
 
 
-def collect(source, catalog_path, output, key_path, prior_paths, source_alias='hermes-profile-1'):
+def collect(source, catalog_path, output, key_path, prior_paths, source_alias='hermes-profile-1', target_per_tool=10):
+    if type(target_per_tool) is not int or target_per_tool < 1:
+        raise ValueError('Positive integer target_per_tool required')
     if (source.resolve() == key_path.resolve() or key_path.resolve().is_relative_to(output.resolve())
             or source.exists() and key_path.exists() and os.path.samefile(source, key_path)):
         raise ValueError('Source, private key and export must be separate')
@@ -134,7 +136,7 @@ def collect(source, catalog_path, output, key_path, prior_paths, source_alias='h
             'collector_source_sha256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
             'private_policy_fingerprint': sanitizer.identity('policy', json.dumps(
                 {'redactions': identities, 'excluded': key_record.get('privacy_exclude_ids', [])}, sort_keys=True)),
-            'counts': dict(counts), 'target_cases': 100, 'target_per_tool': 10,
+            'counts': dict(counts), 'target_cases': len(ids) * target_per_tool, 'target_per_tool': target_per_tool,
             'unique_session_groups': len({r['scenario_id'] for r in rows}),
             'previous_input_sha256': previous, 'label_status': 'unresolved',
             'limitations': ['Not a frozen evaluation set; no verified or adjudicated gold',
@@ -162,8 +164,11 @@ if __name__ == '__main__':
     p.add_argument('--catalog', type=Path, default=ROOT / 'datasets/hermes-ten-tools-v2/tools.json')
     p.add_argument('--output', type=Path, required=True)
     p.add_argument('--key-file', type=Path, required=True)
+    p.add_argument('--target-per-tool', type=int, default=10)
+    p.add_argument('--exclude', type=Path, action='append', default=[], help='Additional previously observed JSONL; repeatable')
     args = p.parse_args()
     prior = [ROOT / 'datasets' / d / (s + '.jsonl') for d in ('hermes-routing-v1','mcp-routing-v2') for s in ('train','validation','test')]
     prior.append(ROOT / 'datasets/hermes-ten-tools-contrast-source-v1/cases.jsonl')
-    result = collect(args.source, args.catalog, args.output, args.key_file, prior)
+    result = collect(args.source, args.catalog, args.output, args.key_file, prior + args.exclude,
+                     target_per_tool=args.target_per_tool)
     print(json.dumps({'status': result['status'], 'counts': result['counts'], 'cases_sha256': result['cases_sha256']}))

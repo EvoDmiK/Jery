@@ -37,6 +37,17 @@ class FrozenCollectionTest(unittest.TestCase):
         self.prior=self.root/'previous.jsonl'
         self.prior.write_text(json.dumps({'request':'Obsidian 새 문서 작성 방법을 설명해줘.','context':[]},ensure_ascii=False)+'\n')
 
+    def test_target_is_a_goal_not_a_claim_of_collected_or_reviewed_cases(self):
+        result = collect_module.collect(self.source, self.catalog, self.root / 'target200', self.key,
+                                        [self.prior], target_per_tool=20)
+        self.assertEqual(result['target_cases'], 200)
+        self.assertEqual(result['target_per_tool'], 20)
+        self.assertEqual(result['counts']['candidate_requests'], 1)
+        self.assertEqual(result['label_status'], 'unresolved')
+        for target in (0, -1, True, 1.5):
+            with self.assertRaises(ValueError):
+                collect_module.collect(self.source, self.catalog, self.root / 'bad', self.key, [], target_per_tool=target)
+
     def collect(self, output):
         return collect_module.collect(self.source,self.catalog,output,self.key,[self.prior])
 

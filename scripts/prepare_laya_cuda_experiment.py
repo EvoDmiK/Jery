@@ -5,10 +5,23 @@ import hashlib
 import math
 from pathlib import Path
 import time
+import urllib.error
 
-from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, METRICS, POLICY_V2, SEARCH_CHOICE_KEYS, child_param_keys, write_json
+from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, METRICS, POLICY_V2, SEARCH_CHOICE_KEYS, child_param_keys, write_json, transient_tracking_error
 from run_laya_repeats import upload
 from sync_laya_training_metrics import request
+
+
+def tracking_retry(function, *args):
+    """Retry idempotent reads/uploads; never blindly replay run creation."""
+    for attempt in range(8):
+        try:
+            return function(*args)
+        except (urllib.error.URLError, TimeoutError, ConnectionError) as error:
+            if not transient_tracking_error(error) or attempt == 7:
+                raise
+            print('Preparation tracking retry: ' + str(error), flush=True)
+            time.sleep(min(2 ** attempt, 30))
 
 
 def validate_explicit_plan(plan, config):
@@ -77,20 +90,23 @@ def validate_explicit_plan(plan, config):
         names = set()
         for trial in plan['trials']:
             required = {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}
-            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum', 'export_dir'}:
+            if not required <= set(trial) or set(trial) - required - {'seed', 'micro_batch', 'grad_accum', 'export_dir', 'warmup_steps', 'max_grad_norm', 'lr_scheduler'}:
                 raise ValueError('Unexpected fixed-trial fields')
             if 'export_dir' in trial and (not isinstance(trial['export_dir'], str) or not trial['export_dir'].strip()):
                 raise ValueError('Invalid fixed-trial export_dir')
-            for key in ('seed', 'micro_batch', 'grad_accum'):
-                if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key == 'seed' else 1)):
+            for key in ('seed', 'micro_batch', 'grad_accum', 'warmup_steps'):
+                if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key in ('seed', 'warmup_steps') else 1)):
                     raise ValueError('Invalid fixed-trial ' + key)
+            if 'lr_scheduler' in trial and trial['lr_scheduler'] not in ('linear', 'cosine'):
+                raise ValueError('Invalid fixed-trial lr_scheduler')
             if not isinstance(trial['trial_id'], str) or not trial['trial_id'] or trial['trial_id'] in names:
                 raise ValueError('Unique nonempty fixed trial IDs required')
             names.add(trial['trial_id'])
-            if not all(isinstance(v, (int, float)) and math.isfinite(v) for k, v in trial.items() if k not in ('trial_id', 'export_dir')):
+            if not all(type(v) in (int, float) and math.isfinite(v) for k, v in trial.items() if k not in ('trial_id', 'export_dir', 'lr_scheduler')):
                 raise ValueError('Nonfinite trial parameter')
             if (trial['head_learning_rate'] <= 0 or trial['weight_decay'] < 0
-                    or not 0 <= trial['label_smoothing'] < 1 or not 0 < trial['window_none_loss_weight'] <= 1):
+                    or not 0 <= trial['label_smoothing'] < 1 or not 0 < trial['window_none_loss_weight'] <= 1
+                    or trial.get('max_grad_norm', 1) <= 0):
                 raise ValueError('Invalid fixed-trial parameter')
 
 
@@ -138,7 +154,7 @@ def main():
         if (folder / 'configuration.json').exists() and json.loads((folder / 'configuration.json').read_text()) != config:
             raise ValueError('Existing experiment has a different model configuration')
     else:
-        experiment = request(args.tracking_uri, 'mlflow/experiments/get?experiment_id=' + plan['experiment_id'])['experiment']
+        experiment = tracking_retry(request, args.tracking_uri, 'mlflow/experiments/get?experiment_id=' + plan['experiment_id'])['experiment']
         if experiment['name'] != 'Jery':
             raise ValueError('Expected Jery experiment')
         remote = request(args.tracking_uri, 'mlflow/runs/create', {
@@ -156,23 +172,23 @@ def main():
                                                    'previous_parent': plan['previous_parent_run_id']})]:
         target = folder / name
         write_json(target, data)
-        proofs[name] = upload(args.tracking_uri, state['parent_artifact_uri'], name, target)
+        proofs[name] = tracking_retry(upload, args.tracking_uri, state['parent_artifact_uri'], name, target)
     for split in ('train', 'validation', 'test'):
         path = ROOT / plan['export_dir'] / (split + '.jsonl')
         target = folder / 'data' / (split + '.json')
         write_json(target, [json.loads(line) for line in path.read_text().splitlines()])
-        proofs['data/' + target.name] = upload(args.tracking_uri, state['parent_artifact_uri'], 'data/' + target.name, target)
+        proofs['data/' + target.name] = tracking_retry(upload, args.tracking_uri, state['parent_artifact_uri'], 'data/' + target.name, target)
     for name, path in [('data/export-manifest.json', ROOT / plan['export_dir'] / 'manifest.json'),
                         ('data/source-manifest.json', source_dir / 'manifest.json'),
                         ('data/tool-catalog.json', source_dir / 'tools.json')]:
-        proofs[name] = upload(args.tracking_uri, state['parent_artifact_uri'], name, path)
+        proofs[name] = tracking_retry(upload, args.tracking_uri, state['parent_artifact_uri'], name, path)
     if plan.get('evaluation_task') == 'ten_tool_choice':
         definitions = folder / 'metric-definitions.json'
         write_json(definitions, {'task': 'ten_tool_choice', 'val_macro_f1': 'unweighted macro F1 over ten tool IDs',
                     'test_macro_f1': 'same tool macro F1 for selected serving head',
                     'train_fit': 'epoch train_evaluation and report.train_fit; diagnostic only, never search objective',
                     'window_none_loss_weight': 'inactive: this task has no null choices or targets'})
-        proofs[definitions.name] = upload(args.tracking_uri, state['parent_artifact_uri'], definitions.name, definitions)
+        proofs[definitions.name] = tracking_retry(upload, args.tracking_uri, state['parent_artifact_uri'], definitions.name, definitions)
     write_json(state_path, state)
     print(json.dumps({'parent_run_id': state['parent_run_id'], 'state_dir': str(folder), 'status': state['status']}))
 

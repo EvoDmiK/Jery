@@ -4,6 +4,8 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
+from urllib.error import HTTPError
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'scripts'))
@@ -13,6 +15,30 @@ spec.loader.exec_module(prepare)
 
 
 class CudaExperimentPlanTest(unittest.TestCase):
+    def test_preparation_retries_transient_reads_uploads_only(self):
+        operation = mock.Mock(side_effect=[HTTPError('url', 520, 'proxy', {}, None), TimeoutError(), 'proof'])
+        with mock.patch.object(prepare.time, 'sleep') as sleep:
+            self.assertEqual(prepare.tracking_retry(operation, 'payload'), 'proof')
+            self.assertEqual(sleep.call_count, 2)
+        for error in (HTTPError('url', 400, 'bad input', {}, None), ValueError('checksum mismatch')):
+            operation = mock.Mock(side_effect=error)
+            with self.assertRaises(type(error)), mock.patch.object(prepare.time, 'sleep') as sleep:
+                prepare.tracking_retry(operation)
+            self.assertEqual(operation.call_count, 1)
+            sleep.assert_not_called()
+        operation = mock.Mock(side_effect=TimeoutError())
+        with mock.patch.object(prepare.time, 'sleep'), self.assertRaises(TimeoutError):
+            prepare.tracking_retry(operation)
+        self.assertEqual(operation.call_count, 8)
+
+    def test_fixed_optimizer_choices_are_validated(self):
+        for key, value in [('warmup_steps', -1), ('max_grad_norm', 0), ('lr_scheduler', 'typo'),
+                           ('head_learning_rate', True), ('label_smoothing', False)]:
+            with self.subTest(key=key):
+                plan = copy.deepcopy(self.plan)
+                plan['trials'][0][key] = value
+                with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, self.config)
+
     def setUp(self):
         self.plan = json.loads((ROOT / 'configs/training/laya-routing-v2-controls-20261019.json').read_text())
         self.config = json.loads((ROOT / 'configs/model/laya-cuda-20261019.json').read_text())

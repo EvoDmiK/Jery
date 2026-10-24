@@ -1,0 +1,227 @@
+{
+  "experiment_id": "47",
+  "experiment_name": "Jery",
+  "parent_name": "laya-ten-tools-seed-confirmation-cv5-20261024",
+  "dataset_version": "hermes-ten-tools-v3",
+  "export_dir": "outputs/laya-ten-tools-training-v3-final-20261020/augmented",
+  "epochs": 32,
+  "seed": 3407,
+  "micro_batch": 4,
+  "grad_accum": 1,
+  "timeout_hours_per_child": 48,
+  "child_params": [
+    "head_lr",
+    "epochs",
+    "seed",
+    "effective_batch_size",
+    "window_none_loss_weight",
+    "warmup_steps",
+    "max_grad_norm",
+    "lr_scheduler",
+    "weight_decay",
+    "label_smoothing"
+  ],
+  "child_metrics": [
+    "train_loss",
+    "val_accuracy",
+    "val_macro_f1",
+    "val_coverage",
+    "test_accuracy",
+    "test_macro_f1",
+    "test_coverage"
+  ],
+  "selection": "All six declared conditions run; validation-only descriptive ranking, no adaptive parameter search.",
+  "test_policy": "one final selected-serving test per declared child; never select using test",
+  "aggregation_policy": "single ten-choice window, one forward, no tournament or null choices",
+  "base_artifact_uri": "mlflow-artifacts:/46/cb04fedef6fc41859e37ae8aa6c37cc7/artifacts/model/base",
+  "child_name_prefix": "laya-seed-confirmation",
+  "previous_parent_run_id": "d9636e10f0b6449dbf6975e945e07aad",
+  "training_policy_version": "laya-routing-v2",
+  "balance": {
+    "ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "method": "retain every unique case; classes already balanced"
+  },
+  "validation_callback": {
+    "monitor": "validation.case_accuracy",
+    "patience": 6,
+    "min_delta": 0.004,
+    "min_epochs": 8,
+    "include_baseline": true
+  },
+  "backend": "cuda",
+  "purpose": "Paired baseline/best confirmation across three declared seeds on identical frozen five folds; exploratory synthetic data.",
+  "search_score": "mean_fold_best_trained_validation_case_accuracy",
+  "fixed_conditions": {
+    "micro_batch": 4,
+    "epochs": 32,
+    "head_learning_rate": 0.00028884521694941566
+  },
+  "source_dataset_dir": "datasets/hermes-ten-tools-v3",
+  "evaluation_task": "ten_tool_choice",
+  "experiment_stage": "seed_confirmation",
+  "training_fit_gate": {
+    "minimum_train_accuracy": 0.95,
+    "field": "report.train_fit.last_trained_accuracy",
+    "used_for_checkpoint_selection": false,
+    "required_parent_run_id": "37611c82fb924ba6bccb5d4410db9226"
+  },
+  "tracking_notes": {
+    "searched_parameters": "None. Two pinned settings crossed with seeds 3407,3408,3409. Seed3407 deliberately repeats the completed experiment.",
+    "validation_display": "Root child trial val metrics are five-fold selected-head mean and sample std; cv_search_accuracy is mean best-trained validation accuracy used by TPE. Fold child val metrics retain last-epoch semantics; selected head metrics in details/report.json.",
+    "comparison": "Grouped stratified CV on original train600. Each fold trains480/validates120,12 per tool in validation. Original val20 not used. Original test20 preserved per-fold, never passed into TPE; test metrics at trial level average five fold-trained models, not a full600 model or independent final estimate.",
+    "baseline": "First condition uses reference configuration; all conditions initialize from pinned base, not previous trained head."
+  },
+  "range_design_used_historical_test": true,
+  "reference_runs": [
+    {
+      "run_id": "976cdae4215f4bf18175187fee21a2ce",
+      "parent_run_id": "6e2c92b081534cc8a8e3b1271e3c0e9c",
+      "run_name": "laya-ten-tools-train600-refine20-lr0.000288845",
+      "selected_by": "explicit user choice",
+      "configuration_sha256": "f60c74a63bca989f0691718b03bdcc12df7287ba21be009d8496889dd1822896"
+    },
+    {
+      "run_id": "662086af081f4108877b34d908037069",
+      "selected_by": "baseline condition"
+    },
+    {
+      "run_id": "8072368c300b4679b58900a2cd7220f4",
+      "selected_by": "highest mean validation accuracy; test excluded"
+    }
+  ],
+  "cv": {
+    "n_splits": 5,
+    "seed": 3407,
+    "folds_dir": "outputs/laya-ten-tools-stratified5-20261021",
+    "pool": "original train600 only",
+    "group": "scenario_id",
+    "stratify": "actual tool ID, not permuted alias",
+    "std": "sample,ddof=1",
+    "search_mode": "fixed_conditions"
+  },
+  "preparation_status": "ready",
+  "reference_model_config": {
+    "export_dir": "outputs/laya-ten-tools-training-v3-final-20261020/augmented",
+    "model_dir": "models/laya-multilingual",
+    "model_revision": "1720e3e3357cfe1e281542e223f8273b0890ca34",
+    "models_dir": "models/laya-ten-tools-train600-refine20-20261021",
+    "outputs_dir": "outputs/model/laya-ten-tools-train600-refine20-20261021",
+    "seed": 3407,
+    "epochs": 32,
+    "probe_steps": 8,
+    "max_seq_length": 1024,
+    "micro_batch": 4,
+    "grad_accum": 1,
+    "head_learning_rate": 0.00028884521694941566,
+    "encoder_learning_rate": 2e-05,
+    "lr_scheduler": "linear",
+    "warmup_steps": 10,
+    "weight_decay": 0.1,
+    "max_grad_norm": 1.0,
+    "gradient_checkpointing": true,
+    "checkpoint_every_epochs": 1,
+    "eval_batch_size": 4,
+    "memory_guard_gib": 20,
+    "train_bucket_ratios": {
+      "tool": 1,
+      "window_none": 0,
+      "no_tool": 0,
+      "clarify": 0
+    },
+    "validation_callback": {
+      "monitor": "validation.case_accuracy",
+      "patience": 6,
+      "min_delta": 0.004,
+      "min_epochs": 8,
+      "include_baseline": true
+    },
+    "backend": "cuda",
+    "cuda_memory_fraction": 0.3,
+    "base_model_sha256": "9d628fd971b700382ac6f65920a86f149777b2e748e0c955fb3b19695aa8f204",
+    "training_policy_version": "laya-routing-v2",
+    "window_none_loss_weight": 1.0,
+    "label_smoothing": 0.0,
+    "evaluation_task": "ten_tool_choice",
+    "max_window_tools": 10,
+    "evaluate_train_each_epoch": true
+  },
+  "trials": [
+    {
+      "trial_id": "baseline-seed3407",
+      "seed": 3407,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.0,
+      "warmup_steps": 10,
+      "max_grad_norm": 1.0,
+      "lr_scheduler": "linear"
+    },
+    {
+      "trial_id": "best-seed3407",
+      "seed": 3407,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.1,
+      "warmup_steps": 0,
+      "max_grad_norm": 2.0,
+      "lr_scheduler": "cosine"
+    },
+    {
+      "trial_id": "baseline-seed3408",
+      "seed": 3408,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.0,
+      "warmup_steps": 10,
+      "max_grad_norm": 1.0,
+      "lr_scheduler": "linear"
+    },
+    {
+      "trial_id": "best-seed3408",
+      "seed": 3408,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.1,
+      "warmup_steps": 0,
+      "max_grad_norm": 2.0,
+      "lr_scheduler": "cosine"
+    },
+    {
+      "trial_id": "baseline-seed3409",
+      "seed": 3409,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.1,
+      "label_smoothing": 0.0,
+      "warmup_steps": 10,
+      "max_grad_norm": 1.0,
+      "lr_scheduler": "linear"
+    },
+    {
+      "trial_id": "best-seed3409",
+      "seed": 3409,
+      "head_learning_rate": 0.00028884521694941566,
+      "window_none_loss_weight": 1.0,
+      "grad_accum": 1,
+      "weight_decay": 0.0,
+      "label_smoothing": 0.1,
+      "warmup_steps": 0,
+      "max_grad_norm": 2.0,
+      "lr_scheduler": "cosine"
+    }
+  ]
+}

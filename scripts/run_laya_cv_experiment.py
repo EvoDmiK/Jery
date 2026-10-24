@@ -55,11 +55,20 @@ def validate_cv_plan(plan, config):
         if ({k: v for k, v in config.items() if k not in excluded}
                 != {k: v for k, v in reference.items() if k not in excluded}):
             raise ValueError('Non-LR model parameters differ from the reference child')
-    search = plan['hyperopt']
+    search = plan.get('hyperopt', {})
     mode = plan['cv'].get('search_mode', 'lr_only')
-    if mode not in ('lr_only', 'fixed_lr_parameters'):
+    if mode not in ('lr_only', 'fixed_lr_parameters', 'fixed_conditions'):
         raise ValueError('Unknown CV search mode: ' + str(mode))
-    if mode == 'fixed_lr_parameters':
+    if mode == 'fixed_conditions':
+        if not plan.get('trials'):
+            raise ValueError('Explicit conditions required')
+        for trial in plan['trials']:
+            for key, value in plan['fixed_conditions'].items():
+                if trial.get(key, config.get(key)) != value:
+                    raise ValueError('Fixed trial condition mismatch: ' + key)
+            if 'export_dir' in trial:
+                raise ValueError('CV trials must use the shared frozen folds')
+    elif mode == 'fixed_lr_parameters':
         keys = {'weight_decay', 'label_smoothing', 'warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'}
         if (not reference or config['head_learning_rate'] != reference['head_learning_rate']
                 or search['head_lr'] != [config['head_learning_rate']] * 2):
@@ -86,11 +95,13 @@ def fold_trial_settings(plan, config, sampled, index, folds, artifact_uri):
     """Build the per-condition plan, model and tracking values from the same sampled settings."""
     overrides, params = trial_settings(plan, config, sampled)
     model = {**config, **overrides, 'export_dir': str(folds / 'fold-1')}
-    nested = {**plan, 'grad_accum': model['grad_accum'],
+    nested = {**plan, **{k: model[k] for k in ('seed', 'micro_batch', 'grad_accum')},
               'parent_name': f"lr-cv-trial{index:02d}-lr{model['head_learning_rate']:g}",
               'child_name_prefix': f'lr-cv-trial{index:02d}', 'export_dir': model['export_dir'],
               'export_artifact_uris': {}, 'trials': []}
-    nested.pop('hyperopt')
+    nested.pop('hyperopt', None)
+    if plan.get('trials'):
+        nested['parent_name'] = plan['child_name_prefix'] + '-' + plan['trials'][index - 1]['trial_id']
     for fold in range(1, plan['cv']['n_splits'] + 1):
         directory = str(folds / f'fold-{fold}')
         nested['export_artifact_uris'][directory] = artifact_uri + f'/data/fold-{fold}'
@@ -214,18 +225,23 @@ def main():
             if name not in state['uploaded']:
                 state['uploaded'][name] = store(uri, name, path)
                 write_json(state_path, state)
-        for index in range(1, plan['hyperopt']['max_evals'] + 1):
+        budget = plan['hyperopt']['max_evals'] if plan.get('hyperopt') else len(plan['trials'])
+        for index in range(1, budget + 1):
             if stopped:
                 break
             prior = [c for c in state['children'] if c['index'] == index]
             if prior and prior[0]['status'] == 'finished':
                 continue
-            item = prior[0] if prior else {'index': index, 'status': 'prepared',
-                                           'hyperopt': hyperopt_candidate(plan, state['children'])}
+            item = prior[0] if prior else {'index': index, 'status': 'prepared'}
             if not prior:
+                if plan.get('hyperopt'):
+                    item['hyperopt'] = hyperopt_candidate(plan, state['children'])
+                else:
+                    trial = plan['trials'][index - 1]
+                    item.update(condition=trial['trial_id'], parameters={k: v for k, v in trial.items() if k != 'trial_id'})
                 state['children'].append(item)
                 write_json(state_path, state)
-            sampled = item['hyperopt']['parameters']
+            sampled = item['hyperopt']['parameters'] if 'hyperopt' in item else item['parameters']
             item['head_lr'] = sampled['head_learning_rate']
             nested_plan, model, params = fold_trial_settings(plan, config, sampled, index, folds, uri)
             trial = folder / f'trial-{index:02d}'
