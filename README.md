@@ -43,17 +43,18 @@ python3 scripts/predict_tool.py --request '삼성전자 지금 주가 확인해�
 
 ## Laya 학습 실험
 
-현재는 **기준 설정 1개 + LR을 고정한 파라미터 탐색 19개**를 동일한 층화 5-fold로 검증한다. 기준은 사용자가 지정한 `laya-ten-tools-train600-refine20-lr0.000288845` run이다.
+최근 **기준·최고 설정 × seed 3개 × 동일한 층화 5-fold, 총 30회**를 완료했다.
 
 | 항목 | 내용 |
 |---|---|
-| 현재 실험 | [MLflow](https://mlflow.dove-nest.com/#/experiments/47/runs/d9636e10f0b6449dbf6975e945e07aad) · [설정과 실행 자료](docs/data/fixed-lr-parameter-search-20261022.md) |
+| 완료 실험 | [MLflow](https://mlflow.dove-nest.com/#/experiments/47/runs/af613b715d804393b17872be8d5ad671) · [결과와 개선 제안](docs/data/ponytail-validation-and-performance-20261024.md) |
 | 고정 LR | `0.00028884521694941566` |
-| 탐색 | 배치·warmup·clipping·scheduler·weight decay·label smoothing |
-| 검증 | 20개 조건 × 5-fold · fold마다 학습 480개 / 검증 120개 |
+| 비교 | 기준·최고 설정, seed 3407·3408·3409 |
+| 검증 | 조건 6개 × 5-fold · fold마다 학습 480개 / 검증 120개 |
+| 결과 | 평균 Val F1 0.7342→0.7582 · Test F1 0.6378→0.6306 |
 | 실행 환경 | Linux · RTX 5070 Ti · Laya 인코더 고정 / head 학습 |
 
-고정 도구 10개에 대한 합성 데이터 실험이다. 실제 요청 성능과는 구분한다. 전체 설정은 [학습 계획](configs/training/laya-ten-tools-fixedlr-params-cv5-20261022.json)과 [모델 설정](configs/training/laya-ten-tools-fixedlr-params-cv5-20261022-model.json), 지표 의미는 [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 따른다.
+고정 도구 10개의 합성 실험이다. 모든 seed에서 validation 개선이 있었지만 기존 test20에서는 일관된 개선이 없었다. 실제 요청 성능과는 구분한다. [학습 계획](configs/training/laya-ten-tools-seed-confirmation-cv5-20261024.json), [실행·재현 자료](docs/data/laya-oof-seed-confirmation-20261024.md), [교차 검증 계약](docs/contracts/laya-cross-validation-v1.md)을 참고한다.
 
 ### 이전 실험
 

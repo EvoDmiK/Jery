@@ -44,6 +44,29 @@ class CudaExperimentPlanTest(unittest.TestCase):
         self.config = json.loads((ROOT / 'configs/model/laya-cuda-20261019.json').read_text())
         self.config.update(training_policy_version='laya-routing-v2', validation_callback=self.plan['validation_callback'])
 
+    def test_search_and_fixed_trials_share_optimizer_boundaries(self):
+        search = json.loads((ROOT / 'configs/training/laya-routing-v2-joint-search-20261019.json').read_text())
+        cases = {
+            'weight_decay': ([0., .1], [-.1, True, float('inf')]),
+            'label_smoothing': ([0., .1], [1., -.1, False, float('nan')]),
+            'window_none_loss_weight': ([.25, 1.], [0., 1.1, True]),
+            'warmup_steps': ([0, 10], [-1, 1.5, True]),
+            'grad_accum': ([1, 4], [0, 1.5, False]),
+            'max_grad_norm': ([.5, 2.], [0., -1., True, float('inf')]),
+            'lr_scheduler': (['linear', 'cosine'], ['unknown', ['linear'], None]),
+        }
+        for key, (valid, invalid) in cases.items():
+            for value in valid + invalid:
+                for mode in ('search', 'fixed'):
+                    plan = copy.deepcopy(search if mode == 'search' else self.plan)
+                    if mode == 'search': plan['hyperopt'][key] = [value]
+                    else: plan['trials'][0][key] = value
+                    with self.subTest(key=key, value=value, mode=mode):
+                        if any(type(value) is type(v) and value == v for v in valid):
+                            prepare.validate_explicit_plan(plan, self.config)
+                        else:
+                            with self.assertRaises(ValueError): prepare.validate_explicit_plan(plan, self.config)
+
     def test_only_negative_window_weight_varies(self):
         prepare.validate_explicit_plan(self.plan, self.config)
         trials = self.plan['trials']

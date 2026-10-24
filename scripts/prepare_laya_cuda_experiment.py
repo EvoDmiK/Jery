@@ -1,4 +1,4 @@
-"""Prepare a distinct Jery CUDA parent; readiness uses one fixed one-epoch child, search uses five TPE trials."""
+"""Validate and prepare a Jery CUDA experiment with verified MLflow artifacts."""
 import argparse
 import json
 import hashlib
@@ -24,6 +24,23 @@ def tracking_retry(function, *args):
             time.sleep(min(2 ** attempt, 30))
 
 
+def valid_parameter(key, value):
+    """Use the same scalar constraints for sampled and explicitly declared conditions."""
+    if key == 'lr_scheduler':
+        return isinstance(value, str) and value in ('linear', 'cosine')
+    if key in ('seed', 'warmup_steps', 'micro_batch', 'grad_accum'):
+        return type(value) is int and value >= (0 if key in ('seed', 'warmup_steps') else 1)
+    if type(value) not in (int, float) or not math.isfinite(value):
+        return False
+    if key == 'weight_decay':
+        return value >= 0
+    if key == 'label_smoothing':
+        return 0 <= value < 1
+    if key == 'window_none_loss_weight':
+        return 0 < value <= 1
+    return value > 0
+
+
 def validate_explicit_plan(plan, config):
     if plan.get('backend') != 'cuda' or config.get('backend') != 'cuda':
         raise ValueError('CUDA backend required')
@@ -45,7 +62,7 @@ def validate_explicit_plan(plan, config):
         search = plan['hyperopt']
         lower, upper = search['head_lr']
         fixed_lr = plan.get('cv', {}).get('search_mode') == 'fixed_lr_parameters'
-        if (not all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in (lower, upper))
+        if (not all(valid_parameter('head_learning_rate', v) for v in (lower, upper))
                 or lower > upper or (lower == upper and not fixed_lr)):
             raise ValueError('Invalid learning-rate search range')
         if not {'weight_decay', 'label_smoothing'} <= search.keys():
@@ -59,24 +76,8 @@ def validate_explicit_plan(plan, config):
             choices = search[key]
             if not isinstance(choices, list) or not choices:
                 raise ValueError('Search choices must be nonempty: ' + key)
-            for value in choices:
-                if key == 'lr_scheduler':
-                    valid = isinstance(value, str) and value in ('linear', 'cosine')
-                elif key in ('warmup_steps', 'grad_accum'):
-                    valid = type(value) is int and value >= (0 if key == 'warmup_steps' else 1)
-                else:
-                    valid = type(value) in (int, float) and math.isfinite(value)
-                    if valid:
-                        if key == 'weight_decay':
-                            valid = value >= 0
-                        elif key == 'label_smoothing':
-                            valid = 0 <= value < 1
-                        elif key == 'window_none_loss_weight':
-                            valid = 0 < value <= 1
-                        else:
-                            valid = value > 0
-                if not valid:
-                    raise ValueError('Invalid search choice: ' + key)
+            if not all(valid_parameter(key, value) for value in choices):
+                raise ValueError('Invalid search choice: ' + key)
             if len(set(choices)) != len(choices):
                 raise ValueError('Duplicate search choices: ' + key)
     if plan.get('training_policy_version') == POLICY_V2:
@@ -85,8 +86,6 @@ def validate_explicit_plan(plan, config):
         if plan['epochs'] < config['validation_callback']['min_epochs']:
             raise ValueError('Diagnostic budget is shorter than minimum observation')
     if plan.get('trials'):
-        if plan.get('hyperopt') or plan.get('head_learning_rates'):
-            raise ValueError('Fixed and searched trials cannot be mixed')
         names = set()
         for trial in plan['trials']:
             required = {'trial_id', 'head_learning_rate', 'weight_decay', 'label_smoothing', 'window_none_loss_weight'}
@@ -94,20 +93,12 @@ def validate_explicit_plan(plan, config):
                 raise ValueError('Unexpected fixed-trial fields')
             if 'export_dir' in trial and (not isinstance(trial['export_dir'], str) or not trial['export_dir'].strip()):
                 raise ValueError('Invalid fixed-trial export_dir')
-            for key in ('seed', 'micro_batch', 'grad_accum', 'warmup_steps'):
-                if key in trial and (type(trial[key]) is not int or trial[key] < (0 if key in ('seed', 'warmup_steps') else 1)):
-                    raise ValueError('Invalid fixed-trial ' + key)
-            if 'lr_scheduler' in trial and trial['lr_scheduler'] not in ('linear', 'cosine'):
-                raise ValueError('Invalid fixed-trial lr_scheduler')
             if not isinstance(trial['trial_id'], str) or not trial['trial_id'] or trial['trial_id'] in names:
                 raise ValueError('Unique nonempty fixed trial IDs required')
             names.add(trial['trial_id'])
-            if not all(type(v) in (int, float) and math.isfinite(v) for k, v in trial.items() if k not in ('trial_id', 'export_dir', 'lr_scheduler')):
-                raise ValueError('Nonfinite trial parameter')
-            if (trial['head_learning_rate'] <= 0 or trial['weight_decay'] < 0
-                    or not 0 <= trial['label_smoothing'] < 1 or not 0 < trial['window_none_loss_weight'] <= 1
-                    or trial.get('max_grad_norm', 1) <= 0):
-                raise ValueError('Invalid fixed-trial parameter')
+            for key, value in trial.items():
+                if key not in ('trial_id', 'export_dir') and not valid_parameter(key, value):
+                    raise ValueError('Invalid fixed-trial parameter: ' + key)
 
 
 def main():
