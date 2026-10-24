@@ -2,9 +2,10 @@ import json
 from pathlib import Path
 import sys
 import unittest
+from unittest import mock
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'scripts'))
-from run_laya_cv_experiment import aggregate_folds, FIXED_KEYS, validate_cv_plan
+from run_laya_cv_experiment import aggregate_folds, FIXED_KEYS, validate_cv_plan, fold_trial_settings
 from run_laya_full_experiment import trial_settings, PARAMS, hyperopt_candidate
 
 
@@ -19,9 +20,13 @@ class CvExperimentTest(unittest.TestCase):
         config = json.loads((root / 'configs/training/laya-ten-tools-fixedlr-params-cv5-20261022-model.json').read_text())
         validate_cv_plan(plan, config)
         children = []
+        seen = set()
         for index in range(20):
             candidate = hyperopt_candidate(plan, children)
             parameters = candidate['parameters']
+            key = tuple(sorted(parameters.items()))
+            self.assertNotIn(key, seen)
+            seen.add(key)
             self.assertEqual(parameters['head_learning_rate'], config['head_learning_rate'])
             if index == 0:
                 self.assertEqual(parameters, plan['first_trial_parameters'])
@@ -29,8 +34,17 @@ class CvExperimentTest(unittest.TestCase):
                 self.assertNotEqual(parameters, plan['first_trial_parameters'])
             overrides, tracked = trial_settings(plan, config, parameters)
             self.assertEqual(tracked['effective_batch_size'], 4 * parameters['grad_accum'])
+            nested, model, fold_params = fold_trial_settings(plan, config, parameters, index + 1, Path('folds'), 'artifacts:parent')
+            self.assertEqual(fold_params, tracked)
+            from prepare_laya_cuda_experiment import validate_explicit_plan
+            validate_explicit_plan(nested, model)
             for key in parameters:
                 self.assertEqual(overrides[key], parameters[key])
+                self.assertEqual(model[key], parameters[key])
+            for fold in nested['trials']:
+                actual, _ = trial_settings(nested, model, {k: v for k, v in fold.items() if k != 'trial_id'})
+                self.assertEqual({**model, **actual}['grad_accum'], parameters['grad_accum'])
+                self.assertEqual(actual['export_dir'], fold['export_dir'])
             changed_test = json.loads(json.dumps(children))
             for child in changed_test:
                 child['final_test'] = 0.
@@ -45,6 +59,34 @@ class CvExperimentTest(unittest.TestCase):
         changed['hyperopt']['head_lr'] = [.0001, .001]
         with self.assertRaises(ValueError):
             validate_cv_plan(changed, config)
+
+    def test_duplicate_tpe_proposal_uses_unseen_condition_and_exhaustion_is_explicit(self):
+        try:
+            from hyperopt import tpe
+        except ImportError:
+            self.skipTest('Hyperopt required')
+        root = Path(__file__).resolve().parents[2]
+        plan = json.loads((root / 'configs/training/laya-ten-tools-fixedlr-params-cv5-20261022.json').read_text())
+        for key, value in plan['first_trial_parameters'].items():
+            if key != 'head_learning_rate':
+                plan['hyperopt'][key] = [value]
+        plan['hyperopt']['weight_decay'] = [.1, .2]
+        first = hyperopt_candidate(plan, [])
+        children = [{'status': 'finished', 'hyperopt': first, 'search_validation': .75}]
+        original_suggest = tpe.suggest
+        def repeat_reference(*args, **kwargs):
+            docs = original_suggest(*args, **kwargs)
+            docs[0]['misc']['vals'] = json.loads(json.dumps(first['document']['misc']['vals']))
+            return docs
+        with mock.patch.object(tpe, 'suggest', side_effect=repeat_reference):
+            next_trial = hyperopt_candidate(plan, children)
+        self.assertEqual(next_trial['proposal'], 'unseen_grid')
+        self.assertEqual(next_trial['parameters']['weight_decay'], .2)
+        self.assertEqual(next_trial['document']['misc']['vals']['weight_decay'], [1])
+        self.assertEqual(next_trial['document']['tid'], 1)
+        children.append({'status': 'finished', 'hyperopt': next_trial, 'search_validation': .76})
+        with self.assertRaisesRegex(ValueError, 'search space exhausted'):
+            hyperopt_candidate(plan, children)
 
     def test_reference_child_all_non_lr_model_settings_are_immutable(self):
         root = Path(__file__).resolve().parents[2]

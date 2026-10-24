@@ -1,4 +1,4 @@
-"""LR-only Hyperopt over fixed stratified folds; reuse the full training/upload supervisor for each trial."""
+"""Compare Hyperopt conditions on fixed stratified folds using the existing training supervisor."""
 import argparse
 import fcntl
 import hashlib
@@ -56,7 +56,10 @@ def validate_cv_plan(plan, config):
                 != {k: v for k, v in reference.items() if k not in excluded}):
             raise ValueError('Non-LR model parameters differ from the reference child')
     search = plan['hyperopt']
-    if plan['cv'].get('search_mode') == 'fixed_lr_parameters':
+    mode = plan['cv'].get('search_mode', 'lr_only')
+    if mode not in ('lr_only', 'fixed_lr_parameters'):
+        raise ValueError('Unknown CV search mode: ' + str(mode))
+    if mode == 'fixed_lr_parameters':
         keys = {'weight_decay', 'label_smoothing', 'warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'}
         if (not reference or config['head_learning_rate'] != reference['head_learning_rate']
                 or search['head_lr'] != [config['head_learning_rate']] * 2):
@@ -77,6 +80,25 @@ def validate_cv_plan(plan, config):
     for key in FIXED_KEYS:
         if key in plan['fixed_conditions'] and plan['fixed_conditions'][key] != config[key]:
             raise ValueError('Fixed condition mismatch: ' + key)
+
+
+def fold_trial_settings(plan, config, sampled, index, folds, artifact_uri):
+    """Build the per-condition plan, model and tracking values from the same sampled settings."""
+    overrides, params = trial_settings(plan, config, sampled)
+    model = {**config, **overrides, 'export_dir': str(folds / 'fold-1')}
+    nested = {**plan, 'grad_accum': model['grad_accum'],
+              'parent_name': f"lr-cv-trial{index:02d}-lr{model['head_learning_rate']:g}",
+              'child_name_prefix': f'lr-cv-trial{index:02d}', 'export_dir': model['export_dir'],
+              'export_artifact_uris': {}, 'trials': []}
+    nested.pop('hyperopt')
+    for fold in range(1, plan['cv']['n_splits'] + 1):
+        directory = str(folds / f'fold-{fold}')
+        nested['export_artifact_uris'][directory] = artifact_uri + f'/data/fold-{fold}'
+        nested['trials'].append({
+            'trial_id': f'fold{fold}', 'export_dir': directory,
+            **{key: model[key] for key in ('head_learning_rate', 'weight_decay',
+                                          'label_smoothing', 'window_none_loss_weight')}})
+    return nested, model, params
 
 
 def main():
@@ -146,7 +168,7 @@ def main():
     def tag(rid, key, value):
         api('mlflow/runs/set-tag', {'run_id': rid, 'key': key, 'value': str(value)})
 
-    def store(rid, uri, name, path):
+    def store(uri, name, path):
         return retry(upload, args.tracking_uri, uri, name, path)
 
     def command(values, logname):
@@ -190,7 +212,7 @@ def main():
                 sources[f'data/fold-{number}/{split}.json'] = target
         for name, path in sources.items():
             if name not in state['uploaded']:
-                state['uploaded'][name] = store(parent, uri, name, path)
+                state['uploaded'][name] = store(uri, name, path)
                 write_json(state_path, state)
         for index in range(1, plan['hyperopt']['max_evals'] + 1):
             if stopped:
@@ -205,22 +227,9 @@ def main():
                 write_json(state_path, state)
             sampled = item['hyperopt']['parameters']
             item['head_lr'] = sampled['head_learning_rate']
-            overrides, params = trial_settings(plan, config, sampled)
-            trial_config = {**config, **overrides}
+            nested_plan, model, params = fold_trial_settings(plan, config, sampled, index, folds, uri)
             trial = folder / f'trial-{index:02d}'
             trial.mkdir(exist_ok=True)
-            nested_plan = {**plan, 'grad_accum': trial_config['grad_accum'], 'parent_name': f"lr-cv-trial{index:02d}-lr{item['head_lr']:g}",
-                           'export_dir': str(folds / 'fold-1'),
-                           'export_artifact_uris': {str(folds / f'fold-{n}'): uri + f'/data/fold-{n}'
-                                                    for n in range(1, plan['cv']['n_splits'] + 1)},
-                           'child_name_prefix': f'lr-cv-trial{index:02d}', 'trials': [
-                               {'trial_id': f'fold{fold}', 'head_learning_rate': item['head_lr'],
-                                'weight_decay': trial_config['weight_decay'], 'label_smoothing': trial_config['label_smoothing'],
-                                'window_none_loss_weight': config['window_none_loss_weight'],
-                                'export_dir': str(folds / f'fold-{fold}')}
-                               for fold in range(1, plan['cv']['n_splits'] + 1)]}
-            nested_plan.pop('hyperopt')
-            model = {**trial_config, 'export_dir': nested_plan['export_dir']}
             write_json(trial / 'plan.json', nested_plan, overwrite=False)
             write_json(trial / 'model-config.json', model, overwrite=False)
             tracking = trial / 'folds'
@@ -234,7 +243,6 @@ def main():
             tag(item['run_id'], 'jery.role', 'cv_trial')
             tag(item['run_id'], 'jery.cv_folds', plan['cv']['n_splits'])
             tag(item['run_id'], 'jery.primary_metric', 'cv_search_accuracy')
-            _, params = trial_settings(plan, config, sampled)
             api('mlflow/runs/log-batch', {'run_id': item['run_id'],
                 'params': [{'key': k, 'value': str(v)} for k, v in params.items()]})
             print('START CV TRIAL', index, item['run_id'], item['head_lr'], flush=True)
@@ -252,7 +260,7 @@ def main():
             detail = {'metrics': metrics, 'fold_runs': nested_state['children'],
                       'std': 'sample standard deviation, ddof=1', 'test_role': 'mean over five fold-trained models; excluded from TPE'}
             write_json(trial / 'cv-summary.json', detail)
-            store(item['run_id'], item['artifact_uri'], 'cv-summary.json', trial / 'cv-summary.json')
+            store(item['artifact_uri'], 'cv-summary.json', trial / 'cv-summary.json')
             item.update(status='finished', search_validation=metrics['cv_search_accuracy'], metrics=metrics,
                         fold_run_ids=[c['run_id'] for c in nested_state['children']])
             write_json(state_path, state)
@@ -263,7 +271,7 @@ def main():
             state['selected_trial_run_id'] = winner['run_id']
             tag(parent, 'jery.selected_trial', winner['run_id'])
         write_json(state_path, state)
-        store(parent, uri, 'summary.json', state_path)
+        store(uri, 'summary.json', state_path)
         api('mlflow/runs/update', {'run_id': parent, 'status': 'KILLED' if stopped else 'FINISHED',
                                  'end_time': int(time.time() * 1000)})
     except Exception as error:

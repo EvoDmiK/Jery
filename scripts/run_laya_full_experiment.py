@@ -3,6 +3,7 @@ import argparse
 from datetime import datetime, timezone
 import fcntl
 import hashlib
+from itertools import product
 import json
 import math
 import os
@@ -26,6 +27,8 @@ COMPARISON_PARAMS = {'warmup_steps', 'max_grad_norm', 'lr_scheduler', 'weight_de
 METRICS = {'train_loss', 'val_accuracy', 'val_macro_f1', 'val_coverage',
            'test_accuracy', 'test_macro_f1', 'test_coverage'}
 POLICY_V2 = 'laya-routing-v2'
+SEARCH_CHOICE_KEYS = ('weight_decay', 'label_smoothing', 'window_none_loss_weight',
+                      'warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler')
 
 
 def transient_tracking_error(error):
@@ -148,9 +151,10 @@ def trial_settings(plan, config, sampled):
                  'grad_accum': plan['grad_accum'], 'export_dir': plan['export_dir'], **sampled}
     params = {'head_lr': overrides['head_learning_rate'], 'epochs': overrides['epochs'],
               'seed': overrides['seed'], 'effective_batch_size': overrides['micro_batch'] * overrides['grad_accum']}
-    if 'window_none_loss_weight' in child_param_keys(plan):
+    keys = child_param_keys(plan)
+    if 'window_none_loss_weight' in keys:
         params['window_none_loss_weight'] = overrides.get('window_none_loss_weight', config.get('window_none_loss_weight', 1.0))
-    for key in child_param_keys(plan) & COMPARISON_PARAMS:
+    for key in keys & COMPARISON_PARAMS:
         params[key] = overrides[key] if key in overrides else config[key]
     return overrides, params
 
@@ -161,15 +165,11 @@ def hyperopt_candidate(plan, children):
     from hyperopt import Trials, base, hp, space_eval, tpe, STATUS_OK
     from hyperopt.base import JOB_STATE_DONE
     search = plan['hyperopt']
-    space = {'head_learning_rate': (search['head_lr'][0] if search['head_lr'][0] == search['head_lr'][1]
-                                    else hp.loguniform('head_learning_rate', math.log(search['head_lr'][0]), math.log(search['head_lr'][1]))),
-             'weight_decay': hp.choice('weight_decay', search['weight_decay']),
-             'label_smoothing': hp.choice('label_smoothing', search['label_smoothing'])}
-    if 'window_none_loss_weight' in search:
-        space['window_none_loss_weight'] = hp.choice('window_none_loss_weight', search['window_none_loss_weight'])
-    for key in ('warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'):
-        if key in search:
-            space[key] = hp.choice(key, search[key])
+    lower, upper = search['head_lr']
+    choices = {key: search[key] for key in SEARCH_CHOICE_KEYS if key in search}
+    space = {key: hp.choice(key, values) for key, values in choices.items()}
+    space['head_learning_rate'] = lower if lower == upper else hp.loguniform(
+        'head_learning_rate', math.log(lower), math.log(upper))
     trials = Trials()
     for child in children:
         if child['status'] != 'finished':
@@ -180,22 +180,41 @@ def hyperopt_candidate(plan, children):
     trials.refresh()
     tid = trials.new_trial_ids(1)[0]
     baseline = plan.get('first_trial_parameters')
+    seen = {tuple(sorted(child['hyperopt']['parameters'].items())) for child in children if child.get('hyperopt')}
+    domain = base.Domain(lambda value: value, space)
+    proposal = 'tpe'
     for attempt in range(100):
-        documents = tpe.suggest([tid], base.Domain(lambda value: value, space), trials,
-                                seed=int(plan['seed'] + tid + attempt * 10000), n_startup_jobs=search['startup_trials'])
-        if baseline and tid == 0:
-            for key in documents[0]['misc']['vals']:
-                documents[0]['misc']['vals'][key] = [search[key].index(baseline[key])]
-        values = {key: value[0] for key, value in documents[0]['misc']['vals'].items() if value}
-        parameters = space_eval(space, values)
-        if not baseline or tid == 0 or parameters != baseline:
+        seed = int(plan['seed'] + tid + attempt * 10000)
+        documents = tpe.suggest([tid], domain, trials, seed=seed, n_startup_jobs=search['startup_trials'])
+        vals = documents[0]['misc']['vals']
+        if baseline and not children:
+            for key in choices:
+                vals[key] = [choices[key].index(baseline[key])]
+            proposal = 'reference'
+        parameters = space_eval(space, {key: value[0] for key, value in vals.items() if value})
+        if tuple(sorted(parameters.items())) not in seen:
+            break
+        if lower == upper:
+            # ponytail: the current discrete search has 864 combinations; enumerate only on a collision.
+            # Larger spaces should use a bounded sampler instead of materializing the remaining grid.
+            remaining = []
+            for values in product(*choices.values()):
+                candidate = dict(zip(choices, values), head_learning_rate=lower)
+                if tuple(sorted(candidate.items())) not in seen:
+                    remaining.append(candidate)
+            if not remaining:
+                raise ValueError('Hyperopt search space exhausted: no unseen parameter combinations remain')
+            parameters = remaining[int(np.random.default_rng(seed).integers(len(remaining)))]
+            for key in choices:
+                vals[key] = [choices[key].index(parameters[key])]
+            proposal = 'unseen_grid'
             break
     else:
-        raise ValueError('Could not sample a condition different from the reference')
+        raise ValueError('Could not sample an unseen parameter combination after 100 proposals')
     # Hyperopt uses NumPy scalars; its trial dates are None until the objective is scheduled.
     document = json.loads(json.dumps(documents[0], default=lambda x: x.item() if isinstance(x, np.generic) else str(x)))
     return {'parameters': {k: v.item() if isinstance(v, np.generic) else v for k, v in parameters.items()}, 'document': document,
-            'algorithm': 'hyperopt.tpe.suggest',
+            'algorithm': 'hyperopt.tpe.suggest', 'proposal': proposal,
             'objective': search.get('objective', '1 - best_trained_validation_case_accuracy'
                          if plan.get('training_policy_version') == POLICY_V2 else '1 - best_validation_case_accuracy')}
 

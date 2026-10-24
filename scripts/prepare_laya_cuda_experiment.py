@@ -6,7 +6,7 @@ import math
 from pathlib import Path
 import time
 
-from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, METRICS, POLICY_V2, child_param_keys, write_json
+from run_laya_full_experiment import DEFAULT_TRACKING_URI, ROOT, METRICS, POLICY_V2, SEARCH_CHOICE_KEYS, child_param_keys, write_json
 from run_laya_repeats import upload
 from sync_laya_training_metrics import request
 
@@ -31,17 +31,16 @@ def validate_explicit_plan(plan, config):
     if plan.get('hyperopt'):
         search = plan['hyperopt']
         lower, upper = search['head_lr']
-        if not all(isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and v > 0
-                   for v in (lower, upper)) or lower > upper or (lower == upper and plan.get('cv', {}).get('search_mode') != 'fixed_lr_parameters'):
+        fixed_lr = plan.get('cv', {}).get('search_mode') == 'fixed_lr_parameters'
+        if (not all(type(v) in (int, float) and math.isfinite(v) and v > 0 for v in (lower, upper))
+                or lower > upper or (lower == upper and not fixed_lr)):
             raise ValueError('Invalid learning-rate search range')
-        weights = search.get('window_none_loss_weight')
-        if weights is not None and (plan.get('training_policy_version') != POLICY_V2 or not isinstance(weights, list)
-                or not weights or not all(isinstance(v, (int, float)) and not isinstance(v, bool)
-                                         and math.isfinite(v) and 0 < v <= 1 for v in weights)):
-            raise ValueError('Invalid window_none weight search choices')
-        if weights is not None and 'window_none_loss_weight' not in plan['child_params']:
-            raise ValueError('Searched window_none weight must be tracked as a child parameter')
-        for key in ('warmup_steps', 'grad_accum', 'max_grad_norm', 'lr_scheduler'):
+        if not {'weight_decay', 'label_smoothing'} <= search.keys():
+            raise ValueError('Weight decay and label smoothing choices are required')
+        if 'window_none_loss_weight' in search and (plan.get('training_policy_version') != POLICY_V2
+                or 'window_none_loss_weight' not in plan['child_params']):
+            raise ValueError('Searched window_none weight requires the v2 tracking contract')
+        for key in SEARCH_CHOICE_KEYS:
             if key not in search:
                 continue
             choices = search[key]
@@ -53,9 +52,20 @@ def validate_explicit_plan(plan, config):
                 elif key in ('warmup_steps', 'grad_accum'):
                     valid = type(value) is int and value >= (0 if key == 'warmup_steps' else 1)
                 else:
-                    valid = (type(value) in (int, float) and math.isfinite(value) and value > 0)
+                    valid = type(value) in (int, float) and math.isfinite(value)
+                    if valid:
+                        if key == 'weight_decay':
+                            valid = value >= 0
+                        elif key == 'label_smoothing':
+                            valid = 0 <= value < 1
+                        elif key == 'window_none_loss_weight':
+                            valid = 0 < value <= 1
+                        else:
+                            valid = value > 0
                 if not valid:
                     raise ValueError('Invalid search choice: ' + key)
+            if len(set(choices)) != len(choices):
+                raise ValueError('Duplicate search choices: ' + key)
     if plan.get('training_policy_version') == POLICY_V2:
         if plan['validation_callback'] != config['validation_callback']:
             raise ValueError('Plan/model callback policies differ')

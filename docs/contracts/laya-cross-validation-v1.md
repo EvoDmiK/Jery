@@ -40,3 +40,7 @@ reference_model_config가 있는 CV plan은 head_learning_rate와 models_dir/out
 - Root model config는 기준 snapshot과 일치하며 저장 경로만 분리한다. 조건별 config는 허용한 탐색 override를 반영하고, 한 조건의 5개 fold에는 같은 값을 전달한다.
 - Seed·micro batch·에폭·콜백·입력 형식·고정 base는 유지한다. 실제 유효 배치는 micro batch × accumulation으로 기록한다.
 - 기준 설정은 원래 run의 하이퍼파라미터를 뜻한다. 새 실험은 CV 분할을 사용하므로 원래 단일 split 점수와 같은 결과를 보장하지 않는다.
+
+## 후보 중복 방지 · 2026-10-24 확장
+
+새 후보는 저장된 모든 기존 파라미터 조합과 비교한다. 고정 LR의 유한 탐색에서 TPE 제안이 중복되면 미사용 조합을 seed로 선택하고 실제 선택을 Hyperopt document에도 기록한다. `proposal`은 `reference`, `tpe`, `unseen_grid`로 구분한다. 남은 조합이 없으면 명시적으로 종료한다. 기존 저장 후보는 재추출하지 않으며, 완료된 실험의 기록은 수정하지 않는다.

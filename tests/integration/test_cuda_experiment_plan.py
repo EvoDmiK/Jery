@@ -67,7 +67,9 @@ class CudaExperimentPlanTest(unittest.TestCase):
                              ('grad_accum', [0]), ('grad_accum', [False]),
                              ('max_grad_norm', [float('nan')]), ('max_grad_norm', [0]),
                              ('max_grad_norm', [True]), ('lr_scheduler', ['typo']),
-                             ('lr_scheduler', 'linear')]:
+                             ('lr_scheduler', 'linear'), ('weight_decay', [-.1]),
+                             ('weight_decay', [0., 0]), ('label_smoothing', [1.]),
+                             ('label_smoothing', [float('nan')]), ('label_smoothing', [True])]:
             with self.subTest(key=key, choices=choices):
                 bad = copy.deepcopy(plan)
                 bad['hyperopt'][key] = choices
