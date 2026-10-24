@@ -1,0 +1,23 @@
+{
+  "dataset_version": "hermes-ten-tools-v4",
+  "status": "data_prepared_and_uploaded",
+  "train_rows": 800,
+  "per_tool_rows": 80,
+  "validation_rows": 20,
+  "test_rows": 20,
+  "new_cases": 200,
+  "new_scenario_groups": 120,
+  "new_context_cases": 24,
+  "review_status": "needs_human_review",
+  "training_executed": false,
+  "human_reviewed_new_cases": 0,
+  "native_inputs_checked": 2960,
+  "native_skipped_truncated_mismatches": 0,
+  "data_tests_passed": 37,
+  "catalog_version": "hermes-ten-tools-0b320e20bf3f",
+  "parent_run_id": "ff162f7af7d64c05bd2a9fde44d9d8bd",
+  "verified_artifact_files": 41,
+  "registered_split_datasets": 12,
+  "cv_note": "80 new mixed-label paired groups; existing homogeneous-only splitter must not be used unchanged",
+  "source_sha256": "c35386f468ba12d79d9104402deec97f356d9c717f7c22beb3ee428914f58e59"
+}

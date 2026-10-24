@@ -1,0 +1,250 @@
+{
+  "baseline": {
+    "status": "passed",
+    "native_limits": {
+      "max_len": 1024,
+      "head_max_len": 256
+    },
+    "packages": {
+      "unsloth": "2026.10.6",
+      "laya": "0.4.9",
+      "transformers": "5.17.0"
+    },
+    "splits": {
+      "train": {
+        "windows": 600,
+        "native_builder": {
+          "total": 600,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 358,
+        "original_decisions": {
+          "select_tools": 600
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "validation": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 269,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "test": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 272,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      }
+    }
+  },
+  "description_only": {
+    "status": "passed",
+    "native_limits": {
+      "max_len": 1024,
+      "head_max_len": 256
+    },
+    "packages": {
+      "unsloth": "2026.10.6",
+      "laya": "0.4.9",
+      "transformers": "5.17.0"
+    },
+    "splits": {
+      "train": {
+        "windows": 600,
+        "native_builder": {
+          "total": 600,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 382,
+        "original_decisions": {
+          "select_tools": 600
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "validation": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 293,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "test": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 296,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      }
+    }
+  },
+  "data_only": {
+    "status": "passed",
+    "native_limits": {
+      "max_len": 1024,
+      "head_max_len": 256
+    },
+    "packages": {
+      "unsloth": "2026.10.6",
+      "laya": "0.4.9",
+      "transformers": "5.17.0"
+    },
+    "splits": {
+      "train": {
+        "windows": 800,
+        "native_builder": {
+          "total": 800,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 358,
+        "original_decisions": {
+          "select_tools": 800
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "validation": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 269,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "test": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 272,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      }
+    }
+  },
+  "combined": {
+    "status": "passed",
+    "native_limits": {
+      "max_len": 1024,
+      "head_max_len": 256
+    },
+    "packages": {
+      "unsloth": "2026.10.6",
+      "laya": "0.4.9",
+      "transformers": "5.17.0"
+    },
+    "splits": {
+      "train": {
+        "windows": 800,
+        "native_builder": {
+          "total": 800,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 382,
+        "original_decisions": {
+          "select_tools": 800
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "validation": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 293,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      },
+      "test": {
+        "windows": 20,
+        "native_builder": {
+          "total": 20,
+          "skipped": 0,
+          "reason": null,
+          "truncated": 0
+        },
+        "max_sequence_tokens": 296,
+        "original_decisions": {
+          "select_tools": 20
+        },
+        "feature_mismatches": 0,
+        "target_mismatches": 0,
+        "truncated_or_colliding_inputs": 0
+      }
+    }
+  }
+}

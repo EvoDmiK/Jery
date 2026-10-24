@@ -1,0 +1,43 @@
+{
+  "version": "ten-tool-boundary-audit-v1",
+  "source_cases_sha256": "c35386f468ba12d79d9104402deec97f356d9c717f7c22beb3ee428914f58e59",
+  "source_cases": 200,
+  "scenario_groups": 120,
+  "context_cases": 24,
+  "tool_counts": {
+    "mcp__obsidian_vault__vault": 20,
+    "mcp__obsidian_vault__edit": 20,
+    "mcp__swallow_trader__swallow_get_portfolio": 20,
+    "mcp__swallow_trader__swallow_order": 20,
+    "mcp__swallow_trader__swallow_get_price_history": 20,
+    "mcp__swallow_trader__swallow_get_stock_price": 20,
+    "mcp__obsidian_vault__bases": 20,
+    "mcp__obsidian_vault__dataview": 20,
+    "mcp__obsidian_vault__graph": 20,
+    "mcp__swallow_trader__swallow_backtest": 20
+  },
+  "normalized_exact_overlap": 0,
+  "near_duplicate_threshold": 0.55,
+  "near_duplicate_hits": {
+    "train": [],
+    "validation": [],
+    "test": []
+  },
+  "semantic_independence_guaranteed": false,
+  "human_reviewed": 0,
+  "executed": 0,
+  "source_prior_hashes": {
+    "train": "72b1fa7feff8d3e920b5b6c7db8f8072ac8cf7e1c90a60743de76d19c333eeb6",
+    "validation": "ca67646a3fa4f6daae0d5a41c9874c1eb68eec733b580591c649e66c4c5b973e",
+    "test": "81cc75468526e6eab792c563316872b3c9616acb6f9e7526410f93e861c09091"
+  },
+  "limitations": [
+    "Synthetic author-self-reviewed cases; no independent or human label adjudication",
+    "Paired intents keep shared scenario IDs; mixed-label groups must never be split",
+    "Heldout cases previously observed; preservation does not restore independent evaluation"
+  ],
+  "editorial_changes": [
+    "Replaced one draft Dataview status query similar to existing validation with an independently specified DQL syntax-validation task",
+    "Shortened routing descriptions after native per-option24 token cap failure; model limits unchanged"
+  ]
+}

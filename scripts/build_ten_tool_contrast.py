@@ -129,6 +129,9 @@ def build(base, catalog_dir, authored, criteria_path, dataset, output, dataset_v
                 'scenario_groups': len(groups[split]), 'sha256': hashlib.sha256(text.encode()).hexdigest(),
                 'tool_counts': dict(Counter(r['metadata']['acceptable_choices'][0]['tool'] for r in rows[split]))}
     # All integrity checks complete before creating any output path.
+    if criteria.get('publish_routing_descriptions'):
+        for tool in catalog['tools']:
+            tool['routing_description'] = descriptions[tool['id']]
     dataset.mkdir(parents=True)
     output.mkdir(parents=True)
     if not same_catalog:

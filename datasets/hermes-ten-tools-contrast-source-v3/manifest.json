@@ -1,0 +1,22 @@
+{
+  "dataset_version": "hermes-ten-tools-contrast-source-v3",
+  "rows": 200,
+  "scenario_groups": 120,
+  "context_rows": 24,
+  "per_tool_rows": 20,
+  "split": "train",
+  "source_kind": "synthetic",
+  "author": "codex",
+  "review_status": "needs_human_review",
+  "execution_verified": false,
+  "ai_quality_status": "author_self_inspection_and_automated_checks; not independent review",
+  "sha256": {
+    "cases.jsonl": "c35386f468ba12d79d9104402deec97f356d9c717f7c22beb3ee428914f58e59",
+    "audit.json": "b4246f2f1307ba7b5f871c75dff7aa37ef6092c9502eacc8ca83f9501a9e1388"
+  },
+  "limitations": [
+    "Synthetic author-self-reviewed cases; no independent or human label adjudication",
+    "Paired intents keep shared scenario IDs; mixed-label groups must never be split",
+    "Heldout cases previously observed; preservation does not restore independent evaluation"
+  ]
+}

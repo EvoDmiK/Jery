@@ -1,0 +1,122 @@
+{
+  "experiment": "Jery",
+  "experiment_id": "47",
+  "parent_run_id": "ff162f7af7d64c05bd2a9fde44d9d8bd",
+  "url": "https://mlflow.dove-nest.com/#/experiments/47/runs/ff162f7af7d64c05bd2a9fde44d9d8bd",
+  "status": "verified",
+  "purpose": "dataset preparation only; no training",
+  "profiles": {
+    "baseline": {
+      "run_id": "38deaddfa72f41d68a226d5a5c90f8b3",
+      "artifact_uri": "mlflow-artifacts:/47/38deaddfa72f41d68a226d5a5c90f8b3/artifacts",
+      "status": "FINISHED",
+      "datasets": [
+        {
+          "name": "hermes-ten-tools-v4/baseline/train",
+          "digest": "058bd3f09076fbf5ff0fb2cb4f5bd39a",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/38deaddfa72f41d68a226d5a5c90f8b3/artifacts/data/train.json\"}",
+          "profile": "{\"num_rows\": 600, \"format\": \"decision-export-v2\", \"sha256\": \"058bd3f09076fbf5ff0fb2cb4f5bd39ad2dc9345b48abb10ef8b20b865065f96\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/baseline/validation",
+          "digest": "519047b212369f6620795d4273e553a1",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/38deaddfa72f41d68a226d5a5c90f8b3/artifacts/data/validation.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"519047b212369f6620795d4273e553a101652da7b3dac5a989af27d42b6c6b48\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/baseline/test",
+          "digest": "a6b718b65804559a4f3e35d5f91d58c7",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/38deaddfa72f41d68a226d5a5c90f8b3/artifacts/data/test.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"a6b718b65804559a4f3e35d5f91d58c7738e9a629d9b556d8c15491a0106ca8f\"}"
+        }
+      ]
+    },
+    "description_only": {
+      "run_id": "0cae32b90a534065b7d7bbf2df87fe88",
+      "artifact_uri": "mlflow-artifacts:/47/0cae32b90a534065b7d7bbf2df87fe88/artifacts",
+      "status": "FINISHED",
+      "datasets": [
+        {
+          "name": "hermes-ten-tools-v4/description_only/train",
+          "digest": "1fc4586548248e1cb9abd89e40b24f45",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/0cae32b90a534065b7d7bbf2df87fe88/artifacts/data/train.json\"}",
+          "profile": "{\"num_rows\": 600, \"format\": \"decision-export-v2\", \"sha256\": \"1fc4586548248e1cb9abd89e40b24f45abfba0eefb6e4eac88aa0dabe1f869b4\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/description_only/validation",
+          "digest": "29cb27c0c85aef333c49e74053faee1e",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/0cae32b90a534065b7d7bbf2df87fe88/artifacts/data/validation.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"29cb27c0c85aef333c49e74053faee1e2504b0178c30f242aa414d6cd78a84c3\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/description_only/test",
+          "digest": "a382812fd5eef5494f68c42ef50d70ce",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/0cae32b90a534065b7d7bbf2df87fe88/artifacts/data/test.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"a382812fd5eef5494f68c42ef50d70ceac1475bfc03bc9518144b0f974ea2e86\"}"
+        }
+      ]
+    },
+    "data_only": {
+      "run_id": "98a8587dec424242969594e6e3cad2c5",
+      "artifact_uri": "mlflow-artifacts:/47/98a8587dec424242969594e6e3cad2c5/artifacts",
+      "status": "FINISHED",
+      "datasets": [
+        {
+          "name": "hermes-ten-tools-v4/data_only/train",
+          "digest": "24b8807feb5122f9b1cc51e21016bdbd",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/98a8587dec424242969594e6e3cad2c5/artifacts/data/train.json\"}",
+          "profile": "{\"num_rows\": 800, \"format\": \"decision-export-v2\", \"sha256\": \"24b8807feb5122f9b1cc51e21016bdbd73ed164fa1137580b7691afb20a24cec\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/data_only/validation",
+          "digest": "519047b212369f6620795d4273e553a1",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/98a8587dec424242969594e6e3cad2c5/artifacts/data/validation.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"519047b212369f6620795d4273e553a101652da7b3dac5a989af27d42b6c6b48\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/data_only/test",
+          "digest": "a6b718b65804559a4f3e35d5f91d58c7",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/98a8587dec424242969594e6e3cad2c5/artifacts/data/test.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"a6b718b65804559a4f3e35d5f91d58c7738e9a629d9b556d8c15491a0106ca8f\"}"
+        }
+      ]
+    },
+    "combined": {
+      "run_id": "aa7dd390929147538e1242ce9aba3604",
+      "artifact_uri": "mlflow-artifacts:/47/aa7dd390929147538e1242ce9aba3604/artifacts",
+      "status": "FINISHED",
+      "datasets": [
+        {
+          "name": "hermes-ten-tools-v4/combined/train",
+          "digest": "ed46d0c1ff5285d68221c7aa05e9cf66",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/aa7dd390929147538e1242ce9aba3604/artifacts/data/train.json\"}",
+          "profile": "{\"num_rows\": 800, \"format\": \"decision-export-v2\", \"sha256\": \"ed46d0c1ff5285d68221c7aa05e9cf66e49fa7eb821b665d36a245af3e0cc26b\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/combined/validation",
+          "digest": "29cb27c0c85aef333c49e74053faee1e",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/aa7dd390929147538e1242ce9aba3604/artifacts/data/validation.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"29cb27c0c85aef333c49e74053faee1e2504b0178c30f242aa414d6cd78a84c3\"}"
+        },
+        {
+          "name": "hermes-ten-tools-v4/combined/test",
+          "digest": "a382812fd5eef5494f68c42ef50d70ce",
+          "source_type": "http",
+          "source": "{\"url\": \"https://mlflow.dove-nest.com/api/2.0/mlflow-artifacts/artifacts/47/aa7dd390929147538e1242ce9aba3604/artifacts/data/test.json\"}",
+          "profile": "{\"num_rows\": 20, \"format\": \"decision-export-v2\", \"sha256\": \"a382812fd5eef5494f68c42ef50d70ceac1475bfc03bc9518144b0f974ea2e86\"}"
+        }
+      ]
+    }
+  }
+}

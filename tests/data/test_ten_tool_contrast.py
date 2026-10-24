@@ -103,6 +103,52 @@ class ContrastDataTest(unittest.TestCase):
             build(base, catalog, source, self.criteria, self.root / 'rejected', self.root / 'rejected-export', 'test-v3')
         self.assertFalse((self.root / 'rejected').exists())
 
+    def test_v4_controls_preserve_inputs_and_publish_routing_descriptions(self):
+        self.build()
+        build(self.root / 'export/augmented', self.root / 'dataset',
+              ROOT / 'datasets/hermes-ten-tools-contrast-source-v2/cases.jsonl', self.criteria,
+              self.root / 'v3', self.root / 'v3-export', 'hermes-ten-tools-v3')
+        base = self.root / 'v3-export/augmented'
+        original = {p.name: p.read_bytes() for p in base.iterdir()}
+        authored = ROOT / 'datasets/hermes-ten-tools-contrast-source-v3/cases.jsonl'
+        criteria = ROOT / 'configs/training/laya-ten-tools-criteria-v3-20261024.json'
+        descriptions = {t['id']: t['description'] for t in json.loads(criteria.read_text())['tools']}
+        for name, spec in [('data', self.criteria), ('combined', criteria), ('repeat', criteria)]:
+            result = build(base, self.root / 'v3', authored, spec,
+                           self.root / (name + '-catalog'), self.root / name, 'hermes-ten-tools-v4')
+            self.assertEqual(result['profiles']['augmented']['train']['rows'], 800)
+            self.assertEqual(set(result['profiles']['augmented']['train']['tool_counts'].values()), {80})
+            self.assertEqual(result['profiles']['description_control']['train']['rows'], 600)
+            for split in ('train', 'validation', 'test'):
+                before = list(map(json.loads, original[split + '.jsonl'].splitlines()))
+                after = list(map(json.loads, (self.root / name / 'augmented' / (split + '.jsonl')).read_text().splitlines()))
+                for old, new in zip(before, after):
+                    self.assertEqual(old['state'], new['state'])
+                    self.assertEqual(old['gold'], new['gold'])
+                    self.assertEqual(old['metadata']['alias_to_tool'], new['metadata']['alias_to_tool'])
+                if name == 'data' and split != 'train':
+                    self.assertEqual((self.root / name / 'augmented' / (split + '.jsonl')).read_bytes(), original[split + '.jsonl'])
+        before = json.loads((self.root / 'v3/tools.json').read_text())['tools']
+        after = json.loads((self.root / 'combined-catalog/tools.json').read_text())['tools']
+        for a, b in zip(before, after):
+            self.assertEqual({k: v for k, v in b.items() if k != 'routing_description'}, a)
+            self.assertEqual(b['routing_description'], descriptions[b['id']])
+        for profile in ('description_control', 'augmented'):
+            for path in (self.root / 'combined' / profile).iterdir():
+                self.assertEqual(path.read_bytes(), (self.root / 'repeat' / profile / path.name).read_bytes())
+        self.assertEqual(original, {p.name: p.read_bytes() for p in base.iterdir()})
+        from apps.review.frozen_eval_audit import tokenize_for_similarity
+        heldout = [json.loads(line)['state']['request'] for split in ('validation', 'test')
+                   for line in original[split + '.jsonl'].splitlines()]
+        for case in map(json.loads, authored.read_text().splitlines()):
+            self.assertEqual(case['review_status'], 'needs_human_review')
+            self.assertFalse(case['execution_verified'])
+            self.assertEqual(case['source']['kind'], 'synthetic')
+            tokens = tokenize_for_similarity(case['request'])
+            for text in heldout:
+                other = tokenize_for_similarity(text)
+                self.assertLess(len(tokens & other) / len(tokens | other), .55)
+
     def test_audit_validates_join_grain_and_counts_selected_validation_errors(self):
         rows = list(map(json.loads, (self.base / 'validation.jsonl').read_text().splitlines()))
         predictions = [{'source_id': r['metadata']['source_id'], 'decision': 'select_tools',

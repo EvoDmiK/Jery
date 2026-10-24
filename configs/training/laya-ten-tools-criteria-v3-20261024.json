@@ -1,0 +1,52 @@
+{
+  "dataset_version": "hermes-ten-tools-v4",
+  "source_dataset_version": "hermes-ten-tools-v3",
+  "export_version": "decision-export-v2",
+  "export_scope": "fixed_ten_tools_select_only",
+  "evaluation_task": "ten_tool_choice",
+  "seed": 3407,
+  "tools": [
+    {
+      "id": "mcp__obsidian_vault__vault",
+      "description": "메모 읽기·검색·생성·파일관리. 본문 수정 제외"
+    },
+    {
+      "id": "mcp__obsidian_vault__edit",
+      "description": "기존 메모 본문·제목·속성 수정. 조회 제외"
+    },
+    {
+      "id": "mcp__obsidian_vault__graph",
+      "description": "노트 링크·백링크·연결 경로·태그 관계"
+    },
+    {
+      "id": "mcp__obsidian_vault__dataview",
+      "description": "DQL 조회·문법검사·페이지 속성. .base 제외"
+    },
+    {
+      "id": "mcp__obsidian_vault__bases",
+      "description": ".base 설정·필터·뷰·내보내기. DQL 제외"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_stock_price",
+      "description": "한 종목 현재가·등락·보유정보. 과거 제외"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_price_history",
+      "description": "날짜별 과거 종가·기간·소스 비교. 현재가 제외"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_get_portfolio",
+      "description": "계좌 전체 자산·현금·보유목록·평가손익 조회"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_order",
+      "description": "모의계좌 매수·매도 주문 실행. 잔고조회 제외"
+    },
+    {
+      "id": "mcp__swallow_trader__swallow_backtest",
+      "description": "과거 RSI 전략 수익률·MDD·승률. 주문 아님"
+    }
+  ],
+  "representation_version": "catalog-grounded-boundary-criteria-v3",
+  "publish_routing_descriptions": true
+}
